@@ -1,0 +1,19 @@
+================================================================================
+ANOMALY DETECTION TEST RESULTS
+================================================================================
+
+#     Test Case                      Error (MSE)     Result              
+--------------------------------------------------------------------------------
+1     Normal Sample                  0.065574        NORMAL              
+2     Scenario 1: Sensor Error       0.323568        ANOMALY             
+3     Scenario 2: High Vibration     0.231171        ANOMALY             
+4     Scenario 3: Negative Values    0.142237        ANOMALY             
+--------------------------------------------------------------------------------
+
+Threshold: 0.084852
+
+Analysis:
+   Normal samples: 1
+   Anomaly samples: 3
+   Min error: 0.065574
+   Max error: 0.323568

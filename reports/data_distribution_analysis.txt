@@ -1,0 +1,27 @@
+======================================================================
+DATA DISTRIBUTION ANALYSIS
+======================================================================
+
+BALANCED Distribution:
+   Client 0: Train= 3276, Test= 820
+   Client 1: Train= 3276, Test= 820
+   Client 2: Train= 3276, Test= 820
+   Client 3: Train= 3276, Test= 820
+   Client 4: Train= 3276, Test= 820
+   Client 5: Train= 3276, Test= 820
+   Client 6: Train= 3276, Test= 820
+   Client 7: Train= 3276, Test= 820
+   Client 8: Train= 3276, Test= 820
+   Client 9: Train= 3276, Test= 820
+
+IMBALANCED Distribution:
+   Client 0: Train= 9830, Test=2458 (100.0%)
+   Client 1: Train= 1638, Test= 410 (14.3%)
+   Client 2: Train= 3932, Test= 983 (25.5%)
+   Client 3: Train= 3276, Test= 820 (17.5%)
+   Client 4: Train= 2948, Test= 738 (13.6%)
+   Client 5: Train= 2620, Test= 656 (10.8%)
+   Client 6: Train= 2620, Test= 656 (9.8%)
+   Client 7: Train= 2293, Test= 574 (7.9%)
+   Client 8: Train= 3276, Test= 820 (10.1%)
+   Client 9: Train=  329, Test=  83 (1.0%)
