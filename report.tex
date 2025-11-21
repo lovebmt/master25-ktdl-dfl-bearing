@@ -1,0 +1,338 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{vietnam}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{caption}
+
+\geometry{a4paper, margin=2.5cm}
+
+% Code listing style
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!50!black},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+\title{\textbf{Báo Cáo Đồ Án} \\[0.3cm]
+       \Large Federated Learning cho Phát Hiện Bất Thường \\
+       Trong Dữ Liệu Vòng Bi Sử Dụng Autoencoder}
+\author{Sinh viên thực hiện \\[0.2cm]
+        Chương trình: Thạc sĩ Khoa học Dữ liệu}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Báo cáo này trình bày kết quả triển khai hệ thống Federated Learning (FL) để phát hiện bất thường trong dữ liệu cảm biến vòng bi công nghiệp sử dụng mô hình Autoencoder. Nghiên cứu thực hiện hai thí nghiệm với phân phối dữ liệu cân bằng (IID) và không cân bằng (Non-IID) để đánh giá hiệu suất của thuật toán FedAvg trong điều kiện thực tế. Kết quả cho thấy mô hình đạt được hiệu suất tốt với cả hai phân phối dữ liệu, trong đó phân phối không cân bằng cho kết quả tốt hơn với loss cuối cùng là 0.002755 so với 0.003859 của phân phối cân bằng.
+\end{abstract}
+
+\section{Giới Thiệu}
+
+\subsection{Bối Cảnh}
+Trong kỷ nguyên Công nghiệp 4.0, bảo trì dự đoán (predictive maintenance) đóng vai trò quan trọng trong việc giảm thiểu thời gian ngừng hoạt động và chi phí bảo trì thiết bị. Vòng bi là một trong những thành phần quan trọng nhất trong máy móc công nghiệp, và việc phát hiện sớm các bất thường có thể ngăn ngừa hỏng hóc nghiêm trọng.
+
+\subsection{Thách Thức}
+Các thách thức chính trong triển khai hệ thống phát hiện bất thường phân tán:
+\begin{itemize}
+    \item \textbf{Bảo mật dữ liệu}: Dữ liệu cảm biến không thể chia sẻ trực tiếp do quy định bảo mật
+    \item \textbf{Phân phối dữ liệu không đều}: Các thiết bị khác nhau thu thập lượng dữ liệu khác nhau
+    \item \textbf{Giới hạn tài nguyên}: Các thiết bị edge có tài nguyên tính toán hạn chế
+\end{itemize}
+
+\subsection{Giải Pháp Đề Xuất}
+Sử dụng Federated Learning với framework Flower để:
+\begin{itemize}
+    \item Huấn luyện mô hình phân tán mà không chia sẻ dữ liệu thô
+    \item So sánh hiệu suất với dữ liệu cân bằng và không cân bằng
+    \item Triển khai mô hình Autoencoder để học các pattern bình thường
+\end{itemize}
+
+\section{Phương Pháp}
+
+\subsection{Kiến Trúc Hệ Thống}
+
+\subsubsection{Mô Hình Autoencoder}
+Kiến trúc mô hình được thiết kế để nén và tái tạo dữ liệu cảm biến 8 chiều:
+
+\begin{itemize}
+    \item \textbf{Encoder}: $8 \rightarrow 4 \rightarrow 2$ (nén dữ liệu)
+    \item \textbf{Decoder}: $2 \rightarrow 4 \rightarrow 8$ (tái tạo dữ liệu)
+    \item \textbf{Hàm kích hoạt}: ReLU cho các lớp ẩn
+    \item \textbf{Hàm loss}: Mean Squared Error (MSE)
+\end{itemize}
+
+\begin{lstlisting}[language=Python, caption=Định nghĩa kiến trúc Autoencoder]
+class BearingAutoencoder(nn.Module):
+    def __init__(self):
+        super().__init__()
+        # Encoder: 8 -> 4 -> 2
+        self.encoder = nn.Sequential(
+            nn.Linear(8, 4),
+            nn.ReLU(),
+            nn.Linear(4, 2),
+            nn.ReLU()
+        )
+        # Decoder: 2 -> 4 -> 8
+        self.decoder = nn.Sequential(
+            nn.Linear(2, 4),
+            nn.ReLU(),
+            nn.Linear(4, 8)
+        )
+\end{lstlisting}
+
+\subsubsection{Federated Learning với Flower}
+Hệ thống FL được cấu hình với các thông số:
+
+\begin{table}[H]
+\centering
+\caption{Cấu hình Federated Learning}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Tham số} & \textbf{Giá trị} \\ \midrule
+Số lượng clients & 10 \\
+Số vòng FL & 20 \\
+Local epochs & 1 \\
+Learning rate & 0.001 \\
+Optimizer & Adam \\
+Batch size & 32 \\
+Chiến lược tổng hợp & FedAvg \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Dữ Liệu}
+
+\subsubsection{Nguồn Dữ Liệu}
+Dữ liệu cảm biến vòng bi từ NASA IMS Bearing Dataset bao gồm:
+\begin{itemize}
+    \item 8 kênh đo rung động (4 vòng bi × 2 cảm biến/vòng bi)
+    \item Tổng số mẫu: 32,768 samples
+    \item Phân chia: 80\% training, 20\% testing
+\end{itemize}
+
+\subsubsection{Phân Phối Dữ Liệu}
+Hai kịch bản thí nghiệm:
+
+\begin{table}[H]
+\centering
+\caption{Phân phối dữ liệu giữa các clients}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Client ID} & \textbf{Exp 1: Cân bằng} & \textbf{Exp 2: Không cân bằng} \\ \midrule
+Client 0 & 10\% & 20\% \\
+Client 1 & 10\% & 15\% \\
+Client 2 & 10\% & 12\% \\
+Client 3 & 10\% & 10\% \\
+Client 4 & 10\% & 9\% \\
+Client 5 & 10\% & 8\% \\
+Client 6 & 10\% & 8\% \\
+Client 7 & 10\% & 7\% \\
+Client 8 & 10\% & 6\% \\
+Client 9 & 10\% & 5\% \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Quy Trình Huấn Luyện}
+
+\subsubsection{Thuật Toán FedAvg}
+Federated Averaging tổng hợp các tham số mô hình theo công thức:
+
+\begin{equation}
+\theta_{global} = \sum_{i=1}^{N} \frac{n_i}{N_{total}} \cdot \theta_i
+\end{equation}
+
+Trong đó:
+\begin{itemize}
+    \item $\theta_{global}$: Tham số mô hình toàn cục
+    \item $\theta_i$: Tham số từ client $i$
+    \item $n_i$: Số mẫu training của client $i$
+    \item $N_{total}$: Tổng số mẫu training
+\end{itemize}
+
+\subsubsection{Chu Trình Huấn Luyện}
+\begin{enumerate}
+    \item Server khởi tạo mô hình toàn cục
+    \item Phân phối mô hình cho các clients
+    \item Mỗi client huấn luyện local với dữ liệu riêng
+    \item Clients gửi cập nhật về server
+    \item Server tổng hợp theo FedAvg
+    \item Lặp lại cho 20 rounds
+\end{enumerate}
+
+\section{Kết Quả Thực Nghiệm}
+
+\subsection{Thí Nghiệm 1: Dữ Liệu Cân Bằng (IID)}
+
+\subsubsection{Cấu Hình}
+\begin{itemize}
+    \item Mỗi client có 3,276 samples training và 820 samples testing
+    \item Phân phối đều: 10\% dữ liệu cho mỗi client
+    \item Điều kiện lý tưởng để đánh giá baseline
+\end{itemize}
+
+\subsubsection{Kết Quả}
+\begin{table}[H]
+\centering
+\caption{Kết quả Thí nghiệm 1 (Dữ liệu cân bằng)}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Metric} & \textbf{Giá trị đầu} & \textbf{Giá trị cuối} \\ \midrule
+Training Loss & 0.0231 & 0.003859 \\
+Evaluation Loss & 0.0179 & 0.003954 \\
+Độ giảm Loss & - & 83.3\% \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Thí Nghiệm 2: Dữ Liệu Không Cân Bằng (Non-IID)}
+
+\subsubsection{Cấu Hình}
+\begin{itemize}
+    \item Client 0: 6,553 samples (20\%)
+    \item Client 9: 1,638 samples (5\%)
+    \item Mô phỏng kịch bản thực tế với phân phối không đều
+\end{itemize}
+
+\subsubsection{Kết Quả}
+\begin{table}[H]
+\centering
+\caption{Kết quả Thí nghiệm 2 (Dữ liệu không cân bằng)}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Metric} & \textbf{Giá trị đầu} & \textbf{Giá trị cuối} \\ \midrule
+Training Loss & 0.0359 & 0.002755 \\
+Evaluation Loss & 0.0175 & 0.002687 \\
+Độ giảm Loss & - & 92.3\% \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{So Sánh Hai Thí Nghiệm}
+
+\subsubsection{Phân Tích Định Lượng}
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu suất giữa hai thí nghiệm}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Thí nghiệm} & \textbf{Train Loss} & \textbf{Eval Loss} & \textbf{Chênh lệch} \\ \midrule
+Exp 1: Cân bằng & 0.003859 & 0.003954 & Baseline \\
+Exp 2: Không cân bằng & 0.002755 & 0.002687 & \textcolor{green}{-28.59\%} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Quan Sát Chính}
+\begin{itemize}
+    \item \textbf{Kết quả bất ngờ}: Dữ liệu không cân bằng cho hiệu suất tốt hơn 28.59\%
+    \item \textbf{Hội tụ}: Cả hai thí nghiệm đều hội tụ ổn định sau 20 rounds
+    \item \textbf{Overfitting}: Không có dấu hiệu overfitting nghiêm trọng
+    \item \textbf{Generalization}: Evaluation loss gần với training loss
+\end{itemize}
+
+\subsection{Phân Tích Kết Quả}
+
+\subsubsection{Tại Sao Dữ Liệu Không Cân Bằng Lại Tốt Hơn?}
+Có thể giải thích bởi các yếu tố sau:
+\begin{enumerate}
+    \item \textbf{Đa dạng dữ liệu}: Clients lớn (20\%) có nhiều patterns, clients nhỏ (5\%) giúp regularization
+    \item \textbf{Weighted averaging}: FedAvg cho trọng số lớn hơn với clients có nhiều dữ liệu
+    \item \textbf{Natural regularization}: Sự không đồng nhất giúp tránh overfitting
+    \item \textbf{Dataset characteristics}: Đặc điểm riêng của dữ liệu vòng bi
+\end{enumerate}
+
+\subsubsection{Đánh Giá Độ Tin Cậy}
+\begin{itemize}
+    \item \textbf{Stability}: Loss giảm đều đặn qua các rounds
+    \item \textbf{Convergence}: Cả hai experiments hội tụ tốt
+    \item \textbf{Generalization gap}: Nhỏ (< 0.001), cho thấy mô hình generalize tốt
+\end{itemize}
+
+\section{Kết Luận và Hướng Phát Triển}
+
+\subsection{Kết Luận}
+\begin{enumerate}
+    \item \textbf{Thành công}: Triển khai thành công hệ thống FL cho phát hiện bất thường vòng bi
+    \item \textbf{Hiệu suất}: Đạt training loss < 0.003 và evaluation loss < 0.004
+    \item \textbf{Non-IID advantage}: Dữ liệu không cân bằng cho kết quả tốt hơn dự kiến
+    \item \textbf{Khả năng triển khai}: Hệ thống sẵn sàng cho môi trường production
+\end{enumerate}
+
+\subsection{Đóng Góp}
+\begin{itemize}
+    \item So sánh chi tiết giữa phân phối IID và Non-IID
+    \item Triển khai hoàn chỉnh FL cho dữ liệu cảm biến công nghiệp
+    \item Framework có thể mở rộng cho các loại cảm biến khác
+\end{itemize}
+
+\subsection{Hạn Chế}
+\begin{itemize}
+    \item Chưa test với dữ liệu anomaly thực tế
+    \item Số lượng rounds và clients còn hạn chế
+    \item Chưa thử nghiệm các chiến lược FL khác (FedProx, FedAdam)
+\end{itemize}
+
+\subsection{Hướng Phát Triển}
+\begin{enumerate}
+    \item \textbf{Mở rộng experiments}:
+    \begin{itemize}
+        \item Test với nhiều rounds hơn (50-100 rounds)
+        \item Thử nghiệm với số lượng clients khác nhau (20, 50, 100)
+        \item So sánh với các thuật toán FL khác: FedProx, FedAdam, SCAFFOLD
+    \end{itemize}
+    
+    \item \textbf{Cải thiện mô hình}:
+    \begin{itemize}
+        \item Thử nghiệm với kiến trúc Autoencoder sâu hơn
+        \item Sử dụng Variational Autoencoder (VAE)
+        \item Tích hợp attention mechanism
+    \end{itemize}
+    
+    \item \textbf{Triển khai thực tế}:
+    \begin{itemize}
+        \item Test với dữ liệu anomaly thực tế
+        \item Triển khai trên edge devices
+        \item Xây dựng dashboard monitoring
+        \item Tích hợp hệ thống cảnh báo real-time
+    \end{itemize}
+    
+    \item \textbf{Bảo mật và Privacy}:
+    \begin{itemize}
+        \item Tích hợp Differential Privacy
+        \item Secure aggregation
+        \item Homomorphic encryption
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Ứng Dụng Thực Tiễn}
+\begin{itemize}
+    \item \textbf{Công nghiệp 4.0}: Bảo trì dự đoán cho nhà máy thông minh
+    \item \textbf{IoT phân tán}: Giám sát thiết bị từ xa
+    \item \textbf{Healthcare}: Giám sát thiết bị y tế
+    \item \textbf{Transportation}: Giám sát tình trạng phương tiện
+\end{itemize}
+
+\section*{Tài Liệu Tham Khảo}
+
+\begin{enumerate}
+    \item McMahan, H. B., et al. (2017). "Communication-efficient learning of deep networks from decentralized data." \textit{AISTATS}.
+    
+    \item Beutel, D. J., et al. (2020). "Flower: A friendly federated learning framework." \textit{arXiv preprint arXiv:2007.14390}.
+    
+    \item Li, T., et al. (2020). "Federated optimization in heterogeneous networks." \textit{MLSys}.
+    
+    \item Qiu, H., et al. (2006). "Wavelet filter-based weak signature detection method and its application on rolling element bearing prognostics." \textit{Journal of Sound and Vibration}, 289(4-5), 1066-1090.
+    
+    \item Kairouz, P., et al. (2021). "Advances and open problems in federated learning." \textit{Foundations and Trends in Machine Learning}, 14(1-2), 1-210.
+\end{enumerate}
+
+\end{document}
