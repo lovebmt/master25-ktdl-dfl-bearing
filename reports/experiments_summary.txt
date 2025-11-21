@@ -3,8 +3,8 @@ SUMMARY TABLE
 ======================================================================
 Experiment                     Final Train Loss     Final Eval Loss     
 ----------------------------------------------------------------------
-Exp 1: FedAvg (Balanced)       0.003856             0.004009            
-Exp 2: FedAvg (Imbalanced)     0.003782             0.003672            
+Exp 1: FedAvg (Balanced)       0.003913             0.004060            
+Exp 2: FedAvg (Imbalanced)     0.003188             0.003042            
 ======================================================================
 
-Performance difference (Exp 2 vs Exp 1): -1.92%
+Performance difference (Exp 2 vs Exp 1): -18.52%

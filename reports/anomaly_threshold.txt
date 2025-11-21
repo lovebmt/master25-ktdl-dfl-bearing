@@ -2,11 +2,11 @@
 ANOMALY THRESHOLD
 ================================================================================
 
-95th Percentile: 0.084852
-Mean + 2×Std:    0.088951
+95th Percentile: 0.079331
+Mean + 2×Std:    0.083409
 
-Selected threshold: 0.084852 (95th percentile)
+Selected threshold: 0.079331 (95th percentile)
 
 RULE:
-   Error < 0.084852 -> NORMAL
-   Error > 0.084852 -> ANOMALY
+   Error < 0.079331 -> NORMAL
+   Error > 0.079331 -> ANOMALY

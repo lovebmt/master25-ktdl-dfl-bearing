@@ -15,9 +15,11 @@ import flwr as fl
 from flwr.common import Context, Metrics, NDArrays, Scalar
 from flwr.server.strategy import FedAvg
 from flwr.simulation import start_simulation
-
+import os
+os.environ["TUNE_DISABLE_AUTO_CALLBACK_LOGGERS"] = "1"
 import ray
 import logging
+
 
 os.environ["RAY_LOG_TO_STDERR"] = "0"
 os.environ["RAY_BACKEND_LOG_LEVEL"] = "ERROR"
@@ -159,7 +161,7 @@ def load_data(partition_id: int, num_partitions: int, batch_size: int = 128,
     testloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
     return trainloader, testloader
 
-def train(net, trainloader, epochs, device, lr=0.001):
+def train_model(net, trainloader, epochs, device, lr=0.001):
     net.to(device)
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=lr)
@@ -178,7 +180,7 @@ def train(net, trainloader, epochs, device, lr=0.001):
     avg_loss = epoch_loss / len(trainloader)
     return avg_loss
 
-def test(net, testloader, device):
+def test_model(net, testloader, device):
     net.to(device)
     criterion = torch.nn.MSELoss()
     net.eval()
@@ -220,7 +222,7 @@ class BearingClient(fl.client.NumPyClient):
 
     def fit(self, parameters: NDArrays, config: Dict[str, Scalar]) -> Tuple[NDArrays, int, Dict[str, Scalar]]:
         self.set_parameters(parameters)
-        train_loss = train(self.model, self.trainloader, epochs=self.local_epochs, 
+        train_loss = train_model(self.model, self.trainloader, epochs=self.local_epochs, 
                           device=self.device, lr=self.lr)
         return (
             self.get_parameters(config={}),
@@ -230,7 +232,7 @@ class BearingClient(fl.client.NumPyClient):
 
     def evaluate(self, parameters: NDArrays, config: Dict[str, Scalar]) -> Tuple[float, int, Dict[str, Scalar]]:
         self.set_parameters(parameters)
-        test_loss, _ = test(self.model, self.testloader, device=self.device)
+        test_loss, _ = test_model(self.model, self.testloader, device=self.device)
         return (test_loss, len(self.testloader.dataset), {"eval_loss": test_loss})
 
 _num_clients = 10

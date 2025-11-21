@@ -164,3 +164,8 @@ cython_debug/
 datasets/
 uv.lock
 .gitignore
+report.synctex.gz
+report.out
+report.toc
+.gitignore
+.gitignore
