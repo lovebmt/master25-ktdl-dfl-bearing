@@ -95,6 +95,29 @@ Autoencoder được thiết kế để học representation của dữ liệu n
 
 \textbf{Rationale:} Autoencoder học reconstruct dữ liệu bình thường. Khi gặp anomaly (bearing fault), reconstruction error sẽ cao hơn nhiều, cho phép phát hiện.
 
+\textbf{MSE Formula và Computation:}
+
+Loss function được sử dụng là Mean Squared Error (MSE):
+$$MSE = \frac{1}{n} \sum_{i=1}^{n} (x_i - \hat{x}_i)^2$$
+
+Trong đó:
+\begin{itemize}
+    \item $x_i$: giá trị gốc từ cảm biến thứ $i$
+    \item $\hat{x}_i$: giá trị tái tạo từ autoencoder cho cảm biến thứ $i$
+    \item $n$: số lượng features (8 sensors trong bearing dataset)
+\end{itemize}
+
+\textbf{Decision Rule cho Anomaly Detection:}
+$$\text{Classification} = \begin{cases} 
+\text{NORMAL} & \text{if } MSE < \text{Threshold} \\
+\text{ANOMALY} & \text{if } MSE \geq \text{Threshold}
+\end{cases}$$
+
+\textbf{Threshold Calculation:}
+$$\text{Threshold} = \text{Percentile}_{95}(\{MSE_i\}_{i=1}^{N})$$
+
+Trong đó $N$ là tổng số test samples trong validation set.
+
 \section{Cấu Hình Decentralized Federated Learning}
 
 Triển khai DFL thuần túy với kiến trúc P2P Ring Topology:

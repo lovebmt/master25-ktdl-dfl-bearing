@@ -1,75 +1,4 @@
 
-\section{Bearing Dataset và Sensor Data Visualization}
-
-\subsection{Bearing System Overview}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{image/bearing.png}
-\caption{Cấu trúc hệ thống bearing với 8 cảm biến rung động}
-\end{figure}
-
-\textbf{Cấu hình hệ thống:}
-\begin{itemize}
-    \item \textbf{Dataset Source:} NASA IMS Bearing Dataset
-    \item \textbf{Sensors:} 8 cảm biến rung động (vibration sensors)
-    \item \textbf{Measurement:} Gia tốc rung động (acceleration) theo các trục khác nhau
-    \item \textbf{Sampling:} Thu thập liên tục trong quá trình vận hành
-    \item \textbf{Purpose:} Phát hiện sớm các dấu hiệu hư hỏng bearing trong máy móc công nghiệp
-\end{itemize}
-
-\subsection{Sensor Data Pattern Analysis}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth]{image/sensor_data_visualization.png}
-\caption{Visualization của sensor data patterns cho normal và anomaly scenarios}
-\end{figure}
-
-\textbf{Pattern Analysis:}
-
-\begin{enumerate}
-    \item \textbf{Normal Sample Pattern:}
-    \begin{itemize}
-        \item Tất cả 8 sensors có giá trị ổn định trong khoảng 0.04-0.08
-        \item Không có spike bất thường
-        \item Pattern đồng đều giữa các sensors
-        \item Reconstruction error thấp ($< 0.003$)
-    \end{itemize}
-    
-    \item \textbf{Scenario 1 - Sensor Error:}
-    \begin{itemize}
-        \item Sensor 2 và 5 có giá trị cao bất thường ($> 0.7$)
-        \item Chênh lệch lớn so với các sensors khác
-        \item Biểu hiện của sensor malfunction hoặc electrical noise
-        \item Reconstruction error rất cao ($> 0.2$)
-    \end{itemize}
-    
-    \item \textbf{Scenario 2 - High Vibration:}
-    \begin{itemize}
-        \item Tất cả sensors đều tăng giá trị (0.15-0.25)
-        \item Tăng đồng loạt, cho thấy vibration toàn hệ thống
-        \item Có thể do imbalance, misalignment, hoặc bearing wear
-        \item Reconstruction error trung bình ($0.04-0.08$)
-    \end{itemize}
-    
-    \item \textbf{Scenario 3 - Negative Values:}
-    \begin{itemize}
-        \item Một số sensors có giá trị âm ($-0.05$ đến $-0.02$)
-        \item Vi phạm physical constraints (acceleration không nên âm)
-        \item Có thể do sensor calibration error hoặc data corruption
-        \item Reconstruction error vừa phải ($0.01-0.02$)
-    \end{itemize}
-\end{enumerate}
-
-\textbf{Reconstruction Quality:}
-\begin{itemize}
-    \item Autoencoder tái tạo tốt pattern của normal samples
-    \item Các anomaly patterns không được tái tạo chính xác
-    \item Sự khác biệt giữa original và reconstructed values tạo nên detection signal
-    \item MSE được tính từ sự chênh lệch này để classify normal vs anomaly
-\end{itemize}
-
 \section{Dataset và Phân Phối Dữ Liệu Giữa Các Peers}
 
 Trong kiến trúc Decentralized Federated Learning (DFL), dữ liệu được phân phối giữa 10 peers theo cấu trúc ring topology. Chúng tôi thực hiện hai scenarios phân phối dữ liệu:
@@ -417,29 +346,6 @@ Negative Values & 0.007802 & 0.010645 & +36.4\% & Both OK \\
     \item \textbf{Threshold Selection:} 95th percentile phù hợp cho cả hai scenarios
     \item \textbf{Practical Use:} Balanced distribution được recommend cho anomaly detection tasks
 \end{itemize}
-
-\subsection{MSE Formula và Computation}
-
-\textbf{MSE Formula:}
-$$MSE = \frac{1}{n} \sum_{i=1}^{n} (x_i - \hat{x}_i)^2$$
-
-Trong đó:
-\begin{itemize}
-    \item $x_i$: giá trị gốc từ cảm biến thứ $i$
-    \item $\hat{x}_i$: giá trị tái tạo từ autoencoder cho cảm biến thứ $i$
-    \item $n$: số lượng features (8 sensors trong bearing dataset)
-\end{itemize}
-
-\textbf{Decision Rule:}
-$$\text{Classification} = \begin{cases} 
-\text{NORMAL} & \text{if } MSE < \text{Threshold} \\
-\text{ANOMALY} & \text{if } MSE \geq \text{Threshold}
-\end{cases}$$
-
-\textbf{Threshold Calculation:}
-$$\text{Threshold} = \text{Percentile}_{95}(\{MSE_i\}_{i=1}^{N})$$
-
-Trong đó $N$ là tổng số test samples trong validation set.
 
 \section{Tổng Kết và Đánh Giá}
 
