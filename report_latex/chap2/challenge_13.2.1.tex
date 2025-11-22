@@ -1,7 +1,7 @@
 
 \section{Khái niệm FL và DFL}
 
-\hspace{0.6cm}Federated Learning (FL) là phương pháp học máy phân tán trong đó mô hình được 
+\hspace{0.6cm}Federated Learning (FL) \cite{mcmahan2016} là phương pháp học máy phân tán trong đó mô hình được 
 huấn luyện trực tiếp trên từng thiết bị hoặc node mà không cần tập trung dữ liệu 
 về server trung tâm. Các thiết bị chỉ gửi \textit{model updates} (như gradients 
 hoặc weights) thay vì gửi dữ liệu thô, giúp giảm rủi ro rò rỉ thông tin và giảm tải 
@@ -140,11 +140,11 @@ smart factory, smart home, autonomous vehicles và mạng cảm biến phân tá
 
 \textbf{Hội tụ khó khăn:}  
 Do không có server trung tâm, mô hình toàn hệ thống dễ bị phân kỳ, đặc biệt trong 
-môi trường Non-IID và khi các updates không đồng bộ.
+môi trường Non-IID \cite{li2018} và khi các updates không đồng bộ.
 
 \textbf{Communication overhead:}  
 Mỗi node phải trao đổi mô hình với nhiều neighbors, dẫn đến tổng chi phí giao tiếp 
-cao hơn FL truyền thống.
+cao hơn FL truyền thống \cite{kairouz2019}.
 
 \textbf{Bảo mật và tính toàn vẹn:}  
 Mạng P2P dễ bị tấn công như:
