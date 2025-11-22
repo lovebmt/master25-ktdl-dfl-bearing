@@ -1,6 +1,6 @@
 // Slide Navigation
 let currentSlide = 1;
-const totalSlides = 10;
+const totalSlides = 14;
 
 function updateSlide() {
     // Hide all slides
@@ -28,11 +28,30 @@ function updateSlide() {
     prevBtn.disabled = currentSlide === 1;
     nextBtn.disabled = currentSlide === totalSlides;
     
+    // Update sidebar active item
+    document.querySelectorAll('.sidebar-item').forEach((item, index) => {
+        if (index + 1 === currentSlide) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+    
     // Update URL hash
     window.location.hash = `slide${currentSlide}`;
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Toggle Sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('open');
+    } else {
+        sidebar.classList.toggle('collapsed');
+    }
 }
 
 function nextSlide() {
