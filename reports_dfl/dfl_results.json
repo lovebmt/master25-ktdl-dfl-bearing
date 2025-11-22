@@ -1,0 +1,616 @@
+{
+  "metadata": {
+    "generated_at": "2025-11-22T20:09:37.848628",
+    "architecture": "Decentralized Federated Learning (DFL)",
+    "communication": "Peer-to-Peer (P2P)",
+    "topology": "Ring",
+    "aggregation": "Local at each peer"
+  },
+  "configuration": {
+    "num_peers": 10,
+    "num_rounds": 50,
+    "local_epochs": 1,
+    "learning_rate": 0.001,
+    "batch_size": 128,
+    "device": "cpu"
+  },
+  "data_distribution_analysis": {
+    "balanced": {
+      "peers": [
+        {
+          "peer_id": 0,
+          "train_samples": 3276
+        },
+        {
+          "peer_id": 1,
+          "train_samples": 3276
+        },
+        {
+          "peer_id": 2,
+          "train_samples": 3276
+        },
+        {
+          "peer_id": 3,
+          "train_samples": 3276
+        },
+        {
+          "peer_id": 4,
+          "train_samples": 3276
+        },
+        {
+          "peer_id": 5,
+          "train_samples": 3276
+        },
+        {
+          "peer_id": 6,
+          "train_samples": 3276
+        },
+        {
+          "peer_id": 7,
+          "train_samples": 3276
+        },
+        {
+          "peer_id": 8,
+          "train_samples": 3276
+        },
+        {
+          "peer_id": 9,
+          "train_samples": 3276
+        }
+      ],
+      "total_samples": 32760,
+      "mean_samples": 3276.0,
+      "std_samples": 0.0
+    },
+    "imbalanced": {
+      "peers": [
+        {
+          "peer_id": 0,
+          "train_samples": 9830,
+          "percentage": 30.004273243391733
+        },
+        {
+          "peer_id": 1,
+          "train_samples": 1638,
+          "percentage": 4.999694768329162
+        },
+        {
+          "peer_id": 2,
+          "train_samples": 3932,
+          "percentage": 12.001709297356694
+        },
+        {
+          "peer_id": 3,
+          "train_samples": 3276,
+          "percentage": 9.999389536658324
+        },
+        {
+          "peer_id": 4,
+          "train_samples": 2948,
+          "percentage": 8.998229656309139
+        },
+        {
+          "peer_id": 5,
+          "train_samples": 2620,
+          "percentage": 7.997069775959953
+        },
+        {
+          "peer_id": 6,
+          "train_samples": 2620,
+          "percentage": 7.997069775959953
+        },
+        {
+          "peer_id": 7,
+          "train_samples": 2293,
+          "percentage": 6.99896221231915
+        },
+        {
+          "peer_id": 8,
+          "train_samples": 3276,
+          "percentage": 9.999389536658324
+        },
+        {
+          "peer_id": 9,
+          "train_samples": 329,
+          "percentage": 1.0042121970575668
+        }
+      ],
+      "total_samples": 32762,
+      "mean_samples": 3276.2,
+      "std_samples": 2380.916831810805
+    }
+  },
+  "experiments": {
+    "balanced": {
+      "data_distribution": "balanced",
+      "convergence": {
+        "train_losses": {
+          "max": 0.03345530717991866,
+          "min": 0.0021642461159409815,
+          "avg": 0.004449900692185531,
+          "median": 0.0031701284429380815
+        },
+        "eval_losses": {
+          "max": 0.02351197240475033,
+          "min": 0.0022318847677005186,
+          "avg": 0.004250623983696902,
+          "median": 0.0032133872720545957
+        },
+        "initial_train_loss": 0.03345530717991866,
+        "final_train_loss": 0.0021642461159409815,
+        "train_loss_reduction": 0.03129106106397768,
+        "initial_eval_loss": 0.02351197240475033,
+        "final_eval_loss": 0.0022318847677005186,
+        "eval_loss_reduction": 0.021280087637049812
+      },
+      "individual_peers": [
+        {
+          "peer_id": 0,
+          "train_losses": {
+            "max": 0.04303330118552996,
+            "min": 0.002049291672077603,
+            "avg": 0.004630842263846157,
+            "median": 0.0030346952083234032
+          },
+          "eval_losses": {
+            "max": 0.030758664810231755,
+            "min": 0.0024384681933692525,
+            "avg": 0.004927301348320076,
+            "median": 0.003633167943917215
+          },
+          "final_train_loss": 0.002049291672077603,
+          "final_eval_loss": 0.0024384681933692525,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 1,
+          "train_losses": {
+            "max": 0.025768963906627435,
+            "min": 0.0019768167313976358,
+            "avg": 0.004094456512516794,
+            "median": 0.0029380349800563776
+          },
+          "eval_losses": {
+            "max": 0.016815667705876485,
+            "min": 0.0017558503064459988,
+            "avg": 0.003454329449284289,
+            "median": 0.0026538390832554016
+          },
+          "final_train_loss": 0.0019768167313976358,
+          "final_eval_loss": 0.0017728158439110433,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 2,
+          "train_losses": {
+            "max": 0.021735307617256276,
+            "min": 0.002579952975233587,
+            "avg": 0.004766379028666191,
+            "median": 0.0037779794567121337
+          },
+          "eval_losses": {
+            "max": 0.014734443809304918,
+            "min": 0.002017293923667499,
+            "avg": 0.003814647554952119,
+            "median": 0.0030059993233797805
+          },
+          "final_train_loss": 0.002580001215951947,
+          "final_eval_loss": 0.002017293923667499,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 3,
+          "train_losses": {
+            "max": 0.050917883905080646,
+            "min": 0.0023074573568569925,
+            "avg": 0.004955613393282804,
+            "median": 0.003429147705901414
+          },
+          "eval_losses": {
+            "max": 0.03435930396829333,
+            "min": 0.00163784551633788,
+            "avg": 0.003387178336270154,
+            "median": 0.0023087173883271006
+          },
+          "final_train_loss": 0.0023114880045446064,
+          "final_eval_loss": 0.0016384068044966885,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 4,
+          "train_losses": {
+            "max": 0.03053387555365379,
+            "min": 0.0020870833272615876,
+            "avg": 0.00424857053341559,
+            "median": 0.003158837812057195
+          },
+          "eval_losses": {
+            "max": 0.023070383816957474,
+            "min": 0.002192417791645442,
+            "avg": 0.004132193080482207,
+            "median": 0.003158458242458957
+          },
+          "final_train_loss": 0.0020870833272615876,
+          "final_eval_loss": 0.0021950656082481146,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 5,
+          "train_losses": {
+            "max": 0.03723086610149879,
+            "min": 0.0021234190252681193,
+            "avg": 0.00448907755001878,
+            "median": 0.00310437585442112
+          },
+          "eval_losses": {
+            "max": 0.025599298200437,
+            "min": 0.002151215066468077,
+            "avg": 0.004141504771874419,
+            "median": 0.003091842634603381
+          },
+          "final_train_loss": 0.0021255748668828835,
+          "final_eval_loss": 0.0021531347218634827,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 6,
+          "train_losses": {
+            "max": 0.055392163734023385,
+            "min": 0.0022439794847741723,
+            "avg": 0.0049444729178391685,
+            "median": 0.003217873311279198
+          },
+          "eval_losses": {
+            "max": 0.03684387994664056,
+            "min": 0.0020849243238834398,
+            "avg": 0.004382326192488628,
+            "median": 0.00301860216339784
+          },
+          "final_train_loss": 0.0022442759811663283,
+          "final_eval_loss": 0.0020873524814045857,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 7,
+          "train_losses": {
+            "max": 0.012186673290740985,
+            "min": 0.0021017958956340756,
+            "avg": 0.0038061197438778787,
+            "median": 0.003005348342972306
+          },
+          "eval_losses": {
+            "max": 0.009679637782807862,
+            "min": 0.002637257533414023,
+            "avg": 0.0045271460519039205,
+            "median": 0.0037282101859870765
+          },
+          "final_train_loss": 0.0021046311549770716,
+          "final_eval_loss": 0.002637257533414023,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 8,
+          "train_losses": {
+            "max": 0.014354430533085879,
+            "min": 0.0019339057572114353,
+            "avg": 0.0037593350479773317,
+            "median": 0.0028000362486077044
+          },
+          "eval_losses": {
+            "max": 0.01021096988448075,
+            "min": 0.0022772247570433785,
+            "avg": 0.003981341091982488,
+            "median": 0.0031710586211244974
+          },
+          "final_train_loss": 0.0019339057572114353,
+          "final_eval_loss": 0.0022772247570433785,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 9,
+          "train_losses": {
+            "max": 0.04339960597168941,
+            "min": 0.0022199358253811416,
+            "avg": 0.004804139930414609,
+            "median": 0.0032349555090499613
+          },
+          "eval_losses": {
+            "max": 0.03304747412247317,
+            "min": 0.003101827809587121,
+            "avg": 0.005758271959410715,
+            "median": 0.0043639771340947065
+          },
+          "final_train_loss": 0.0022293924479387128,
+          "final_eval_loss": 0.003101827809587121,
+          "num_samples": 3276
+        }
+      ],
+      "anomaly_detection": {
+        "threshold": 0.005889632739126682,
+        "test_results": [
+          {
+            "name": "Normal Sample",
+            "error": 0.0014919902896508574,
+            "is_anomaly": false
+          },
+          {
+            "name": "Scenario 1: Sensor Error",
+            "error": 0.23797200620174408,
+            "is_anomaly": true
+          },
+          {
+            "name": "Scenario 2: High Vibration",
+            "error": 0.04012273624539375,
+            "is_anomaly": true
+          },
+          {
+            "name": "Scenario 3: Negative Values",
+            "error": 0.010442310944199562,
+            "is_anomaly": true
+          }
+        ]
+      }
+    },
+    "imbalanced": {
+      "data_distribution": "imbalanced",
+      "convergence": {
+        "train_losses": {
+          "max": 0.028282358269844092,
+          "min": 0.002897529647591378,
+          "avg": 0.004995053151567019,
+          "median": 0.00395414712493423
+        },
+        "eval_losses": {
+          "max": 0.02080974707812337,
+          "min": 0.0027054776906706617,
+          "avg": 0.004538453160847781,
+          "median": 0.0037378656798613347
+        },
+        "initial_train_loss": 0.028282358269844092,
+        "final_train_loss": 0.0029033686618885274,
+        "train_loss_reduction": 0.025378989607955565,
+        "initial_eval_loss": 0.02080974707812337,
+        "final_eval_loss": 0.0027054776906706617,
+        "eval_loss_reduction": 0.018104269387452708
+      },
+      "individual_peers": [
+        {
+          "peer_id": 0,
+          "train_losses": {
+            "max": 0.016626594678873754,
+            "min": 0.0027774633664347523,
+            "avg": 0.004375408362028757,
+            "median": 0.003661095252405707
+          },
+          "eval_losses": {
+            "max": 0.006535874586552382,
+            "min": 0.002867122186580673,
+            "avg": 0.0040857627122895795,
+            "median": 0.0036391470872331414
+          },
+          "final_train_loss": 0.0027774633664347523,
+          "final_eval_loss": 0.0028759650129359217,
+          "num_samples": 9830
+        },
+        {
+          "peer_id": 1,
+          "train_losses": {
+            "max": 0.046716394332739025,
+            "min": 0.0029413796280725645,
+            "avg": 0.005506661827675998,
+            "median": 0.003983253702664604
+          },
+          "eval_losses": {
+            "max": 0.03667434025555849,
+            "min": 0.002355167642235756,
+            "avg": 0.004423459331737831,
+            "median": 0.0031290242332033813
+          },
+          "final_train_loss": 0.0029414046125916336,
+          "final_eval_loss": 0.002362445229664445,
+          "num_samples": 1638
+        },
+        {
+          "peer_id": 2,
+          "train_losses": {
+            "max": 0.020221689565768166,
+            "min": 0.00270381243148398,
+            "avg": 0.004405985096349351,
+            "median": 0.0036902213018507727
+          },
+          "eval_losses": {
+            "max": 0.010713779949583113,
+            "min": 0.002382279999437742,
+            "avg": 0.003582558393245563,
+            "median": 0.0032042365201050416
+          },
+          "final_train_loss": 0.0027067618324391305,
+          "final_eval_loss": 0.002382279999437742,
+          "num_samples": 3932
+        },
+        {
+          "peer_id": 3,
+          "train_losses": {
+            "max": 0.020269049976307612,
+            "min": 0.00301376567222178,
+            "avg": 0.004861128771176132,
+            "median": 0.004157785711308511
+          },
+          "eval_losses": {
+            "max": 0.013316844190870012,
+            "min": 0.0025693575984665324,
+            "avg": 0.003954684401729277,
+            "median": 0.003553162661514112
+          },
+          "final_train_loss": 0.00301376567222178,
+          "final_eval_loss": 0.0025693575984665324,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 4,
+          "train_losses": {
+            "max": 0.024841744258689385,
+            "min": 0.0025648950540926307,
+            "avg": 0.004370867060788442,
+            "median": 0.003514775341803518
+          },
+          "eval_losses": {
+            "max": 0.01903519717355569,
+            "min": 0.003228872548788786,
+            "avg": 0.0053530744168286525,
+            "median": 0.004635933243359128
+          },
+          "final_train_loss": 0.00257074231437097,
+          "final_eval_loss": 0.003228872548788786,
+          "num_samples": 2948
+        },
+        {
+          "peer_id": 5,
+          "train_losses": {
+            "max": 0.02056215557136706,
+            "min": 0.0029616430290930326,
+            "avg": 0.004896915938616508,
+            "median": 0.00406556628045759
+          },
+          "eval_losses": {
+            "max": 0.012757506221532822,
+            "min": 0.002462691472222408,
+            "avg": 0.003924253742831449,
+            "median": 0.003462612434911231
+          },
+          "final_train_loss": 0.0029616430290930326,
+          "final_eval_loss": 0.0024721130612306297,
+          "num_samples": 2620
+        },
+        {
+          "peer_id": 6,
+          "train_losses": {
+            "max": 0.011988797535498938,
+            "min": 0.002785539664771585,
+            "avg": 0.004545833761803807,
+            "median": 0.003848585061773303
+          },
+          "eval_losses": {
+            "max": 0.009621355527391037,
+            "min": 0.002166954548253367,
+            "avg": 0.003667587936700632,
+            "median": 0.0031211158105482655
+          },
+          "final_train_loss": 0.002785539664771585,
+          "final_eval_loss": 0.002166954548253367,
+          "num_samples": 2620
+        },
+        {
+          "peer_id": 7,
+          "train_losses": {
+            "max": 0.029673190890914865,
+            "min": 0.002684595179744065,
+            "avg": 0.004806723065105163,
+            "median": 0.0037542790200354326
+          },
+          "eval_losses": {
+            "max": 0.024069958925247194,
+            "min": 0.0022604425437748434,
+            "avg": 0.004144676716066897,
+            "median": 0.0032313055358827118
+          },
+          "final_train_loss": 0.002684595179744065,
+          "final_eval_loss": 0.0022785870125517247,
+          "num_samples": 2293
+        },
+        {
+          "peer_id": 8,
+          "train_losses": {
+            "max": 0.048493416263506964,
+            "min": 0.0029896635812922167,
+            "avg": 0.005607523595054562,
+            "median": 0.0041038511106028
+          },
+          "eval_losses": {
+            "max": 0.03540663979947567,
+            "min": 0.0035828558528529747,
+            "avg": 0.006143942557142249,
+            "median": 0.004931012817126299
+          },
+          "final_train_loss": 0.0029896635812922167,
+          "final_eval_loss": 0.0035888646795813528,
+          "num_samples": 3276
+        },
+        {
+          "peer_id": 9,
+          "train_losses": {
+            "max": 0.044612577805916466,
+            "min": 0.0034440627011160054,
+            "avg": 0.006573484037071465,
+            "median": 0.004750480138075848
+          },
+          "eval_losses": {
+            "max": 0.04176114499568939,
+            "min": 0.003119006985798478,
+            "avg": 0.006104531399905681,
+            "median": 0.004471106454730034
+          },
+          "final_train_loss": 0.003602107365926107,
+          "final_eval_loss": 0.003129337215796113,
+          "num_samples": 329
+        }
+      ],
+      "anomaly_detection": {
+        "threshold": 0.007386153098195791,
+        "test_results": [
+          {
+            "name": "Normal Sample",
+            "error": 0.0027317055501043797,
+            "is_anomaly": false
+          },
+          {
+            "name": "Scenario 1: Sensor Error",
+            "error": 0.2552454173564911,
+            "is_anomaly": true
+          },
+          {
+            "name": "Scenario 2: High Vibration",
+            "error": 0.07742778956890106,
+            "is_anomaly": true
+          },
+          {
+            "name": "Scenario 3: Negative Values",
+            "error": 0.010739401914179325,
+            "is_anomaly": true
+          }
+        ]
+      }
+    }
+  },
+  "summary_table": {
+    "balanced": {
+      "experiment": "DFL Balanced",
+      "final_train_loss": 0.0021642461159409815,
+      "final_eval_loss": 0.0022318847677005186,
+      "train_loss_reduction": 0.03129106106397768,
+      "eval_loss_reduction": 0.021280087637049812
+    },
+    "imbalanced": {
+      "experiment": "DFL Imbalanced",
+      "final_train_loss": 0.0029033686618885274,
+      "final_eval_loss": 0.0027054776906706617,
+      "train_loss_reduction": 0.025378989607955565,
+      "eval_loss_reduction": 0.018104269387452708
+    }
+  },
+  "generated_files": {
+    "visualizations": [
+      "sensor_data_visualization.png",
+      "mse_distribution_threshold.png",
+      "anomaly_detection_comparison.png",
+      "data_distribution_visualization.png",
+      "ring_topology.png",
+      "peer_losses.png",
+      "experiments_comparison.png",
+      "final_loss_comparison.png"
+    ],
+    "reports": [
+      "dfl_results.json"
+    ]
+  }
+}

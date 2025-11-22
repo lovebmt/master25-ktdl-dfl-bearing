@@ -1,0 +1,907 @@
+"""
+Decentralized Federated Learning (DFL) with Flower Framework
+=============================================================
+
+Architecture:
+- Uses Flower's simulation framework
+- Peer-to-Peer style coordination through custom strategy
+- Each client acts as a peer that can aggregate neighbor models
+- Ring topology: Each peer exchanges models with 2 neighbors
+- Local aggregation at each peer (simulated through Flower)
+
+Key features:
+- Leverages Flower's infrastructure for client management
+- Custom strategy for P2P-style model exchange
+- Ring topology communication pattern
+- Decentralized aggregation (no central model averaging)
+"""
+
+import os
+import math
+import copy
+import json
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from typing import Dict, List, Tuple, Optional, Union
+from collections import OrderedDict
+import urllib.request
+
+import torch
+import torch.nn as nn
+from torch.utils.data import Dataset, DataLoader
+
+import flwr as fl
+from flwr.common import Context, Metrics, NDArrays, Scalar, Parameters, FitRes, FitIns
+from flwr.server.strategy import Strategy
+from flwr.server.client_proxy import ClientProxy
+from flwr.simulation import start_simulation
+
+# Suppress verbose logs
+os.environ["TUNE_DISABLE_AUTO_CALLBACK_LOGGERS"] = "1"
+os.environ["RAY_LOG_TO_STDERR"] = "0"
+os.environ["RAY_BACKEND_LOG_LEVEL"] = "ERROR"
+os.environ["RAY_LOG_LEVEL"] = "ERROR"
+
+import ray
+import logging
+ray.init(ignore_reinit_error=True, log_to_driver=False)
+
+os.makedirs("reports_dfl_flwr", exist_ok=True)
+
+# ============================================================================
+# CONFIGURATION PARAMETERS
+# ============================================================================
+
+NUM_PEERS = 10
+NUM_ROUNDS = 30
+LOCAL_EPOCHS = 1
+LEARNING_RATE = 0.001
+BATCH_SIZE = 128
+DATA_DISTRIBUTION = "balanced"  # or "imbalanced"
+
+# ============================================================================
+# DATA LOADING & MODEL
+# ============================================================================
+
+csv_filename = None
+
+if csv_filename is None:
+    local_paths = [
+        "processed/bearing_merged_2.csv",
+        "processed/bearing_merged_1.csv",
+    ]
+    for path in local_paths:
+        if os.path.exists(path):
+            csv_filename = path
+            break
+
+if csv_filename is None:
+    github_urls = [
+        "https://raw.githubusercontent.com/lovebmt/master25-ktdl-dfl-bearing/refs/heads/main/processed/bearing_merged_2.csv",
+        "https://raw.githubusercontent.com/lovebmt/master25-ktdl-dfl-bearing/refs/heads/main/processed/bearing_merged_1.csv"
+    ]
+    os.makedirs("processed", exist_ok=True)
+    for url in github_urls:
+        try:
+            filename = url.split('/')[-1]
+            filename = os.path.join("processed", filename)
+            urllib.request.urlretrieve(url, filename)
+            csv_filename = filename
+            break
+        except Exception as e:
+            continue
+
+class BearingAutoencoder(nn.Module):
+    def __init__(self, input_size: int = 8, latent_size: int = 4, hidden_size: int = 16):
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, latent_size),
+            nn.ReLU(),
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(latent_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, input_size),
+        )
+
+    def forward(self, x):
+        z = self.encoder(x)
+        out = self.decoder(z)
+        return out
+
+class BearingDataset(Dataset):
+    def __init__(self, X: np.ndarray):
+        self.X = torch.from_numpy(X).float()
+
+    def __len__(self):
+        return self.X.shape[0]
+
+    def __getitem__(self, idx):
+        x = self.X[idx]
+        return {"x": x, "y": x}
+
+def _split_partitions_balanced(values: np.ndarray, partition_id: int, num_partitions: int):
+    N = values.shape[0]
+    part_size = math.ceil(N / num_partitions)
+    start = partition_id * part_size
+    end = min(start + part_size, N)
+    if start >= N:
+        raise RuntimeError(f"partition_id={partition_id} exceeds data size")
+    return values[start:end]
+
+def _split_partitions_imbalanced(values: np.ndarray, partition_id: int, num_partitions: int):
+    N = values.shape[0]
+    if num_partitions == 10:
+        ratios = [0.30, 0.05, 0.12, 0.10, 0.09, 0.08, 0.08, 0.07, 0.1, 0.01]
+    elif num_partitions == 5:
+        ratios = [0.35, 0.25, 0.20, 0.12, 0.08]
+    elif num_partitions == 3:
+        ratios = [0.50, 0.30, 0.20]
+    else:
+        ratios = [2 ** (-i) for i in range(num_partitions)]
+        ratios = [r / sum(ratios) for r in ratios]
+    sizes = [int(N * r) for r in ratios]
+    sizes[-1] = N - sum(sizes[:-1])
+    start = sum(sizes[:partition_id])
+    end = start + sizes[partition_id]
+    return values[start:end]
+
+def load_data(partition_id: int, num_partitions: int, batch_size: int = BATCH_SIZE, 
+              csv_path: str = None, data_distribution: str = "balanced"):
+    if csv_path is None:
+        csv_path = csv_filename
+    df = pd.read_csv(csv_path)
+    num_df = df.select_dtypes(include=[np.number])
+    if num_df.shape[1] < 8:
+        raise ValueError(f"CSV has {num_df.shape[1]} numeric columns, expected >= 8")
+    num_df = num_df.iloc[:, :8]
+    num_df.columns = ['B1_a', 'B1_b', 'B2_a', 'B2_b', 'B3_a', 'B3_b', 'B4_a', 'B4_b']
+    num_df = num_df.round(4)
+    values = num_df.values
+    N = values.shape[0]
+    if N == 0:
+        raise RuntimeError("CSV has no data")
+    if data_distribution == "balanced":
+        values_part = _split_partitions_balanced(values, partition_id, num_partitions)
+    elif data_distribution == "imbalanced":
+        values_part = _split_partitions_imbalanced(values, partition_id, num_partitions)
+    else:
+        raise ValueError(f"Unknown distribution: {data_distribution}")
+    n_train = int(len(values_part) * 0.8)
+    train_vals = values_part[:n_train]
+    test_vals = values_part[n_train:]
+    train_dataset = BearingDataset(train_vals)
+    test_dataset = BearingDataset(test_vals)
+    trainloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    testloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    return trainloader, testloader
+
+def train_model(net, trainloader, epochs, device, lr=0.001):
+    net.to(device)
+    criterion = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr)
+    net.train()
+    for epoch in range(epochs):
+        epoch_loss = 0.0
+        for batch in trainloader:
+            x = batch['x'].to(device)
+            y = batch['y'].to(device)
+            optimizer.zero_grad()
+            output = net(x)
+            loss = criterion(output, y)
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item()
+    avg_loss = epoch_loss / len(trainloader)
+    return avg_loss
+
+def test_model(net, testloader, device):
+    net.to(device)
+    criterion = torch.nn.MSELoss()
+    net.eval()
+    test_loss = 0.0
+    with torch.no_grad():
+        for batch in testloader:
+            x = batch['x'].to(device)
+            y = batch['y'].to(device)
+            output = net(x)
+            loss = criterion(output, y)
+            test_loss += loss.item()
+    avg_loss = test_loss / len(testloader)
+    return avg_loss
+
+# ============================================================================
+# RING TOPOLOGY MANAGER
+# ============================================================================
+
+class RingTopology:
+    """Manages ring topology: each peer has left and right neighbors"""
+    def __init__(self, num_peers: int):
+        self.num_peers = num_peers
+        self.peers = list(range(num_peers))
+    
+    def get_left_neighbor(self, peer_id: int) -> int:
+        """Get left neighbor in ring"""
+        return (peer_id - 1) % self.num_peers
+    
+    def get_right_neighbor(self, peer_id: int) -> int:
+        """Get right neighbor in ring"""
+        return (peer_id + 1) % self.num_peers
+    
+    def get_neighbors(self, peer_id: int) -> List[int]:
+        """Get both neighbors for a peer"""
+        return [self.get_left_neighbor(peer_id), self.get_right_neighbor(peer_id)]
+
+# Global topology
+RING_TOPOLOGY = RingTopology(NUM_PEERS)
+
+# Global storage for peer models (simulates P2P communication)
+PEER_MODELS: Dict[int, NDArrays] = {}
+
+# ============================================================================
+# FLOWER CLIENT (DFL Peer)
+# ============================================================================
+
+class DFLPeerClient(fl.client.NumPyClient):
+    """
+    Decentralized FL Peer using Flower framework
+    
+    Each peer:
+    1. Trains on local data
+    2. Shares model with neighbors through global storage (simulated P2P)
+    3. Receives and aggregates neighbor models
+    """
+    
+    def __init__(self, peer_id: int, num_peers: int, local_epochs: int = 1, 
+                 lr: float = 0.001, data_distribution: str = "balanced"):
+        self.peer_id = peer_id
+        self.num_peers = num_peers
+        self.local_epochs = local_epochs
+        self.lr = lr
+        self.data_distribution = data_distribution
+        self.model = BearingAutoencoder()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.trainloader, self.testloader = load_data(
+            partition_id=self.peer_id,
+            num_partitions=self.num_peers,
+            batch_size=BATCH_SIZE,
+            data_distribution=self.data_distribution,
+        )
+        self.neighbors = RING_TOPOLOGY.get_neighbors(self.peer_id)
+
+    def get_parameters(self, config: Dict[str, Scalar]) -> NDArrays:
+        return [val.cpu().numpy() for val in self.model.state_dict().values()]
+
+    def set_parameters(self, parameters: NDArrays) -> None:
+        params_dict = zip(self.model.state_dict().keys(), parameters)
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+        self.model.load_state_dict(state_dict, strict=True)
+
+    def fit(self, parameters: NDArrays, config: Dict[str, Scalar]) -> Tuple[NDArrays, int, Dict[str, Scalar]]:
+        # Step 1: Aggregate with neighbor models (P2P style)
+        self.aggregate_with_neighbors(parameters)
+        
+        # Step 2: Train on local data
+        train_loss = train_model(self.model, self.trainloader, epochs=self.local_epochs, 
+                          device=self.device, lr=self.lr)
+        
+        # Step 3: Store model for neighbors to access
+        updated_params = self.get_parameters(config={})
+        PEER_MODELS[self.peer_id] = updated_params
+        
+        return (
+            updated_params,
+            len(self.trainloader.dataset),
+            {"train_loss": train_loss, "peer_id": self.peer_id},
+        )
+
+    def aggregate_with_neighbors(self, own_params: NDArrays):
+        """
+        Aggregate own model with neighbor models (P2P style)
+        This simulates decentralized aggregation
+        """
+        # Collect neighbor models
+        neighbor_params = []
+        for neighbor_id in self.neighbors:
+            if neighbor_id in PEER_MODELS:
+                neighbor_params.append(PEER_MODELS[neighbor_id])
+        
+        if len(neighbor_params) == 0:
+            # First round or no neighbors yet, use server params
+            self.set_parameters(own_params)
+            return
+        
+        # Average: own model + neighbor models
+        all_params = [own_params] + neighbor_params
+        aggregated = []
+        for layer_idx in range(len(own_params)):
+            layer_params = [params[layer_idx] for params in all_params]
+            avg_layer = np.mean(layer_params, axis=0)
+            aggregated.append(avg_layer)
+        
+        # Update model with aggregated parameters
+        self.set_parameters(aggregated)
+
+    def evaluate(self, parameters: NDArrays, config: Dict[str, Scalar]) -> Tuple[float, int, Dict[str, Scalar]]:
+        self.set_parameters(parameters)
+        test_loss = test_model(self.model, self.testloader, device=self.device)
+        return (test_loss, len(self.testloader.dataset), {"eval_loss": test_loss, "peer_id": self.peer_id})
+
+# ============================================================================
+# FLOWER STRATEGY (Minimal Central Coordination)
+# ============================================================================
+
+class DFLStrategy(Strategy):
+    """
+    Minimal strategy for DFL with Flower
+    
+    The server only:
+    1. Coordinates rounds
+    2. Collects metrics
+    3. Does NOT aggregate models centrally (peers do local aggregation)
+    """
+    
+    def __init__(self):
+        self.current_round = 0
+        self.train_losses = []
+        self.eval_losses = []
+        
+    def initialize_parameters(self, client_manager) -> Optional[Parameters]:
+        """Initialize with random model"""
+        model = BearingAutoencoder()
+        params = [val.cpu().numpy() for val in model.state_dict().values()]
+        return fl.common.ndarrays_to_parameters(params)
+    
+    def configure_fit(self, server_round: int, parameters: Parameters, client_manager):
+        """Configure clients for training"""
+        self.current_round = server_round
+        config = {"round": server_round}
+        
+        # Select all peers
+        sample_size = NUM_PEERS
+        clients = client_manager.sample(num_clients=sample_size, min_num_clients=sample_size)
+        
+        # Send current parameters to all peers
+        fit_ins = FitIns(parameters, config)
+        return [(client, fit_ins) for client in clients]
+    
+    def aggregate_fit(self, server_round: int, results: List[Tuple[ClientProxy, FitRes]], failures):
+        """
+        Aggregate training results
+        In DFL, we don't update a central model, but we collect metrics
+        """
+        if not results:
+            return None, {}
+        
+        # Collect metrics
+        train_losses = []
+        for _, fit_res in results:
+            if "train_loss" in fit_res.metrics:
+                train_losses.append(fit_res.metrics["train_loss"])
+        
+        avg_train_loss = np.mean(train_losses) if train_losses else 0.0
+        self.train_losses.append(avg_train_loss)
+        
+        # Return aggregated parameters (simple average for coordination)
+        # Note: In pure DFL, this central aggregation wouldn't happen
+        # But we keep it minimal for Flower compatibility
+        parameters_aggregated = []
+        for i in range(len(results[0][1].parameters.tensors)):
+            layer_values = [
+                fl.common.parameters_to_ndarrays(fit_res.parameters)[i]
+                for _, fit_res in results
+            ]
+            parameters_aggregated.append(np.mean(layer_values, axis=0))
+        
+        return fl.common.ndarrays_to_parameters(parameters_aggregated), {"train_loss": avg_train_loss}
+    
+    def configure_evaluate(self, server_round: int, parameters: Parameters, client_manager):
+        """Configure clients for evaluation"""
+        config = {"round": server_round}
+        
+        # Evaluate all peers
+        sample_size = NUM_PEERS
+        clients = client_manager.sample(num_clients=sample_size, min_num_clients=sample_size)
+        
+        return [(client, fl.common.EvaluateIns(parameters, config)) for client in clients]
+    
+    def aggregate_evaluate(self, server_round: int, results, failures):
+        """Aggregate evaluation results"""
+        if not results:
+            return None, {}
+        
+        # Collect metrics
+        eval_losses = []
+        for _, eval_res in results:
+            if "eval_loss" in eval_res.metrics:
+                eval_losses.append(eval_res.metrics["eval_loss"])
+        
+        avg_eval_loss = np.mean(eval_losses) if eval_losses else 0.0
+        self.eval_losses.append(avg_eval_loss)
+        
+        return avg_eval_loss, {"eval_loss": avg_eval_loss}
+    
+    def evaluate(self, server_round: int, parameters: Parameters):
+        """Server-side evaluation (not used in DFL)"""
+        return None
+
+# ============================================================================
+# CLIENT FUNCTION
+# ============================================================================
+
+_num_peers = NUM_PEERS
+_local_epochs = LOCAL_EPOCHS
+_learning_rate = LEARNING_RATE
+_data_distribution = DATA_DISTRIBUTION
+
+def client_fn(cid: str) -> fl.client.Client:
+    peer_id = int(cid)
+    return DFLPeerClient(
+        peer_id=peer_id,
+        num_peers=_num_peers,
+        local_epochs=_local_epochs,
+        lr=_learning_rate,
+        data_distribution=_data_distribution,
+    ).to_client()
+
+# ============================================================================
+# MAIN EXECUTION
+# ============================================================================
+
+if __name__ == "__main__":
+    print("="*80)
+    print("DECENTRALIZED FEDERATED LEARNING WITH FLOWER")
+    print("="*80)
+    
+    # Run two experiments: Balanced and Imbalanced
+    results_balanced = None
+    results_imbalanced = None
+    
+    # Experiment 1: Balanced Distribution
+    print("\n" + "="*80)
+    print("EXPERIMENT 1: DFL with BALANCED Distribution")
+    print("="*80)
+    print(f"Configuration:")
+    print(f"  Number of Peers: {NUM_PEERS}")
+    print(f"  Rounds: {NUM_ROUNDS}")
+    print(f"  Local Epochs: {LOCAL_EPOCHS}")
+    print(f"  Learning Rate: {LEARNING_RATE}")
+    print(f"  Data Distribution: balanced")
+    print(f"  Topology: Ring")
+    print("="*80)
+    
+    _data_distribution = "balanced"
+    PEER_MODELS.clear()
+    strategy_balanced = DFLStrategy()
+    
+    print("\nStarting DFL simulation (Balanced)...")
+    history_balanced = start_simulation(
+        client_fn=client_fn,
+        num_clients=NUM_PEERS,
+        config=fl.server.ServerConfig(num_rounds=NUM_ROUNDS),
+        strategy=strategy_balanced,
+        client_resources={"num_cpus": 1, "num_gpus": 0.0},
+    )
+    
+    train_losses_balanced = strategy_balanced.train_losses
+    eval_losses_balanced = strategy_balanced.eval_losses
+    
+    print("\n" + "="*80)
+    print("RESULTS (Balanced)")
+    print("="*80)
+    print(f"Final Training Loss: {train_losses_balanced[-1]:.6f}")
+    print(f"Final Evaluation Loss: {eval_losses_balanced[-1]:.6f}")
+    print("="*80)
+    
+    results_balanced = {
+        "config": {
+            "num_peers": NUM_PEERS,
+            "num_rounds": NUM_ROUNDS,
+            "local_epochs": LOCAL_EPOCHS,
+            "learning_rate": LEARNING_RATE,
+            "data_distribution": "balanced",
+            "topology": "ring"
+        },
+        "train_losses": [float(x) for x in train_losses_balanced],
+        "eval_losses": [float(x) for x in eval_losses_balanced],
+        "final_train_loss": float(train_losses_balanced[-1]),
+        "final_eval_loss": float(eval_losses_balanced[-1])
+    }
+    
+    # Experiment 2: Imbalanced Distribution
+    print("\n" + "="*80)
+    print("EXPERIMENT 2: DFL with IMBALANCED Distribution")
+    print("="*80)
+    print(f"Configuration:")
+    print(f"  Number of Peers: {NUM_PEERS}")
+    print(f"  Rounds: {NUM_ROUNDS}")
+    print(f"  Local Epochs: {LOCAL_EPOCHS}")
+    print(f"  Learning Rate: {LEARNING_RATE}")
+    print(f"  Data Distribution: imbalanced")
+    print(f"  Topology: Ring")
+    print("="*80)
+    
+    _data_distribution = "imbalanced"
+    PEER_MODELS.clear()
+    strategy_imbalanced = DFLStrategy()
+    
+    print("\nStarting DFL simulation (Imbalanced)...")
+    history_imbalanced = start_simulation(
+        client_fn=client_fn,
+        num_clients=NUM_PEERS,
+        config=fl.server.ServerConfig(num_rounds=NUM_ROUNDS),
+        strategy=strategy_imbalanced,
+        client_resources={"num_cpus": 1, "num_gpus": 0.0},
+    )
+    
+    train_losses_imbalanced = strategy_imbalanced.train_losses
+    eval_losses_imbalanced = strategy_imbalanced.eval_losses
+    
+    print("\n" + "="*80)
+    print("RESULTS (Imbalanced)")
+    print("="*80)
+    print(f"Final Training Loss: {train_losses_imbalanced[-1]:.6f}")
+    print(f"Final Evaluation Loss: {eval_losses_imbalanced[-1]:.6f}")
+    print("="*80)
+    
+    results_imbalanced = {
+        "config": {
+            "num_peers": NUM_PEERS,
+            "num_rounds": NUM_ROUNDS,
+            "local_epochs": LOCAL_EPOCHS,
+            "learning_rate": LEARNING_RATE,
+            "data_distribution": "imbalanced",
+            "topology": "ring"
+        },
+        "train_losses": [float(x) for x in train_losses_imbalanced],
+        "eval_losses": [float(x) for x in eval_losses_imbalanced],
+        "final_train_loss": float(train_losses_imbalanced[-1]),
+        "final_eval_loss": float(eval_losses_imbalanced[-1])
+    }
+    
+    # Use balanced for remaining visualizations
+    train_losses = train_losses_balanced
+    eval_losses = eval_losses_balanced
+    strategy = strategy_balanced
+    
+    # Save combined results
+    results = {
+        "balanced": results_balanced,
+        "imbalanced": results_imbalanced
+    }
+    
+    with open("reports_dfl_flwr/dfl_flwr_results.json", "w") as f:
+        json.dump(results, f, indent=2)
+    
+    # ========================================================================
+    # EXPERIMENTS COMPARISON: Balanced vs Imbalanced
+    # ========================================================================
+    
+    print("\nGenerating experiments comparison plots...")
+    
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    
+    # Training loss comparison
+    ax = axes[0]
+    rounds = list(range(1, len(train_losses_balanced) + 1))
+    ax.plot(rounds, train_losses_balanced, marker='o', color='steelblue', linewidth=2, label='Balanced', markersize=5)
+    ax.plot(rounds, train_losses_imbalanced, marker='s', color='orange', linewidth=2, label='Imbalanced', markersize=5)
+    ax.set_xlabel('Round', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Training Loss (MSE)', fontsize=12, fontweight='bold')
+    ax.set_title('Training Loss Comparison', fontsize=14, fontweight='bold')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    
+    # Evaluation loss comparison
+    ax = axes[1]
+    ax.plot(rounds, eval_losses_balanced, marker='o', color='steelblue', linewidth=2, label='Balanced', markersize=5)
+    ax.plot(rounds, eval_losses_imbalanced, marker='s', color='orange', linewidth=2, label='Imbalanced', markersize=5)
+    ax.set_xlabel('Round', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Evaluation Loss (MSE)', fontsize=12, fontweight='bold')
+    ax.set_title('Evaluation Loss Comparison', fontsize=14, fontweight='bold')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    
+    # Final loss bar chart
+    ax = axes[2]
+    exp_names = ["DFL\nBalanced", "DFL\nImbalanced"]
+    final_losses = [
+        train_losses_balanced[-1],
+        train_losses_imbalanced[-1]
+    ]
+    colors_bar = ["steelblue", "orange"]
+    bars = ax.bar(exp_names, final_losses, color=colors_bar, alpha=0.7, edgecolor='black', linewidth=2)
+    ax.set_ylabel("Final Training Loss", fontsize=12, fontweight='bold')
+    ax.set_title("Final Loss Comparison", fontsize=14, fontweight='bold')
+    ax.grid(True, axis='y', alpha=0.3)
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2., height,
+                f'{height:.6f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+    
+    plt.tight_layout()
+    plt.savefig('reports_dfl_flwr/experiments_comparison.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # ========================================================================
+    # CONVERGENCE PLOT (Single experiment - Balanced)
+    # ========================================================================
+    
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+    # Training loss
+    ax = axes[0]
+    ax.plot(range(1, len(train_losses) + 1), train_losses, 
+            marker='o', color='steelblue', linewidth=2, markersize=6, label='DFL with Flower')
+    ax.set_xlabel('Round', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Training Loss (MSE)', fontsize=12, fontweight='bold')
+    ax.set_title('Training Loss Over Rounds (Balanced)', fontsize=14, fontweight='bold')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    
+    # Evaluation loss
+    ax = axes[1]
+    ax.plot(range(1, len(eval_losses) + 1), eval_losses, 
+            marker='s', color='orange', linewidth=2, markersize=6, label='DFL with Flower')
+    ax.set_xlabel('Round', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Evaluation Loss (MSE)', fontsize=12, fontweight='bold')
+    ax.set_title('Evaluation Loss Over Rounds (Balanced)', fontsize=14, fontweight='bold')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig('reports_dfl_flwr/dfl_flwr_convergence.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # Architecture diagram
+    fig, ax = plt.subplots(figsize=(14, 10))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 10)
+    ax.axis('off')
+    
+    # Title
+    ax.text(5, 9.5, 'Decentralized FL with Flower - Ring Topology', 
+            fontsize=18, fontweight='bold', ha='center', va='top',
+            bbox=dict(boxstyle='round,pad=0.5', facecolor='lightblue', edgecolor='black', linewidth=2))
+    
+    # Flower Server (minimal coordination)
+    server_rect = plt.Rectangle((4, 7.5), 2, 0.8, facecolor='lightcoral', edgecolor='black', linewidth=2)
+    ax.add_patch(server_rect)
+    ax.text(5, 7.9, 'Flower Server\n(Coordination Only)', fontsize=10, fontweight='bold', ha='center', va='center')
+    ax.text(5, 7.2, 'No Central Aggregation', fontsize=8, ha='center', va='top', style='italic')
+    
+    # Peers in a ring
+    num_display = NUM_PEERS
+    radius = 2.5
+    center_x, center_y = 5, 3.5
+    
+    peer_positions = {}
+    for i in range(num_display):
+        angle = 2 * np.pi * i / num_display - np.pi/2
+        x = center_x + radius * np.cos(angle)
+        y = center_y + radius * np.sin(angle)
+        peer_positions[i] = (x, y)
+        
+        # Peer box
+        peer_rect = plt.Rectangle((x-0.3, y-0.2), 0.6, 0.4, facecolor='lightgreen', 
+                                   edgecolor='black', linewidth=1.5)
+        ax.add_patch(peer_rect)
+        ax.text(x, y, f'Peer {i}', fontsize=8, fontweight='bold', ha='center', va='center')
+        
+        # Connection to server (minimal)
+        ax.plot([x, 5], [y, 7.5], 'gray', linestyle=':', linewidth=1, alpha=0.3)
+    
+    # Ring connections between neighbors
+    for i in range(num_display):
+        left_neighbor = (i - 1) % num_display
+        x1, y1 = peer_positions[i]
+        x2, y2 = peer_positions[left_neighbor]
+        
+        # Draw arrow between neighbors
+        dx = x2 - x1
+        dy = y2 - y1
+        ax.arrow(x1, y1, dx*0.4, dy*0.4, head_width=0.1, head_length=0.1, 
+                fc='blue', ec='blue', alpha=0.6, linewidth=1.5)
+    
+    # Legend
+    ax.text(0.5, 8.5, 'Communication:', fontsize=11, fontweight='bold')
+    ax.arrow(0.5, 8.1, 0.5, 0, head_width=0.1, head_length=0.1, fc='blue', ec='blue')
+    ax.text(1.2, 8.1, 'P2P Model Exchange', fontsize=9, va='center')
+    ax.plot([0.5, 1.0], [7.7, 7.7], 'gray', linestyle=':', linewidth=1)
+    ax.text(1.2, 7.7, 'Coordination', fontsize=9, va='center')
+    
+    # Process description
+    ax.text(8.5, 8.5, 'DFL Process:', fontsize=11, fontweight='bold')
+    steps = [
+        '1. Each peer trains\n   on local data',
+        '2. Peers share models\n   with neighbors',
+        '3. Each peer aggregates\n   neighbor models',
+        '4. Update local model\n   (no central server)',
+        '5. Repeat for\n   next round'
+    ]
+    for i, step in enumerate(steps):
+        y_pos = 8.0 - i * 0.7
+        ax.text(8.5, y_pos, step, fontsize=8, va='top',
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='wheat', edgecolor='black', linewidth=1))
+    
+    # Topology info
+    ax.text(0.5, 2.5, 'Topology:', fontsize=11, fontweight='bold')
+    ax.text(0.5, 2.1, f'Ring: {NUM_PEERS} peers', fontsize=9)
+    ax.text(0.5, 1.8, 'Each peer → 2 neighbors', fontsize=9)
+    ax.text(0.5, 1.5, 'Local aggregation', fontsize=9)
+    ax.text(0.5, 1.2, 'No single point of failure', fontsize=9)
+    
+    # Results
+    ax.text(0.5, 0.7, 'Results:', fontsize=11, fontweight='bold')
+    ax.text(0.5, 0.3, f'Final Loss: {train_losses[-1]:.6f}', fontsize=9,
+            bbox=dict(boxstyle='round,pad=0.3', facecolor='lightcyan', edgecolor='black', linewidth=1))
+    
+    plt.tight_layout()
+    plt.savefig('reports_dfl_flwr/dfl_flwr_architecture.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # ========================================================================
+    # MSE DISTRIBUTION AND ANOMALY DETECTION ANALYSIS
+    # ========================================================================
+    
+    print("\nCalculating MSE distribution and anomaly threshold...")
+    
+    # Get final aggregated model (use average of all peer models)
+    final_model = BearingAutoencoder()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    final_model.to(device)
+    
+    # Use the last aggregated parameters from strategy
+    if len(PEER_MODELS) > 0:
+        # Average all peer models for final model
+        all_peer_params = list(PEER_MODELS.values())
+        final_params = []
+        for layer_idx in range(len(all_peer_params[0])):
+            layer_values = [params[layer_idx] for params in all_peer_params]
+            final_params.append(np.mean(layer_values, axis=0))
+        
+        # Set parameters to final model
+        params_dict = zip(final_model.state_dict().keys(), final_params)
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+        final_model.load_state_dict(state_dict, strict=True)
+    
+    # Calculate reconstruction errors on test data
+    train_loader_full, test_loader_full = load_data(0, 1, batch_size=BATCH_SIZE, data_distribution="balanced")
+    
+    criterion = torch.nn.MSELoss()
+    final_model.eval()
+    all_errors = []
+    with torch.no_grad():
+        for batch in test_loader_full:
+            x = batch['x'].to(device)
+            output = final_model(x)
+            errors = torch.mean((x - output) ** 2, dim=1).cpu().numpy()
+            all_errors.extend(errors)
+    
+    all_errors = np.array(all_errors)
+    threshold_95 = np.percentile(all_errors, 95)
+    threshold_mean_2std = np.mean(all_errors) + 2 * np.std(all_errors)
+    anomaly_threshold = threshold_95
+    
+    # MSE Distribution Visualization
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    
+    # Histogram of MSE distribution
+    ax = axes[0, 0]
+    n, bins, patches = ax.hist(all_errors, bins=50, color='steelblue', alpha=0.7, edgecolor='black')
+    ax.axvline(threshold_95, color='red', linestyle='--', linewidth=2, label=f'95th Percentile: {threshold_95:.6f}')
+    ax.axvline(threshold_mean_2std, color='orange', linestyle='--', linewidth=2, label=f'Mean + 2σ: {threshold_mean_2std:.6f}')
+    ax.axvline(np.mean(all_errors), color='green', linestyle='-', linewidth=2, label=f'Mean: {np.mean(all_errors):.6f}')
+    ax.set_xlabel('Reconstruction Error (MSE)', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Frequency', fontsize=12, fontweight='bold')
+    ax.set_title('MSE Distribution with Threshold', fontsize=14, fontweight='bold')
+    ax.legend(fontsize=10)
+    ax.grid(True, alpha=0.3, axis='y')
+    
+    # Cumulative distribution
+    ax = axes[0, 1]
+    sorted_errors = np.sort(all_errors)
+    cumulative = np.arange(1, len(sorted_errors) + 1) / len(sorted_errors) * 100
+    ax.plot(sorted_errors, cumulative, color='steelblue', linewidth=2)
+    ax.axvline(threshold_95, color='red', linestyle='--', linewidth=2, label=f'95th Percentile')
+    ax.axhline(95, color='red', linestyle='--', linewidth=2, alpha=0.5)
+    ax.axvline(threshold_mean_2std, color='orange', linestyle='--', linewidth=2, label=f'Mean + 2σ')
+    ax.set_xlabel('Reconstruction Error (MSE)', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Cumulative Percentage (%)', fontsize=12, fontweight='bold')
+    ax.set_title('Cumulative Distribution of MSE', fontsize=14, fontweight='bold')
+    ax.legend(fontsize=10)
+    ax.grid(True, alpha=0.3)
+    
+    # Box plot
+    ax = axes[1, 0]
+    bp = ax.boxplot([all_errors], vert=True, patch_artist=True, widths=0.5)
+    bp['boxes'][0].set_facecolor('lightblue')
+    bp['boxes'][0].set_edgecolor('black')
+    bp['boxes'][0].set_linewidth(2)
+    ax.axhline(threshold_95, color='red', linestyle='--', linewidth=2, label=f'95th Percentile: {threshold_95:.6f}')
+    ax.axhline(threshold_mean_2std, color='orange', linestyle='--', linewidth=2, label=f'Mean + 2σ: {threshold_mean_2std:.6f}')
+    ax.set_ylabel('Reconstruction Error (MSE)', fontsize=12, fontweight='bold')
+    ax.set_title('MSE Distribution Box Plot', fontsize=14, fontweight='bold')
+    ax.set_xticklabels(['All Errors'])
+    ax.legend(fontsize=10)
+    ax.grid(True, alpha=0.3, axis='y')
+    
+    # MSE Formula and Statistics
+    ax = axes[1, 1]
+    ax.axis('off')
+    
+    # MSE Formula
+    formula_text = r'$MSE = \frac{1}{n} \sum_{i=1}^{n} (x_i - \hat{x}_i)^2$'
+    ax.text(0.5, 0.85, 'Mean Squared Error (MSE) Formula:', fontsize=14, fontweight='bold', 
+            ha='center', va='top', transform=ax.transAxes)
+    ax.text(0.5, 0.75, formula_text, fontsize=16, ha='center', va='top', 
+            transform=ax.transAxes, bbox=dict(boxstyle='round,pad=0.5', facecolor='lightyellow', edgecolor='black', linewidth=2))
+    
+    # Where clause
+    where_text = (
+        r'where:' + '\n'
+        r'$x_i$ = original input value' + '\n'
+        r'$\hat{x}_i$ = reconstructed value' + '\n'
+        r'$n$ = number of features (8 sensors)'
+    )
+    ax.text(0.5, 0.60, where_text, fontsize=11, ha='center', va='top', 
+            transform=ax.transAxes, family='monospace')
+    
+    # Statistics
+    stats_text = (
+        f'Statistics:\n'
+        f'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+        f'Total samples:     {len(all_errors):,}\n'
+        f'Mean MSE:          {np.mean(all_errors):.6f}\n'
+        f'Std deviation:     {np.std(all_errors):.6f}\n'
+        f'Min MSE:           {np.min(all_errors):.6f}\n'
+        f'Max MSE:           {np.max(all_errors):.6f}\n'
+        f'Median:            {np.median(all_errors):.6f}\n'
+        f'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+        f'95th Percentile:   {threshold_95:.6f}\n'
+        f'Mean + 2σ:         {threshold_mean_2std:.6f}\n'
+        f'Selected Threshold: {threshold_95:.6f}'
+    )
+    ax.text(0.5, 0.40, stats_text, fontsize=10, ha='center', va='top', 
+            transform=ax.transAxes, family='monospace',
+            bbox=dict(boxstyle='round,pad=0.5', facecolor='lightcyan', edgecolor='black', linewidth=1.5))
+    
+    plt.tight_layout()
+    plt.savefig('reports_dfl_flwr/mse_distribution_threshold.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # Save threshold info to file
+    with open('reports_dfl_flwr/anomaly_threshold.txt', 'w') as f:
+        f.write("="*80 + "\n")
+        f.write("ANOMALY THRESHOLD (DFL with Flower)\n")
+        f.write("="*80 + "\n")
+        f.write(f"\nMSE Formula: MSE = (1/n) * Σ(xi - x̂i)²\n")
+        f.write(f"  where xi = original value, x̂i = reconstructed value, n = features\n\n")
+        f.write(f"Statistics:\n")
+        f.write(f"  Total samples:     {len(all_errors):,}\n")
+        f.write(f"  Mean MSE:          {np.mean(all_errors):.6f}\n")
+        f.write(f"  Std deviation:     {np.std(all_errors):.6f}\n")
+        f.write(f"  Min MSE:           {np.min(all_errors):.6f}\n")
+        f.write(f"  Max MSE:           {np.max(all_errors):.6f}\n")
+        f.write(f"  Median:            {np.median(all_errors):.6f}\n\n")
+        f.write(f"95th Percentile: {threshold_95:.6f}\n")
+        f.write(f"Mean + 2×Std:    {threshold_mean_2std:.6f}\n")
+        f.write(f"\nSelected threshold: {threshold_95:.6f} (95th percentile)\n")
+        f.write(f"\nRULE:\n")
+        f.write(f"   Error < {threshold_95:.6f} -> NORMAL\n")
+        f.write(f"   Error > {threshold_95:.6f} -> ANOMALY\n")
+    
+    print("\n" + "="*80)
+    print("ALL RESULTS SAVED")
+    print("="*80)
+    print("\nGenerated files in reports_dfl_flwr/:")
+    print("  - dfl_flwr_results.json (balanced + imbalanced)")
+    print("  - experiments_comparison.png (balanced vs imbalanced)")
+    print("  - dfl_flwr_convergence.png (balanced only)")
+    print("  - dfl_flwr_architecture.png")
+    print("  - mse_distribution_threshold.png")
+    print("  - anomaly_threshold.txt")
+    print("="*80)

@@ -171,3 +171,4 @@ report.toc
 .gitignore
 note
 report.aux
+report_latex/
