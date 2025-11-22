@@ -24,8 +24,8 @@ const SLIDES_DATA = {
             {
               "icon": "👥",
               "iconColor": "green",
-              "title": "Nhóm 6",
-              "content": "Trí Đông, Thành Phạm, Thu Thủy,<br>Nguyễn Tâm, Justin"
+              "title": "Nhóm TEAM6",
+              "content": "Nguyễn Văn Tâm, Đồng Quang Trí,<br>Phạm Văn Thành, Lê Đức Phương,<br>Đinh Thị Thu Thủy"
             }
           ]
         },
@@ -36,13 +36,13 @@ const SLIDES_DATA = {
               "icon": "🎓",
               "iconColor": "blue",
               "title": "Chương trình: Thạc sĩ KTDL",
-              "content": "GVHD: Trọng Nhân"
+              "content": "GVHD: TS. Phan Trọng Nhân"
             },
             {
               "icon": "📅",
               "iconColor": "purple",
               "title": "Trường: ĐH Bách Khoa",
-              "content": "Năm: 2024-2025"
+              "content": "Năm: 2025 (Tháng 11/2025)"
             }
           ]
         }
@@ -90,7 +90,7 @@ const SLIDES_DATA = {
               "icon": "🌐",
               "iconColor": "blue",
               "title": "P2P Architecture",
-              "content": "Không cần server, nodes giao tiếp trực tiếp"
+              "content": "Không cần server, peers giao tiếp trực tiếp"
             },
             {
               "icon": "🔐",
@@ -102,7 +102,7 @@ const SLIDES_DATA = {
               "icon": "💪",
               "iconColor": "purple",
               "title": "High Resilience",
-              "content": "Nodes có thể join/leave tự do"
+              "content": "Peers có thể join/leave tự do"
             }
           ]
         }
@@ -127,19 +127,19 @@ const SLIDES_DATA = {
               "icon": "🔄",
               "iconColor": "blue",
               "title": "Peer-to-Peer",
-              "content": "10 nodes giao tiếp trực tiếp với nhau"
+              "content": "10 peers giao tiếp trực tiếp, không có server"
             },
             {
               "icon": "⭕",
               "iconColor": "purple",
               "title": "Ring Topology",
-              "content": "Mỗi node chỉ kết nối với 2 neighbors"
+              "content": "Mỗi peer kết nối với 2 peers lân cận"
             },
             {
               "icon": "📊",
               "iconColor": "green",
-              "title": "Gossip Protocol",
-              "content": "Trao đổi model weights giữa các nodes"
+              "title": "Model Exchange",
+              "content": "Trao đổi model weights giữa các peers"
             }
           ]
         },
@@ -150,7 +150,7 @@ const SLIDES_DATA = {
               "icon": "🎯",
               "iconColor": "green",
               "title": "Local Training",
-              "content": "Mỗi node train trên data riêng"
+              "content": "Mỗi peer train trên data riêng"
             },
             {
               "icon": "🔀",
@@ -174,11 +174,11 @@ const SLIDES_DATA = {
       "title": "DFL Architecture Diagram",
       "subtitle": "Federated Learning System Overview",
       "badges": [
-        { "text": "10 Nodes", "color": "blue" },
+        { "text": "10 Peers", "color": "blue" },
         { "text": "Ring Topology", "color": "purple" },
         { "text": "Decentralized", "color": "green" }
       ],
-      "image": "../reports/06_federated_learning_architecture.png",
+      "image": "../reports_dfl/ring_topology.png",
       "imageStyle": "max-height: 550px; object-fit: contain;"
     },
     {
@@ -200,14 +200,14 @@ const SLIDES_DATA = {
               "icon": "📦",
               "iconColor": "blue",
               "title": "NASA Bearing Dataset",
-              "content": "32,768 training samples"
+              "content": "32,760 training samples"
             },
             {
               "icon": "⚙️",
               "iconColor": "green",
               "title": "8 Sensor Channels",
               "content": "20,480 time-series points mỗi file",
-              "dialogImage": "../reports/bearing.png"
+              "dialogImage": "../reports_dfl/bearing.png"
 
             },
             {
@@ -225,7 +225,7 @@ const SLIDES_DATA = {
               "icon": "🧠",
               "iconColor": "purple",
               "title": "Autoencoder",
-              "content": "Encoder: 8→16→8, Decoder: 8→16→8"
+              "content": "Encoder: 8→4→2 (bottleneck), Decoder: 2→4→8"
             },
             {
               "icon": "🎯",
@@ -253,7 +253,7 @@ const SLIDES_DATA = {
         { "text": "20,480 Points", "color": "purple" },
         { "text": "8 Features", "color": "green" }
       ],
-      "image": "../reports/01_sensor_data_visualization.png",
+      "image": "../reports_dfl/sensor_data_visualization.png",
       "imageStyle": "max-height: 550px; object-fit: contain;"
     },
     {
@@ -269,26 +269,26 @@ const SLIDES_DATA = {
       "statsCards": [
         {
           "label": "Total Samples",
-          "value": "32,768",
+          "value": "32,760",
           "sublabel": "training data"
         },
         {
-          "label": "Clients",
+          "label": "Peers",
           "value": "10",
           "sublabel": "IoT devices"
         },
         {
-          "label": "IID: Each Client",
+          "label": "IID: Each Peer",
           "value": "3,276",
           "sublabel": "samples (10%)"
         },
         {
-          "label": "Non-IID: Max Client",
+          "label": "Non-IID: Max Peer",
           "value": "9,830",
           "sublabel": "samples (30%)"
         },
         {
-          "label": "Non-IID: Min Client",
+          "label": "Non-IID: Min Peer",
           "value": "329",
           "sublabel": "samples (1%)"
         },
@@ -309,7 +309,7 @@ const SLIDES_DATA = {
         { "text": "IID: Equal", "color": "blue" },
         { "text": "Non-IID: Power Law", "color": "orange" }
       ],
-      "image": "../reports/04_data_distribution_visualization.png",
+      "image": "../reports_dfl/data_distribution_visualization.png",
       "imageStyle": "max-height: 500px; object-fit: contain;"
     },
     {
@@ -319,15 +319,15 @@ const SLIDES_DATA = {
       "subtitle": "Phân Tích Hiệu Suất",
       "badges": [
         { "text": "IID vs Non-IID", "color": "blue" },
-        { "text": "10 Clients", "color": "purple" },
-        { "text": "100 Rounds", "color": "green" }
+        { "text": "10 Peers", "color": "purple" },
+        { "text": "50 Rounds", "color": "green" }
       ],
       "layout": "table",
       "table": {
         "headers": ["Experiment", "Data Distribution", "Final Loss", "Convergence", "Stability"],
         "rows": [
-          ["Exp 1", "IID (Balanced)", "0.0023", "Fast (Round 60)", "⭐⭐⭐⭐⭐"],
-          ["Exp 2", "Non-IID (Power Law)", "0.0031", "Slower (Round 80)", "⭐⭐⭐⭐"]
+          ["Exp 1", "IID (Balanced)", "0.002425", "Fast (Round 30-40)", "⭐⭐⭐⭐⭐"],
+          ["Exp 2", "Non-IID (Power Law)", "0.002705", "Slower (Round 40-50)", "⭐⭐⭐⭐"]
         ]
       },
       "additionalCards": [
@@ -335,19 +335,19 @@ const SLIDES_DATA = {
           "icon": "✅",
           "iconColor": "green",
           "title": "Key Finding #1",
-          "content": "IID data convergence nhanh hơn ~25% so với Non-IID"
+          "content": "IID đạt final eval loss 0.002425, thấp hơn Non-IID (0.002705) khoảng 10.4%"
         },
         {
           "icon": "📊",
           "iconColor": "blue",
           "title": "Key Finding #2",
-          "content": "Non-IID vẫn đạt kết quả tốt, chỉ chậm hơn 1 chút"
+          "content": "Train loss reduction: Balanced 94.19% vs Imbalanced 92.74%"
         },
         {
           "icon": "💡",
           "iconColor": "purple",
           "title": "Insight",
-          "content": "DFL hoạt động hiệu quả cả với data không cân bằng"
+          "content": "DFL P2P Ring hoạt động hiệu quả với cả IID và Non-IID data"
         }
       ]
     },
@@ -355,12 +355,12 @@ const SLIDES_DATA = {
       "id": 10,
       "type": "image",
       "title": "Experiments Comparison",
-      "subtitle": "IID vs Non-IID Over 100 Rounds",
+      "subtitle": "IID vs Non-IID Over 50 Rounds",
       "badges": [
         { "text": "Smooth Convergence", "color": "green" },
         { "text": "MSE Loss", "color": "blue" }
       ],
-      "image": "../reports/02_experiments_comparison.png",
+      "image": "../reports_dfl/experiments_comparison.png",
       "imageStyle": "max-height: 500px; object-fit: contain;"
     },
     {
@@ -372,7 +372,7 @@ const SLIDES_DATA = {
         { "text": "Distribution Analysis", "color": "blue" },
         { "text": "MSE Metric", "color": "green" }
       ],
-      "image": "../reports/07_mse_distribution_threshold.png",
+      "image": "../reports_dfl/mse_distribution_threshold.png",
       "imageStyle": "max-height: 500px; object-fit: contain;"
     },
     {
@@ -385,7 +385,7 @@ const SLIDES_DATA = {
         { "text": "Threshold-based", "color": "red" },
         { "text": "Normal vs Anomaly", "color": "green" }
       ],
-      "image": "../reports/03_anomaly_detection_comparison.png",
+      "image": "../reports_dfl/anomaly_detection_comparison.png",
       "imageStyle": "max-height: 500px; object-fit: contain;"
     },
     {
@@ -397,7 +397,7 @@ const SLIDES_DATA = {
         { "text": "Loss Tracking", "color": "blue" },
         { "text": "Stability Analysis", "color": "green" }
       ],
-      "image": "../reports/05_convergence_analysis.png",
+      "image": "../reports_dfl/peer_losses.png",
       "imageStyle": "max-height: 500px; object-fit: contain;"
     },
     {
@@ -479,13 +479,13 @@ const SLIDES_DATA = {
               "icon": "✅",
               "iconColor": "green",
               "title": "DFL Implementation",
-              "content": "Xây dựng thành công hệ thống DFL với 10 nodes"
+              "content": "Xây dựng thành công hệ thống DFL với 10 peers"
             },
             {
               "icon": "🎯",
               "iconColor": "blue",
               "title": "Anomaly Detection",
-              "content": "Model đạt độ chính xác cao trên bearing data"
+              "content": "Model đạt 100% accuracy với threshold dựa trên 95th percentile"
             },
             {
               "icon": "📊",
@@ -538,14 +538,14 @@ const SLIDES_DATA = {
             {
               "icon": "🚀",
               "iconColor": "blue",
-              "title": "Optimization",
-              "content": "Giảm communication overhead, faster convergence"
+              "title": "Alternative Topologies",
+              "content": "Thử nghiệm mesh, gossip, star topology"
             },
             {
               "icon": "🔐",
               "iconColor": "green",
               "title": "Security Enhancement",
-              "content": "Thêm encryption cho model weights"
+              "content": "Byzantine-robust aggregation, differential privacy"
             }
           ]
         },
@@ -556,19 +556,19 @@ const SLIDES_DATA = {
               "icon": "🌐",
               "iconColor": "purple",
               "title": "Scalability",
-              "content": "Scale lên 100+ nodes, multiple datasets"
+              "content": "Scale lên 100-1000 peers với heterogeneous network"
             },
             {
               "icon": "🤖",
               "iconColor": "orange",
-              "title": "Advanced Models",
-              "content": "Thử nghiệm với Transformer, GNN"
+              "title": "Hardware Deployment",
+              "content": "Test trên Raspberry Pi, NVIDIA Jetson, ESP32"
             },
             {
               "icon": "🏭",
               "iconColor": "red",
-              "title": "Real-world Deployment",
-              "content": "Deploy trong nhà máy thực tế"
+              "title": "Advanced Algorithms",
+              "content": "Personalized DFL, hierarchical architecture, blockchain-integrated"
             }
           ]
         }

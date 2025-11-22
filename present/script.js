@@ -1,6 +1,6 @@
 // Slide Navigation
 let currentSlide = 1;
-const totalSlides = 14;
+const totalSlides = 16;
 
 function updateSlide() {
     // Hide all slides

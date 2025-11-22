@@ -43,22 +43,11 @@ function renderNavigation(slides) {
 
 // Get short title for navigation
 function getShortTitle(slide) {
-    const titleMap = {
-        1: 'Introduction',
-        2: 'DFL Giải Pháp',
-        3: 'Kiến Trúc DFL',
-        4: 'Phương Pháp',
-        5: 'Feature Extraction',
-        6: 'Phân Tích Dữ Liệu',
-        7: 'Kết Quả',
-        8: 'Loss Comparison',
-        9: 'Anomaly Detection',
-        10: 'MSE & Threshold',
-        11: 'Ứng Dụng',
-        12: 'Kết Luận',
-        13: 'Hướng Phát Triển'
-    };
-    return titleMap[slide.id] || slide.title.substring(0, 20);
+    // Use the actual slide title, truncate if too long
+    const maxLength = 30;
+    return slide.title.length > maxLength 
+        ? slide.title.substring(0, maxLength) + '...' 
+        : slide.title;
 }
 
 // Render badges
