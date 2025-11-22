@@ -1,0 +1,79 @@
+\section{Đặc trưng của dữ liệu IoT}
+
+\hspace{0.6cm}Hệ thống IoT sở hữu nhiều đặc điểm nổi bật, giúp nó trở thành một công nghệ đột phá và thay đổi cách chúng ta tương tác với thế giới xung quanh. Trong đó có các đặc điểm chính được trình bày dưới đây:
+\begin{itemize}
+  \item Khối lượng (Volume): Các thiết bị IoT tạo ra lượng dữ liệu khổng lồ, dễ gây quá tải cho hệ thống lưu trữ và xử lý.
+  
+  \item Tốc độ (Velocity): Dữ liệu thường được phát sinh theo thời gian thực, đòi hỏi khả năng xử lý và phân tích nhanh chóng để đảm bảo tính kịp thời.
+  
+  \item Đa dạng (Variety): Dữ liệu IoT tồn tại ở nhiều dạng khác nhau, từ có cấu trúc đến phi cấu trúc, yêu cầu các phương pháp phân tích linh hoạt và thích ứng.
+  
+  \item Nhiễu và không đầy đủ (Low Veracity): Cảm biến dễ sai số, mất mẫu hoặc nhiễu dữ liệu.
+\end{itemize}    
+Việc quản lý và khai thác hiệu quả dữ liệu IoT đòi hỏi các giải pháp công nghệ tiên tiến, bao gồm hệ thống lưu trữ phân tán, công cụ phân tích thời gian thực và các thuật toán xử lý dữ liệu đa dạng.
+\section{Bối cảnh dữ liệu phân tán trong IoT}
+
+\hspace{0.6cm}Sự phát triển mạnh mẽ của Internet of Things (IoT) đang tạo ra một hệ sinh thái với hàng chục tỷ thiết bị thông minh hoạt động liên tục trong nhiều lĩnh vực như sản xuất công nghiệp, đô thị thông minh, năng lượng và giao thông. Dự báo cho thấy số lượng thiết bị IoT toàn cầu có thể vượt hơn 75 tỷ vào năm 2025. Các thiết bị này thu thập dữ liệu theo thời gian thực từ nhiều loại cảm biến khác nhau, bao gồm cảm biến rung, nhiệt độ, âm thanh, áp suất và các thiết bị đo lường khác.
+
+Dữ liệu IoT có tính phân tán tự nhiên vì các thiết bị:
+
+\begin{itemize}
+    \item Được triển khai rộng rãi về mặt địa lý;
+    \item Tạo ra dữ liệu liên tục với tần suất cao;
+    \item Có sự không đồng nhất về chất lượng và đặc trưng (Non-IID);
+    \item Chịu ảnh hưởng bởi điều kiện môi trường và tải trọng khác nhau.
+\end{itemize}
+
+Việc thu thập và xử lý dữ liệu IoT theo phương pháp truyền thống, trong đó dữ liệu được tải về một máy chủ trung tâm, trở nên không khả thi do hạn chế về băng thông, độ trễ và yêu cầu bảo mật. Điều này đặt ra nhu cầu về các mô hình học máy phân tán, phù hợp với tính chất của dữ liệu IoT.
+
+\section{Vấn đề bảo mật, băng thông và tính sẵn sàng}
+
+\hspace{0.6cm}Hệ thống IoT hiện nay phải đối mặt với ba nhóm thách thức chính:
+
+\textbf{Bảo mật và quyền riêng tư: }Dữ liệu cảm biến trong môi trường công nghiệp thường chứa thông tin nhạy cảm như tình trạng máy móc, quy trình sản xuất và thông số vận hành. Việc truyền dữ liệu thô về server trung tâm tiềm ẩn rủi ro rò rỉ thông tin, tấn công mạng và vi phạm các quy định như GDPR hoặc HIPAA.
+
+\textbf{Giới hạn băng thông: }
+Dữ liệu IoT, đặc biệt dạng tín hiệu rung có tần số lấy mẫu cao (ví dụ 20 kHz), tạo ra lượng dữ liệu khổng lồ. Việc truyền liên tục dữ liệu thô từ hàng trăm thiết bị gây quá tải mạng, làm tăng chi phí vận hành và không phù hợp với các môi trường có kết nối yếu.
+
+\textbf{Độ trễ và tính sẵn sàng:}
+Các ứng dụng như giám sát thiết bị theo thời gian thực hoặc bảo trì dự đoán (predictive maintenance) yêu cầu độ trễ thấp và tính sẵn sàng cao. Việc phụ thuộc vào cloud khiến hệ thống dễ bị gián đoạn khi mất mạng, đồng thời làm tăng độ trễ trong xử lý.
+
+Những hạn chế này đòi hỏi các cơ chế học tập phân tán hiệu quả và an toàn hơn.
+
+\section{Tại sao cần Decentralized Federated Learning cho IoT}
+
+\hspace{0.6cm}Federated Learning (FL) truyền thống giải quyết một phần vấn đề bằng cách cho phép các thiết bị IoT huấn luyện mô hình cục bộ và chỉ gửi tham số mô hình (model updates) lên server trung tâm. Tuy nhiên, FL vẫn mang cấu trúc tập trung vì:
+
+\begin{itemize}
+    \item Server trung tâm là điểm duy nhất để tổng hợp tham số;
+    \item Nếu server gặp sự cố, toàn bộ hệ thống ngừng hoạt động;
+    \item Tất cả các thiết bị đều phải giao tiếp với server, tạo ra nút thắt cổ chai (bottleneck);
+    \item Server trở thành mục tiêu tấn công và là nơi tập trung rủi ro.
+\end{itemize}
+
+Decentralized Federated Learning (DFL) ra đời để loại bỏ hoàn toàn sự phụ thuộc vào server trung tâm. Trong DFL, các thiết bị IoT giao tiếp trực tiếp với nhau theo mô hình peer-to-peer (P2P) thông qua các topology như ring, mesh hoặc gossip. Điều này mang lại:
+
+\begin{itemize}
+    \item Độ trễ thấp do giao tiếp nội bộ (local communication);
+    \item Khả năng chịu lỗi cao vì mạng vẫn hoạt động ngay cả khi một số thiết bị bị ngắt kết nối;
+    \item Tính mở rộng tốt hơn so với FL truyền thống;
+    \item Phù hợp với mô hình edge computing và các hệ thống IoT không kết nối cloud.
+\end{itemize}
+
+Với những đặc tính này, DFL đặc biệt phù hợp cho bài toán học máy trên IoT phân tán và không đồng nhất.
+
+\section{Mục tiêu và phạm vi báo cáo}
+
+\hspace{0.6cm}Báo cáo hướng tới việc nghiên cứu và đánh giá tiềm năng của Decentralized Federated Learning trong bối cảnh hệ thống IoT. Các mục tiêu chính bao gồm:
+
+\begin{itemize}
+    \item Trình bày tổng quan về Federated Learning và Decentralized Federated Learning.
+    \item Phân tích các thách thức trong học máy phân tán trên IoT và lý do DFL là cần thiết.
+    \item Triển khai mô phỏng mô hình DFL/Federated Learning với 10 thiết bị IoT.
+    \item Áp dụng mô hình Autoencoder cho bài toán phát hiện bất thường cảm biến vòng bi.
+    \item So sánh FL với các phân phối dữ liệu IID và Non-IID.
+    \item Đánh giá ưu, nhược điểm và đề xuất hướng phát triển.
+\end{itemize}
+
+Phạm vi báo cáo tập trung vào mô phỏng trong môi trường phần mềm, sử dụng bộ dữ liệu rung vòng bi NASA và triển khai thuần túy DFL với kiến trúc P2P (Peer-to-Peer) ring topology. Báo cáo không đi sâu vào các cơ chế bảo mật nâng cao hoặc triển khai trên phần cứng thực tế.
+

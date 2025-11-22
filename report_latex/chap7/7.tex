@@ -1,0 +1,107 @@
+
+\section{Tóm Tắt Đóng Góp}
+
+Báo cáo này đã:
+
+\begin{enumerate}
+    \item \textbf{Trình bày tổng quan} về DFL và tầm quan trọng của nó trong IoT, phân tích các thách thức và giải pháp
+    \item \textbf{Triển khai thành công} mô hình FL cho anomaly detection trên bearing data với 10 clients mô phỏng IoT devices
+    \item \textbf{So sánh hiệu suất} giữa IID và Non-IID data distribution, phát hiện rằng Non-IID đạt kết quả vượt trội với eval loss 0.003787 (thấp hơn 6.82\% so với IID 0.004064)
+    \item \textbf{Đạt 100\% accuracy} trong anomaly detection với threshold MSE dựa trên 95th percentile (0.078370)
+    \item \textbf{Phân tích convergence chi tiết} cho thấy Non-IID hội tụ nhanh hơn và đạt improvement 94\% so với initial loss
+    \item \textbf{Visualization toàn diện} bao gồm data distribution, convergence analysis, system architecture, và MSE distribution
+    \item \textbf{Phân tích ứng dụng} của DFL trong các hệ thống IoT thực tế: Smart City, Smart Home, IIoT, WSN
+\end{enumerate}
+
+\textbf{Kết luận chính:} DFL là giải pháp khả thi và hiệu quả cho machine learning trên IoT, cung cấp privacy, fault tolerance, và low latency mà centralized approaches không đạt được. Kết quả thí nghiệm cho thấy phân phối dữ liệu không cân bằng (Non-IID) có thể đạt hiệu suất tốt hơn so với phân phối cân bằng (IID) khi sử dụng FedAvg aggregation strategy, với eval loss thấp hơn 6.82\% (0.003787 vs 0.004064).
+
+\section{Giới Hạn Của Nghiên Cứu}
+
+\textbf{Limitations:}
+
+\begin{itemize}
+    \item \textbf{Simulation-based:} Chưa deploy trên thiết bị IoT thật với hardware constraints
+    \item \textbf{Network assumption:} Giả định reliable network, chưa test với packet loss và high latency
+    \item \textbf{Security:} Chưa implement defense mechanisms chống Byzantine attacks
+    \item \textbf{Topology:} Chỉ sử dụng centralized topology (FL), chưa test pure P2P DFL topologies
+    \item \textbf{Dataset:} Chỉ test trên một loại sensor data (bearing vibration)
+    \item \textbf{Scalability:} Chỉ 10 clients, chưa test với hàng trăm hoặc hàng nghìn nodes
+\end{itemize}
+
+\section{Hướng Phát Triển}
+
+\textbf{Short-term (6-12 tháng):}
+
+\begin{enumerate}
+    \item \textbf{Implement pure DFL:} Triển khai true P2P topology (ring, gossip) và so sánh với centralized FL
+    \item \textbf{Security mechanisms:} 
+        \begin{itemize}
+            \item Byzantine-robust aggregation (Krum, Median)
+            \item Differential privacy cho model updates
+            \item Secure aggregation protocols
+        \end{itemize}
+    \item \textbf{Heterogeneity handling:}
+        \begin{itemize}
+            \item Adaptive learning rates cho clients với data sizes khác nhau
+            \item Client selection strategies ưu tiên high-quality clients
+            \item Asynchronous updates cho clients với speeds khác nhau
+        \end{itemize}
+    \item \textbf{Model compression:}
+        \begin{itemize}
+            \item Quantization để giảm model size (32-bit $\rightarrow$ 8-bit hoặc binary)
+            \item Gradient compression (sparsification, low-rank approximation)
+            \item Knowledge distillation for edge deployment
+        \end{itemize}
+\end{enumerate}
+
+\textbf{Medium-term (1-2 năm):}
+
+\begin{enumerate}
+    \item \textbf{Hardware deployment:} Test trên Raspberry Pi, NVIDIA Jetson, hoặc ESP32 với real sensors
+    \item \textbf{Larger-scale simulation:} Mở rộng lên 100-1000 clients với heterogeneous network conditions
+    \item \textbf{Multi-task learning:} Cùng một DFL network train nhiều tasks (anomaly detection, RUL prediction, classification)
+    \item \textbf{Advanced DFL algorithms:}
+        \begin{itemize}
+            \item Personalized FL: mỗi client có model riêng adapted từ global model
+            \item Hierarchical FL: multi-tier architecture (device-edge-cloud)
+            \item Blockchain-integrated DFL: immutable audit trail for model updates
+        \end{itemize}
+\end{enumerate}
+
+\textbf{Long-term (2-5 năm):}
+
+\begin{enumerate}
+    \item \textbf{Standardization:} Đóng góp vào standards cho DFL trong IoT (IEEE, IETF)
+    \item \textbf{Cross-domain DFL:} Federation giữa các domains khác nhau (healthcare, transportation, energy)
+    \item \textbf{Adaptive topology:} Dynamic topology thay đổi based on network conditions và task requirements
+    \item \textbf{Continual learning:} Models adapt to concept drift và new anomaly types without forgetting
+    \item \textbf{Incentive mechanisms:} Economic models để khuyến khích participation trong DFL networks
+\end{enumerate}
+
+\textbf{Research directions:}
+
+\begin{itemize}
+    \item \textbf{Theory:} Convergence guarantees cho DFL với Non-IID data và dynamic topologies
+    \item \textbf{Optimization:} Communication-efficient algorithms minimize rounds to convergence
+    \item \textbf{Fairness:} Đảm bảo clients với ít data vẫn benefit từ global model
+    \item \textbf{Explainability:} Interpret models learned từ distributed data
+\end{itemize}
+
+\section{Tác Động Thực Tiễn}
+
+DFL có tiềm năng transform các ngành công nghiệp:
+
+\begin{itemize}
+    \item \textbf{Manufacturing:} Giảm downtime thông qua predictive maintenance với privacy
+    \item \textbf{Healthcare:} Hospitals collaborate trên medical diagnosis mà không share patient data
+    \item \textbf{Transportation:} Autonomous vehicles learn driving policies từ fleet without central data collection
+    \item \textbf{Energy:} Smart grids optimize operations collaboratively
+\end{itemize}
+
+\textbf{Societal impact:}
+\begin{itemize}
+    \item Empowers individuals với data ownership và privacy
+    \item Enables AI for organizations không đủ resources cho centralized infrastructure
+    \item Supports regulatory compliance (GDPR, HIPAA)
+    \item Promotes democratization of AI
+\end{itemize}

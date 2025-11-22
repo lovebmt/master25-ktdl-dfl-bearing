@@ -1,0 +1,214 @@
+\documentclass[letterpaper,12pt]{report}
+% Packages
+\usepackage{vntex}
+\usepackage[utf8]{inputenc}
+% \usepackage[T5]{fontenc} % Use T5 encoding for Vietnamese characters
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{graphicx}
+% \usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{booktabs}  % For better table formatting
+\usepackage{array}     % For better column alignment
+\usepackage{float}
+\usepackage{lipsum} % For generating dummy text, you can remove this.
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\usepackage{tabularx, caption}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage[unicode,hidelinks]{hyperref}
+% Page setup
+\geometry{margin=1in}
+\onehalfspacing
+
+% Title page
+\title{K-Nearest Neighbors and Decision Trees}
+\author{AlgoBoys}
+\date{\today}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\thepage}
+\lhead{\leftmark}
+
+% Force chapter-opening pages to use fancy header/footer
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \rhead{\thepage}
+    \lhead{\leftmark}
+}
+% Section and subsection formatting
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH \\
+TRƯỜNG ĐẠI HỌC BÁCH KHOA \\
+\end{center}
+
+\vspace{1cm}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=3cm]{hcmut.png}
+\end{center}
+\end{figure}
+
+\vspace{1cm}
+
+
+\begin{center}
+\begin{tabular}{c}
+\multicolumn{1}{c}{\textbf{{\Large CROSS-DEVICE }}}\\
+\multicolumn{1}{c}{\textbf{{\Large DECENTRALIZED FEDERATED LEARNING}}}\\
+~~\\
+
+% \multicolumn{1}{l}{\textbf{{\Large Đề bài tập lớn cho Nhóm $n$}}}\\
+% \textbf{\large BÀI TẬP LỚN } \\
+% \\
+% \textbf{\Large \textcolor{blue}{An Toàn Thông Tin}} \\
+% \textbf{\Large \textcolor{blue}{Trong Truyền Tải Dữ Liệu Trong Nội Bộ Tổ Chức}} \\
+\end{tabular}
+\end{center}
+
+\vspace{1.5cm}
+
+\begin{table}[h]
+\begin{tabular}{rrll}
+\hspace{5 cm} & Giảng viên: & TS. Phan Trọng Nhân \\
+\hspace{5 cm}
+&Học viên: & Nguyễn Văn Tâm & - 2570358 \\
+& & Đồng Quang Trí & - 2570523  \\
+& & Phạm Văn Thành & - 2570496 \\
+& & Lê Đức Phương & - 2570480 \\
+& & Đinh Thị Thu Thủy  & - 2570508 \\
+ 
+\end{tabular}
+\end{table}
+\vspace{5.5cm}
+\begin{center}
+{\footnotesize Thành phố Hồ Chí Minh, Tháng 11/2025}
+\end{center}
+\end{titlepage}
+
+% \textbf{Thành viên và nhiệm vụ}
+\chapter*{Thành viên và nhiệm vụ}
+\markboth{Thành viên và nhiệm vụ}{Thành viên và nhiệm vụ}
+\vspace{10pt}
+\begin{center}
+  \begin{tabular}{lllccc}
+    \toprule
+    \textbf{No.} & \textbf{Họ và tên} & \textbf{Nhiệm vụ}   & \textbf{MSSV} & \textbf{Phần trăm hoàn thành} \\
+    \midrule
+    1            & Nguyễn Văn Tâm       & Chương 1 - 2   & 2570358             & 20 \%                  \\
+    2            & Phạm Văn Thành  & Chương 3  & 2570496             & 20 \%                      \\
+    3            & Lê Đức Phương  & Chương 4  & 2570480             & 20 \%                      \\
+        4            & Đồng Quang Trí  & Chương 5  & 2570523             & 20 \%                      \\
+    5            & Đinh Thị Thu Thủy   & Chương 6 & 2570508             & 20 \%                      \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\chapter*{Danh sách từ viết tắt}
+\addcontentsline{toc}{chapter}{Danh sách từ viết tắt}
+\markboth{DANH SÁCH TỪ VIẾT TẮT}{DANH SÁCH TỪ VIẾT TẮT}
+\begin{tabularx}{\textwidth}{@{} >{\bfseries}l X @{}} 
+    \toprule
+    \textbf{Viết tắt} & \textbf{Giải thích} \\
+    \midrule
+    IoT & Internet of Things \\
+    FL & Federated Learning \\
+    DFL & Decentralized Federated Learning \\
+    IID & Independent and Identically Distributed \\
+    Non-IID & Non-Independent and Identically Distributed \\
+    P2P & Peer-to-Peer \\
+    WSN & Wireless Sensor Network \\
+    IIoT & Industrial Internet of Things \\
+    GDPR & General Data Protection Regulation \\
+    HIPAA & Health Insurance Portability and Accountability Act \\
+    FedAvg & Federated Averaging \\
+    FedProx & Federated Proximal \\
+    FedOpt & Federated Optimization \\
+    MSE & Mean Squared Error \\
+    % IDS & Intrusion Detection System \\
+    % IPS & Intrusion Prevention System \\
+    % ACL & Access Control List \\
+    % VLAN & Virtual Local Area Network \\
+    % VPN & Virtual Private Network \\
+    % TLS & Transport Layer Security \\
+    % SSL & Secure Sockets Layer \\
+    % SIEM & Security Information and Event Management \\
+    % IAM & Identity and Access Management \\
+    % RBAC & Role-Based Access Control \\
+    % DLP & Data Loss Prevention \\
+    % KPI & Key Performance Indicator \\
+    % CASB & Cloud Access Security Broker \\
+    % SLA & Service Level Agreement \\
+    % ADS & Active Directory \\
+    % HTTPS & Hypertext Transfer Protocol Secure \\
+    % STARTTLS & Start Transport Layer Security \\
+    % S/MIME & Secure/Multipurpose Internet Mail Extensions \\
+    % PGP & Pretty Good Privacy \\
+    % SFTP & SSH (Secure Shell) File Transfer Protocol \\
+    % SCP & Secure Copy Protocol \\
+    % IP & Internet Protocol \\
+    % PoLP & Principle of Least Privilege \\
+    % RBAC & Role-Based Access Control \\
+    % IAM & Identity and Access Management \\
+    % DLP & Data Loss Prevention \\
+    % NDA & Non-Disclosure Agreement \\
+    % AUP & Acceptable Use Policy \\
+    % DSA & Data Sharing Agreement \\
+    % BrSE & Bridge System Engineer \\
+    % NAS & Network-Attached Storage \\
+    % DC & Data Center \\
+    % EDI & Electronic Data Interchange \\
+    % API & Application Programming Interface \\
+    % REST & REpresentational State Transfer \\
+    % SOAP & Simple Object Access Protocol \\
+    \bottomrule
+\end{tabularx}
+
+\tableofcontents
+
+    
+\chapter{Giới thiệu}
+\include{chap1/chap1}
+
+
+\chapter{Decentralized Federated Learning (DFL)}
+\include{chap2/challenge_13.2.1}
+
+
+\chapter{Mô phỏng DFL cho IoT (không dùng thiết bị thật)}
+\include{chap4/4.1}
+
+\chapter{Triển khai mô hình DFL}
+\include{Chap5/5}
+
+\chapter{Kết quả mô phỏng và Đánh giá}
+\include{chap6/6}
+
+\chapter{Kết luận và Hướng phát triển}
+\include{chap7/7}
+
+
+\bibliographystyle{plain}
+\bibliography{references.bib}
+\nocite{*}
+\end{document}

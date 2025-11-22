@@ -1,0 +1,32 @@
+\begin{thebibliography}{1}
+
+\bibitem{beutel2020}
+D.~J. Beutel and et~al.
+\newblock Flower: A friendly federated learning framework.
+\newblock arXiv preprint arXiv:2007.14390, 2020.
+
+\bibitem{kairouz2021}
+P.~Kairouz, H.~B. McMahan, and et~al.
+\newblock Advances and open problems in federated learning.
+\newblock {\em Foundations and Trends in Machine Learning}, 14(1-2):1--210,
+  2021.
+
+\bibitem{li2020}
+T.~Li, A.~K. Sahu, A.~Talwalkar, and V.~Smith.
+\newblock Federated optimization in heterogeneous networks.
+\newblock In {\em MLSys}, 2020.
+
+\bibitem{mcm2017}
+H.~B. et al~. McMahan.
+\newblock Communication-efficient learning of deep networks from decentralized
+  data.
+\newblock In {\em Proceedings of the 20th International Conference on
+  Artificial Intelligence and Statistics (AISTATS)}, 2017.
+
+\bibitem{qiu2006}
+H.~Qiu and et~al.
+\newblock Wavelet filter-based weak signature detection method and its
+  application on rolling element bearing prognostics.
+\newblock {\em Journal of Sound and Vibration}, 289(4-5):1066--1090, 2006.
+
+\end{thebibliography}

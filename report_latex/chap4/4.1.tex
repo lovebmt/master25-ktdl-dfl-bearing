@@ -1,0 +1,62 @@
+
+\section{Lý do và yêu cầu mô phỏng}
+
+\hspace{0.6cm}Trong bối cảnh IoT, việc triển khai các thuật toán Distributed Federated Learning (DFL) trực tiếp trên thiết bị thật gặp nhiều hạn chế:
+
+\begin{itemize}
+    \item Chi phí phần cứng cao: IoT nodes có số lượng lớn, việc chuẩn bị 10–50 thiết bị để thí nghiệm là không khả thi.
+    \item Tài nguyên phần cứng hạn chế: Nhiều thiết bị thực (cảm biến, vi điều khiển, gateway nhỏ) không đủ năng lực để huấn luyện mô hình phức tạp.
+    \item Mạng IoT khó tái tạo: Các yếu tố như mất gói, độ trễ cao, hoặc thay đổi topology rất khó mô phỏng chính xác trên thiết bị thật.
+\end{itemize}
+Do đó, mô phỏng DFL cho phép nghiên cứu hành vi của hệ thống mà không cần triển khai vật lý, mang lại các lợi ích:
+\begin{itemize}
+    \item Kiểm soát hoàn toàn môi trường (số node, băng thông, độ trễ, lỗi kết nối).
+    \item Tiết kiệm chi phí và thời gian.
+    \item Lặp lại (reproducibility) dễ dàng.
+    \item Hỗ trợ thử nghiệm nhiều topology (mesh, ring, random gossip) mà không cần thay đổi phần cứng.
+\end{itemize}
+Việc mô phỏng đặc biệt quan trọng trong IoT vì môi trường mạng không ổn định và thiết bị yếu đều là các yếu tố mà DFL cần phải xử lý.
+
+\section{Công cụ mô phỏng}
+\hspace{0.6cm}Trong nghiên cứu này, nhóm triển khai DFL thuần túy với kiến trúc P2P (Peer-to-Peer) tùy chỉnh:
+
+\begin{itemize}
+    \item \textbf{Kiến trúc P2P Ring Topology}
+    \begin{itemize}
+    \item Mỗi peer kết nối với 2 peer lân cận trong mô hình vòng tròn.
+    \item Mô hình được trao đổi theo chiều kim đồng hồ giữa các peer.
+    \item Không có central server - hoàn toàn phi tập trung (serverless).
+    \item Mỗi peer thực hiện aggregation cục bộ với mô hình nhận được từ peer trước đó.
+    \end{itemize}
+
+    \item \textbf{Triển khai bằng Python}
+    \begin{itemize}
+    \item Sử dụng PyTorch cho training và model management.
+    \item Mỗi peer được mô phỏng như một process độc lập.
+    \item Communication giữa các peer được mô phỏng thông qua trao đổi trọng số mô hình.
+    \item Hỗ trợ cả phân phối dữ liệu IID (balanced) và Non-IID (imbalanced).
+    \end{itemize}
+
+    \item \textbf{Ưu điểm của phương pháp này}
+    \begin{itemize}
+    \item Hoàn toàn phi tập trung - không phụ thuộc vào server trung tâm.
+    \item Tăng tính riêng tư và bảo mật dữ liệu.
+    \item Giảm single point of failure.
+    \item Phù hợp cho môi trường IoT với tài nguyên hạn chế.
+    \item Dễ dàng mở rộng và tùy chỉnh topology.
+    \end{itemize}
+\end{itemize}
+
+\section{Định nghĩa bài toán mô phỏng}
+
+\hspace{0.6cm}Trong mô phỏng DFL cho IoT, nhóm sử dụng bài toán phát hiện bất thường (anomaly detection) trong máy quay công nghiệp dựa trên dữ liệu rung (vibration). Đây là một bài toán điển hình trong IoT công nghiệp (IIoT), nơi cảm biến được lắp trực tiếp lên các vòng bi, mô tơ hoặc robot để phát hiện lỗi trước khi sự cố xảy ra.
+\begin{itemize}
+    \item Nhiệm vụ: Mỗi thiết bị IoT (mỗi peer) học mô hình phát hiện bất thường dựa trên dữ liệu rung của vòng bi.
+    \item Mục tiêu: Mô phỏng cách các cảm biến IoT, mỗi thiết bị chứa lượng dữ liệu khác nhau, cùng học một mô hình phân tán mà không cần chia sẻ dữ liệu thô.
+    \item Kịch bản IoT:   
+    \begin{itemize}
+        \item Mỗi peer tương ứng với một cảm biến gắn trên máy.         
+        \item Mỗi cảm biến ghi nhận dữ liệu theo thời gian, tạo ra dataset riêng (IID hoặc Non-IID).        
+        \item Các cảm biến trao đổi trọng số mô hình thông qua cơ chế DFL P2P ring topology.
+    \end{itemize}
+\end{itemize}

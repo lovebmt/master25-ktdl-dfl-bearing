@@ -1,0 +1,154 @@
+
+\section{Dataset và Preprocessing}
+
+\textbf{NASA Bearing Dataset:} Dữ liệu vibration từ 4 vòng bi được giám sát đến khi hỏng hoàn toàn. Mỗi sample có 8 channels (cảm biến) với 20480 data points mỗi channel.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{image/bearing.png}
+\caption{Thiết bị trong công nghiệp}
+\end{figure}
+
+\textbf{Feature extraction:} Từ raw time-series, trích xuất 8 features thống kê:
+\begin{itemize}
+    \item Mean và Standard Deviation
+    \item RMS (Root Mean Square)
+    \item Kurtosis và Skewness
+    \item Peak-to-Peak
+    \item Crest Factor
+    \item Form Factor
+\end{itemize}
+
+\textbf{Data distribution:} Tổng cộng 32,760 samples được chia thành:
+
+\textit{Balanced (IID):} Mỗi client có đúng 3,276 training samples và 820 test samples.
+
+\textit{Imbalanced (Non-IID):} Phân phối theo power law để mô phỏng thực tế:
+\begin{itemize}
+    \item Client 0: 9,830 samples (100.0\%)
+    \item Client 1: 1,638 samples (14.3\%)
+    \item Client 2: 3,932 samples (25.5\%)
+    \item Client 3: 3,276 samples (17.5\%)
+    \item Client 4: 2,948 samples (13.6\%)
+    \item Client 5: 2,620 samples (10.8\%)
+    \item Client 6: 2,620 samples (9.8\%)
+    \item Client 7: 2,293 samples (7.9\%)
+    \item Client 8: 3,276 samples (10.1\%)
+    \item Client 9: 329 samples (1.0\%)
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Phân phối dữ liệu giữa 10 clients}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Client} & \textbf{Train (IID)} & \textbf{Train (Non-IID)} & \textbf{Test (IID)} & \textbf{Test (Non-IID)} \\
+\midrule
+0 & 3,276 & 9,830 (100.0\%) & 820 & 2,458 \\
+1 & 3,276 & 1,638 (14.3\%) & 820 & 410 \\
+2 & 3,276 & 3,932 (25.5\%) & 820 & 983 \\
+3 & 3,276 & 3,276 (17.5\%) & 820 & 820 \\
+4 & 3,276 & 2,948 (13.6\%) & 820 & 738 \\
+5 & 3,276 & 2,620 (10.8\%) & 820 & 656 \\
+6 & 3,276 & 2,620 (9.8\%) & 820 & 656 \\
+7 & 3,276 & 2,293 (7.9\%) & 820 & 574 \\
+8 & 3,276 & 3,276 (10.1\%) & 820 & 820 \\
+9 & 3,276 & 329 (1.0\%) & 820 & 83 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Sensor Data Visualization}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{image/sensor_data_visualization.png}
+\caption{Visualization của sensor data patterns}
+\end{figure}
+
+Biểu đồ cho thấy:
+\begin{itemize}
+    \item Normal data có pattern khá stable và consistent
+    \item Anomaly samples có spikes hoặc deviations rõ ràng từ normal pattern
+    \item Các features khác nhau capture các aspects khác nhau của bearing condition
+\end{itemize}
+
+\section{Kiến Trúc Mô Hình Autoencoder}
+
+Autoencoder được thiết kế để học representation của dữ liệu normal bearing:
+
+\textbf{Architecture:}
+\begin{itemize}
+    \item Input layer: 8 features
+    \item Encoder: $8 \rightarrow 4 \rightarrow 2$ (bottleneck)
+    \item Decoder: $2 \rightarrow 4 \rightarrow 8$
+    \item Activation: ReLU
+    \item Loss function: Mean Squared Error (MSE)
+\end{itemize}
+
+\textbf{Training configuration:}
+\begin{itemize}
+    \item Optimizer: Adam với learning rate $10^{-3}$
+    \item Local epochs: 1 epoch mỗi round
+    \item Batch size: 32
+    \item Total rounds: 50
+\end{itemize}
+
+\textbf{Rationale:} Autoencoder học reconstruct dữ liệu bình thường. Khi gặp anomaly (bearing fault), reconstruction error sẽ cao hơn nhiều, cho phép phát hiện.
+
+\section{Cấu Hình Decentralized Federated Learning}
+
+Triển khai DFL thuần túy với kiến trúc P2P Ring Topology:
+
+\begin{itemize}
+    \item \textbf{Số peers:} 10 (mô phỏng 10 thiết bị IoT)
+    \item \textbf{Topology:} Ring - mỗi peer kết nối với 2 peer lân cận
+    \item \textbf{Communication:} Peer-to-Peer (P2P) - không có central server
+    \item \textbf{Aggregation:} Local tại mỗi peer (trung bình trọng số từ peer trước đó)
+    \item \textbf{Total rounds:} 50
+    \item \textbf{Local epochs:} 1 epoch mỗi round
+    \item \textbf{Batch size:} 128
+    \item \textbf{Learning rate:} 0.001
+    \item \textbf{Device:} CPU
+\end{itemize}
+
+\textbf{Ring Topology Flow:} 
+\begin{itemize}
+    \item Peer 0 $\rightarrow$ Peer 1 $\rightarrow$ Peer 2 $\rightarrow$ ... $\rightarrow$ Peer 9 $\rightarrow$ Peer 0
+    \item Mỗi peer train local model và gửi weights cho peer tiếp theo
+    \item Peer nhận weights từ peer trước đó và thực hiện aggregation (averaging)
+    \item Không có single point of failure - hoàn toàn phi tập trung
+\end{itemize}
+
+\textbf{Ưu điểm của DFL P2P:} 
+\begin{itemize}
+    \item Tăng tính riêng tư: dữ liệu không bao giờ rời khỏi peer
+    \item Giảm bandwidth: chỉ giao tiếp với 2 peer lân cận
+    \item Fault tolerance: nếu một peer fail, topology có thể tái cấu hình
+    \item Scalable: dễ dàng thêm/bớt peer mà không ảnh hưởng toàn hệ thống
+\end{itemize}
+
+\section{Quy Trình Thực Nghiệm}
+
+\textbf{Experiment 1: Balanced (IID)}
+\begin{enumerate}
+    \item Chia đều 32,760 samples cho 10 peers (3,276 samples/peer)
+    \item Khởi tạo model với random weights
+    \item Chạy 50 rounds DFL với P2P ring topology
+    \item Mỗi peer train local model và trao đổi weights với peer kế tiếp
+    \item Đánh giá trên local test set của mỗi peer
+\end{enumerate}
+
+\textbf{Experiment 2: Imbalanced (Non-IID)}
+\begin{enumerate}
+    \item Phân phối không cân bằng theo power law (từ 329 đến 9,830 samples)
+    \item Các bước còn lại giống Experiment 1
+\end{enumerate}
+
+\textbf{Metrics:}
+\begin{itemize}
+    \item Training loss: MSE trên training set của mỗi peer
+    \item Evaluation loss: MSE trên test set của mỗi peer
+    \item Convergence speed: số rounds để đạt loss < 0.005
+    \item Loss reduction: chênh lệch giữa initial loss và final loss
+    \item Anomaly detection threshold: 95th percentile và Mean+2$\sigma$ của MSE distribution
+\end{itemize}

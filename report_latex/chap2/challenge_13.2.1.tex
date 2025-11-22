@@ -1,0 +1,218 @@
+
+\section{Khái niệm FL và DFL}
+
+\hspace{0.6cm}Federated Learning (FL) là phương pháp học máy phân tán trong đó mô hình được 
+huấn luyện trực tiếp trên từng thiết bị hoặc node mà không cần tập trung dữ liệu 
+về server trung tâm. Các thiết bị chỉ gửi \textit{model updates} (như gradients 
+hoặc weights) thay vì gửi dữ liệu thô, giúp giảm rủi ro rò rỉ thông tin và giảm tải 
+băng thông. Tuy nhiên, FL truyền thống vẫn phụ thuộc vào một server trung tâm để 
+tổng hợp mô hình, tạo ra điểm nghẽn (bottleneck) và rủi ro \textit{single point of failure}.
+
+Trong khi đó, Decentralized Federated Learning (DFL) loại bỏ hoàn toàn sự phụ 
+thuộc vào server tổng hợp. Các thiết bị IoT giao tiếp trực tiếp theo mô hình 
+\textit{peer-to-peer}, thực hiện trao đổi mô hình và cập nhật đồng thuận theo cấu trúc 
+mạng được định nghĩa trước (ring, mesh, gossip, hoặc blockchain-based).  
+
+\textbf{Mục tiêu chính của DFL}:
+
+\begin{itemize}
+    \item Loại bỏ điểm tập trung, tăng khả năng chịu lỗi và bảo mật.
+    \item Tận dụng giao tiếp cục bộ (local communication) để giảm độ trễ và chi phí mạng.
+    \item Hỗ trợ các hệ thống IoT quy mô lớn, phân tán và không đồng nhất.
+    \item Đảm bảo tính riêng tư và tính tự chủ của từng thiết bị.
+\end{itemize}
+
+\section{Kiến trúc DFL}
+
+\hspace{0.6cm}Khác với FL truyền thống dựa vào một server trung tâm, kiến trúc DFL được xây 
+dựng hoàn toàn theo mô hình mạng phân tán. Một số topology phổ biến:
+
+\textbf{Peer-to-Peer (P2P):}  
+Mỗi node kết nối với một số node lân cận, thực hiện trao đổi mô hình trực tiếp. 
+P2P đơn giản, linh hoạt, phù hợp IoT và không yêu cầu quản lý tập trung.
+
+\textbf{Ring Topology:}  
+Các node được sắp xếp thành một vòng khép kín. Mỗi node chỉ giao tiếp với 
+hai node liền kề. Topology này dễ triển khai, chi phí giao tiếp thấp nhưng tốc độ 
+hội tụ chậm.
+
+\textbf{Gossip-Based Topology:}  
+Mỗi node ngẫu nhiên chọn một hoặc nhiều neighbor để chia sẻ model weights. 
+Đây là cấu trúc phổ biến trong DFL, đảm bảo hội tụ nhanh, phân phối tải đều, 
+và có khả năng mở rộng tốt.
+
+\textbf{Blockchain-Based DFL:}  
+Sử dụng blockchain để ghi lại và xác thực các bản cập nhật mô hình. Topology này 
+đảm bảo tính toàn vẹn và chống gian lận, nhưng chi phí tính toán và độ trễ cao hơn.
+
+Nhìn chung, các kiến trúc trên đều hướng tới mục tiêu: không có server trung tâm, 
+giao tiếp phi tập trung, và tối ưu cho các hệ thống IoT với hạ tầng mạng linh hoạt.
+
+\section{Quy trình hoạt động của DFL}
+
+\hspace{0.6cm}Quy trình trong DFL diễn ra hoàn toàn theo dạng phân tán mà không cần 
+server tổng hợp. Một vòng lặp tiêu biểu của DFL bao gồm:
+
+\begin{enumerate}
+    \item \textbf{Khởi tạo mô hình} tại mỗi node hoặc nhận mô hình từ một node khởi tạo.
+    \item \textbf{Local training}: mỗi node huấn luyện mô hình dựa trên dữ liệu của riêng mình.
+    \item \textbf{Peer selection}: node chọn một hoặc nhiều node lân cận theo topology.
+    \item \textbf{Exchange}: các node trao đổi weights/model updates theo dạng P2P.
+    \item \textbf{Aggregation}: node cập nhật mô hình bằng cách trung bình hoá 
+    (average hoặc weighted average) các mô hình từ neighbors.
+    \item \textbf{Update}: mô hình mới được lưu lại tại node và tiếp tục training.
+    \item \textbf{Lặp lại} cho đến khi mô hình hội tụ.
+\end{enumerate}
+
+Không có node nào giữ vai trò trung tâm, và hệ thống vẫn tiếp tục hoạt động khi 
+một số node bị lỗi hoặc tách khỏi mạng.
+
+\section{Xử lý trường hợp lỗi node hoặc kết nối không ổn định trong DFL}
+
+\hspace{0.6cm}Trong môi trường IoT, sự cố node và kết nối không ổn định là vấn đề rất phổ biến. Thiết bị IoT thường có tài nguyên hạn chế, năng lượng thấp, hoạt động theo chu kỳ ngủ hoặc thức, đồng thời phải truyền dữ liệu qua mạng không dây nhiều nhiễu. Do đó, một mô hình DFL hiệu quả phải tích hợp các cơ chế để đảm bảo việc huấn luyện phân tán vẫn diễn ra ổn định và mô hình vẫn hội tụ ngay cả khi có lỗi.
+
+\begin{enumerate}
+    \item \textbf{Cơ chế truyền thông bất đồng bộ (Asynchronous Communication)}
+    \begin{itemize}
+    \item Mỗi node có thể gửi hoặc nhận cập nhật mô hình vào thời điểm khác nhau.
+    \item Node nhanh không phải chờ node chậm (straggler).
+    \item Mạng không bị “đứng” khi có node mất kết nối tạm thời.
+\end{itemize}
+    \item \textbf{Linh hoạt trong kiến trúc liên lạc (Temporal Variability)}: 
+    DFL có thể:
+    \begin{itemize}
+    \item Thay đổi tuyến truyền mô hình.
+    \item Loại bỏ tạm thời node mất ổn định.
+    \item Kết nối lại khi node hoạt động trở lại.
+\end{itemize}
+Nhờ vậy mô hình vẫn hội tụ ngay cả khi topology thay đổi liên tục.
+    \item \textbf{Thuật toán Gossip giúp chống lỗi tự nhiên (Gossip Robustness)}
+    \begin{itemize}
+    \item Mỗi node chỉ cần trao đổi với một nhóm nhỏ các node lân cận..
+    \item Một node chết không làm “đứt” toàn bộ vòng huấn luyện.
+    \item Mô hình vẫn lan truyền qua các đường khác trong mạng.
+\end{itemize}
+Đây là cơ chế đặc biệt phù hợp với mạng IoT mesh và IoT công nghiệp.
+    \item \textbf{Cơ chế bỏ qua hoặc giảm ảnh hưởng của Stragglers}
+    \begin{itemize}
+    \item Các node không cần chờ nhau.
+    \item Node chậm sẽ không làm ngưng toàn bộ tiến trình.
+    \item Khi nhận mô hình quá cũ, node nhanh có thể bỏ qua cập nhật lạc hậu (stale update).
+\end{itemize}
+Điều này giúp mô hình hội tụ nhanh hơn và ổn định hơn so với FL tập trung.
+    \item \textbf{Cơ chế chống lỗi truyền (Noise/ Packet Loss Handling)}
+    \begin{itemize}
+    \item Truyền nhiều bản sao mô hình trong broadcast-gossip.
+    \item Truyền mô hình nhỏ gọn hơn (gradient compression).
+    \item Lọc hoặc làm mượt mô hình bị nhiễu thông qua averaging.
+\end{itemize}
+Điều này đặc biệt hữu ích trong IoT vì môi trường mạng không dây dễ nhiễu.
+    \item \textbf{Node lỗi không làm gián đoạn quá trình hội tụ}: 
+Do không có server trung tâm, DFL không bị phụ thuộc vào một node duy nhất.
+Điều này giải quyết hai rủi ro lớn:
+    \begin{itemize}
+    \item Không có “single point of failure: Một node chết thì chỉ mất một nguồn dữ liệu, quá trình học vẫn tiếp tục.
+    \item Không tắc nghẽn tại server: Không có node đóng vai trò bottleneck của toàn bộ mạng.
+\end{itemize}
+    \item \textbf{Kết hợp Blockchain để chống gian lận và lỗi mô hình}: Một số hệ thống DFL sử dụng blockchain để bảo đảm tính toàn vẹn mô hình, phát hiện node gửi mô hình sai hoặc tấn công độc hại và chống giả mạo cập nhật. Mặc dù không bắt buộc, nhưng với IoT quy mô lớn, blockchain giúp tăng độ tin cậy.
+\end{enumerate}
+
+
+\section{Ưu điểm của DFL so với FL trong IoT}
+
+\hspace{0.6cm}DFL sở hữu nhiều ưu điểm quan trọng đối với các hệ thống IoT:
+
+\begin{itemize}
+    \item \textbf{Không có single point of failure}: mạng hoạt động ngay cả khi nhiều node ngừng hoạt động.
+    \item \textbf{Độ trễ thấp}: giao tiếp chủ yếu diễn ra ở local network, thay vì gửi lên cloud.
+    \item \textbf{Khả năng mở rộng cao}: số lượng node lớn không tạo ra nghẽn mạng như mô hình FL truyền thống.
+    \item \textbf{Tính riêng tư mạnh hơn}: không có trung tâm lưu trữ model updates.
+    \item \textbf{Phù hợp môi trường edge}: hoạt động tốt khi kết nối không ổn định hoặc gián đoạn.
+    \item \textbf{Tận dụng cluster tự nhiên của IoT}: các sensors trong cùng khu vực có thể liên kết với nhau hiệu quả.
+\end{itemize}
+
+Những đặc điểm này khiến DFL trở thành kiến trúc lý tưởng cho các ứng dụng như 
+smart factory, smart home, autonomous vehicles và mạng cảm biến phân tán.
+
+\section{Thách thức kỹ thuật của DFL}
+
+\hspace{0.6cm}Mặc dù mang lại nhiều lợi thế, DFL vẫn tồn tại các thách thức đáng kể:
+
+\textbf{Hội tụ khó khăn:}  
+Do không có server trung tâm, mô hình toàn hệ thống dễ bị phân kỳ, đặc biệt trong 
+môi trường Non-IID và khi các updates không đồng bộ.
+
+\textbf{Communication overhead:}  
+Mỗi node phải trao đổi mô hình với nhiều neighbors, dẫn đến tổng chi phí giao tiếp 
+cao hơn FL truyền thống.
+
+\textbf{Bảo mật và tính toàn vẹn:}  
+Mạng P2P dễ bị tấn công như:
+
+\begin{itemize}
+    \item Byzantine attacks
+    \item Model poisoning
+    \item Backdoor injection
+    \item Inference attacks
+\end{itemize}
+
+Không có server trung tâm để kiểm tra tính đúng đắn của model updates.
+
+\textbf{Thiết kế topology tối ưu:}  
+Cần cân bằng giữa tốc độ hội tụ, chi phí truyền thông và khả năng chịu lỗi.
+
+\textbf{Heterogeneity:}  
+IoT có sự khác biệt lớn về:
+
+\begin{itemize}
+    \item kích thước dữ liệu,
+    \item năng lực tính toán,
+    \item trạng thái kết nối,
+    \item tiêu thụ năng lượng.
+\end{itemize}
+
+DFL cần điều chỉnh phù hợp với môi trường đa dạng này.
+
+Tóm lại, DFL mang lại nền tảng vững chắc để triển khai học máy phân tán trong IoT, 
+nhưng yêu cầu nghiên cứu thêm về bảo mật, tối ưu topology và đảm bảo hội tụ.
+
+\section{Ứng Dụng DFL Trong Hệ Thống IoT Thực Tế}
+\begin{enumerate}
+    \item \textbf{Smart City}: Network các sensors phân tán đo chất lượng không khí,
+độ ồn, nhiệt độ. DFL cho phép:
+    \begin{itemize}
+    \item Mỗi khu vực tự train model local từ sensors của mình.
+    \item Các khu vực lân cận share models qua P2P.
+    \item Không cần chuyển dữ liệu quan trọng về máy chủ tập trung.
+    \item Dự đoán và cảnh báo theo thời gian thực.
+\end{itemize}
+
+    \item \textbf{Smart Home}: Các thiết bị trong nhà (thermostat, lights, appliances) học usage patterns để tối ưu energy:
+    \begin{itemize}
+    \item Quyền riêng tư: Không chia sẻ thói quen sinh hoạt với bất kỳ bên thứ ba nào.
+    \item Cá nhân hóa: Mô hình cục bộ được tối ưu để phù hợp với từng hộ gia đình.
+    \item Hợp tác: Học hỏi từ các thiết bị lân cận mà không tiết lộ dữ liệu cá nhân.
+\end{itemize}
+
+    \item \textbf{Smart Grid}: DFL cho demand forecasting và fault detection:
+    \begin{itemize}
+    \item Các trạm biến áp huấn luyện mô hình dựa trên mẫu tiêu thụ điện năng tại chỗ.
+    \item Chia sẻ mô hình với các trạm lân cận để nâng cao độ chính xác dự đoán.
+    \item Phát hiện bất thường như hành vi trộm điện hoặc sự cố thiết bị.
+\end{itemize}
+
+    \item \textbf{Industrial IoT (IIoT)}: Trường hợp sử dụng chính của báo cáo này: Predictive maintenance trong nhà máy.
+    \begin{itemize}
+    \item Mỗi máy hoặc dây chuyền sản xuất là một node.
+    \item Các node trong cùng một nhà máy tạo thành một cụm với kết nối nội bộ nhanh.
+    \item Các cụm từ các nhà máy khác nhau có thể liên kết với nhau ở tốc độ chậm hơn.
+\end{itemize}
+
+    \item \textbf{Wireless Sensor Networks (WSN)}:Mạng cảm biến không dây triển khai trong môi trường từ xa (rừng, đại dương, nông nghiệp):
+    \begin{itemize}
+    \item Các cảm biến giao tiếp với nút lân cận khi nằm trong phạm vi sóng vô tuyến.
+    \item Cập nhật mô hình lan truyền qua giao thức gossip.
+    \item Tiết kiệm năng lượng: chỉ chia sẻ mô hình khi có đủ dữ liệu mới. 
+    \item Chịu lỗi: mạng tự phục hồi khi cảm biến gặp sự cố.
+\end{itemize}
+\end{enumerate}

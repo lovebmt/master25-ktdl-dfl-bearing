@@ -1301,14 +1301,46 @@ if __name__ == "__main__":
         },
         "generated_files": {
             "visualizations": [
-                "sensor_data_visualization.png",
-                "mse_distribution_threshold.png",
-                "anomaly_detection_comparison.png",
-                "data_distribution_visualization.png",
-                "ring_topology.png",
-                "peer_losses.png",
-                "experiments_comparison.png",
-                "final_loss_comparison.png"
+                {
+                    "filename": "sensor_data_visualization.png",
+                    "description": "Visualizes 8 bearing sensor channels showing time-series data from the first 1000 samples. Displays raw sensor readings to understand data patterns and characteristics.",
+                    "purpose": "Data exploration and understanding sensor behavior"
+                },
+                {
+                    "filename": "mse_distribution_threshold.png",
+                    "description": "Shows MSE (Mean Squared Error) distribution histograms and cumulative distribution curves for both balanced and imbalanced models. Includes anomaly detection thresholds (95th percentile and Mean+2σ).",
+                    "purpose": "Threshold determination for anomaly detection and error distribution analysis"
+                },
+                {
+                    "filename": "anomaly_detection_comparison.png",
+                    "description": "Compares anomaly detection performance between balanced and imbalanced models across 4 test scenarios: Normal, Sensor Error, High Vibration, and Negative Values. Shows reconstruction errors with threshold lines.",
+                    "purpose": "Evaluate model effectiveness in detecting bearing anomalies"
+                },
+                {
+                    "filename": "data_distribution_visualization.png",
+                    "description": "Displays training data distribution across 10 peers using bar charts and pie charts. Shows both IID (balanced) and Non-IID (imbalanced) distributions with sample counts and percentages.",
+                    "purpose": "Understand data partitioning strategy and imbalance levels across peers"
+                },
+                {
+                    "filename": "ring_topology.png",
+                    "description": "Illustrates the decentralized federated learning ring topology where each peer (P0-P9) connects to 2 neighbors. Blue arrows show P2P communication flow in a circular arrangement.",
+                    "purpose": "Visualize DFL network architecture and peer-to-peer communication structure"
+                },
+                {
+                    "filename": "peer_losses.png",
+                    "description": "Shows individual peer training and evaluation losses over 50 rounds for both balanced and imbalanced scenarios. Each peer's loss trajectory is plotted separately to observe convergence patterns.",
+                    "purpose": "Monitor individual peer performance and identify convergence issues"
+                },
+                {
+                    "filename": "experiments_comparison.png",
+                    "description": "Compares average training and evaluation losses between balanced and imbalanced experiments across all rounds. Shows convergence trends and final performance differences.",
+                    "purpose": "Compare overall model performance under different data distribution strategies"
+                },
+                {
+                    "filename": "final_loss_comparison.png",
+                    "description": "Bar chart comparing final training losses between DFL Balanced and DFL Imbalanced experiments. Shows exact loss values for quick performance comparison.",
+                    "purpose": "Quick visual summary of final model performance"
+                }
             ],
             "reports": [
                 "dfl_results.json"
