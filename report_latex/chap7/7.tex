@@ -8,11 +8,12 @@ Báo cáo này đã trình bày tổng quan về Decentralized Federated Learnin
 \textbf{Giới hạn của nghiên cứu:}
 
 \begin{itemize}
-    \item Mô phỏng phần mềm, chưa deploy trên thiết bị IoT thật với hardware constraints
-    \item Giả định reliable network, chưa test với packet loss và high latency
-    \item Chưa implement defense mechanisms chống Byzantine attacks
-    \item Chỉ test với ring topology, chưa thử nghiệm các topology khác
-    \item Quy mô nhỏ (10 peers), chưa test scalability với hàng trăm hoặc hàng nghìn nodes
+    \item Nghiên cứu chủ yếu dựa trên mô phỏng phần mềm, chưa triển khai thực tế trên thiết bị IoT với các ràng buộc phần cứng thực tế
+    \item Giả định mạng truyền thông ổn định (reliable network), chưa kiểm thử với các điều kiện mất gói tin (packet loss) hoặc độ trễ cao (high latency)
+    \item Chưa triển khai các cơ chế bảo vệ chống lại tấn công Byzantine hoặc các mối đe dọa bảo mật khác
+    \item Chỉ sử dụng topology tập trung (centralized FL), chưa kiểm thử các topology DFL thuần P2P như ring, mesh, gossip
+    \item Bộ dữ liệu chỉ gồm một loại dữ liệu cảm biến (bearing vibration), chưa kiểm thử trên các loại dữ liệu khác
+    \item Quy mô thử nghiệm nhỏ (10 clients), chưa kiểm thử khả năng mở rộng với hàng trăm hoặc hàng nghìn node
 \end{itemize}
 
 \section{Hướng Phát Triển}
@@ -43,4 +44,17 @@ Các hướng phát triển cho nghiên cứu trong tương lai:
 
 \textbf{Tác động thực tiễn:}
 
-DFL có tiềm năng transform các ngành công nghiệp thông qua predictive maintenance (manufacturing), collaborative medical diagnosis (healthcare), autonomous vehicles learning (transportation), và smart grid optimization (energy), đồng thời empowers individuals với data ownership và privacy, enables AI cho organizations nhỏ, supports regulatory compliance (GDPR, HIPAA), và promotes democratization of AI.
+DFL có tiềm năng chuyển đổi các ngành công nghiệp như:
+\begin{itemize}
+    \item \textbf{Manufacturing:} Giảm downtime nhờ bảo trì dự đoán (predictive maintenance) mà vẫn đảm bảo quyền riêng tư dữ liệu máy móc
+    \item \textbf{Healthcare:} Các bệnh viện có thể hợp tác chẩn đoán y khoa mà không cần chia sẻ dữ liệu bệnh nhân, bảo vệ quyền riêng tư và tuân thủ quy định
+    \item \textbf{Transportation:} Xe tự hành học chính sách lái xe từ toàn bộ đội xe mà không cần thu thập dữ liệu tập trung
+    \item \textbf{Energy:} Lưới điện thông minh (smart grid) tối ưu vận hành nhờ hợp tác giữa các node mà không cần trung tâm
+\end{itemize}
+Tác động xã hội:
+\begin{itemize}
+    \item Trao quyền cho cá nhân về quyền sở hữu và kiểm soát dữ liệu cá nhân
+    \item Cho phép các tổ chức nhỏ ứng dụng AI mà không cần hạ tầng tập trung lớn
+    \item Hỗ trợ tuân thủ các quy định về bảo mật dữ liệu (GDPR, HIPAA)
+    \item Thúc đẩy dân chủ hóa AI, giúp AI tiếp cận rộng rãi hơn trong xã hội
+\end{itemize}
