@@ -73,24 +73,25 @@ def embed_images(html_content, base_dir):
 
 def embed_images_in_js(js_content, base_dir):
     """Find and embed all image paths in JavaScript content as base64 data URLs."""
-    # Pattern to match image paths in JavaScript (e.g., "../reports/image.png")
-    img_pattern = r'["\'](\.\./reports/[^"\']+\.(?:png|jpg|jpeg|gif|svg|webp))["\']'
-    
+    # Pattern to match image paths in JavaScript (e.g., "../reports_dfl/image.png" or "../reports_dfl/image.jpg")
+    img_pattern = r'(["\'])(\.\./reports_dfl/[^"\']+\.(?:png|jpg|jpeg|gif|svg|webp))["\']'
+
     def replace_image_path(match):
-        img_path_str = match.group(1)
-        
+        quote = match.group(1)
+        img_path_str = match.group(2)
+
         # Resolve relative path from present directory
         img_path = base_dir.parent / img_path_str.replace('../', '')
-        
+
         # Convert to base64 if file exists
         if img_path.exists():
-            print(f"  Embedding image: {img_path.name}")
+            print(f"  Embedding image in JS: {img_path.name}")
             base64_url = image_to_base64(img_path)
-            return f'"{base64_url}"'
+            return f'{quote}{base64_url}{quote}'
         else:
-            print(f"  Warning: Image not found: {img_path}")
+            print(f"  Warning: Image not found in JS: {img_path}")
             return match.group(0)
-    
+
     return re.sub(img_pattern, replace_image_path, js_content)
 
 
@@ -108,9 +109,31 @@ def bundle_presentation():
     slides_data_js = read_file(present_dir / 'slides-data.js')
     slides_renderer_js = read_file(present_dir / 'slides-renderer.js')
     
-    # Embed images in JavaScript files
+    # Embed images in JavaScript files (slides-data.js)
     print("Embedding images in JavaScript...")
+    # First, embed direct image paths (../reports_dfl/...) as before
     slides_data_js = embed_images_in_js(slides_data_js, present_dir)
+
+    # Additionally, embed images referenced by 'image' and 'dialogImage' fields in slides-data.js
+    def embed_slide_image_fields(js_content, base_dir):
+        # Matches: "image": "../reports_dfl/xxx.png" or 'image': '../reports_dfl/xxx.png'
+        field_pattern = r'(["\'])(image|dialogImage)["\']\s*:\s*(["\'])(\.\./reports_dfl/[^"\']+\.(?:png|jpg|jpeg|gif|svg|webp))["\']'
+        def replace_field(match):
+            field_quote = match.group(1)
+            field_name = match.group(2)
+            value_quote = match.group(3)
+            img_path_str = match.group(4)
+            img_path = base_dir.parent / img_path_str.replace('../', '')
+            if img_path.exists():
+                print(f"  Embedding {field_name} image: {img_path.name}")
+                base64_url = image_to_base64(img_path)
+                return f'{field_quote}{field_name}{field_quote}: {value_quote}{base64_url}{value_quote}'
+            else:
+                print(f"  Warning: {field_name} image not found: {img_path}")
+                return match.group(0)
+        return re.sub(field_pattern, replace_field, js_content)
+
+    slides_data_js = embed_slide_image_fields(slides_data_js, present_dir)
     
     # Replace external CSS link with inline styles
     print("Embedding CSS...")
