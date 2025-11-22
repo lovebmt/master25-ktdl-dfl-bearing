@@ -172,3 +172,7 @@ report.toc
 note
 report.aux
 
+**/*.aux
+report_latex/main.synctex.gz
+report_latex/main.bbl
+report_latex/main.bbl
