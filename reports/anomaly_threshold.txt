@@ -2,11 +2,22 @@
 ANOMALY THRESHOLD
 ================================================================================
 
-95th Percentile: 0.079331
-Mean + 2×Std:    0.083409
+MSE Formula: MSE = (1/n) * Σ(xi - x̂i)²
+  where xi = original value, x̂i = reconstructed value, n = features
 
-Selected threshold: 0.079331 (95th percentile)
+Statistics:
+  Total samples:     8,192
+  Mean MSE:          0.045360
+  Std deviation:     0.010979
+  Min MSE:           0.010949
+  Max MSE:           0.147518
+  Median:            0.044398
+
+95th Percentile: 0.063992
+Mean + 2×Std:    0.067318
+
+Selected threshold: 0.063992 (95th percentile)
 
 RULE:
-   Error < 0.079331 -> NORMAL
-   Error > 0.079331 -> ANOMALY
+   Error < 0.063992 -> NORMAL
+   Error > 0.063992 -> ANOMALY

@@ -286,6 +286,11 @@ _num_clients = NUM_CLIENTS
 _local_epochs = LOCAL_EPOCHS
 _learning_rate = LEARNING_RATE
 
+balanced_train_sizes = []
+balanced_test_sizes = []
+imbalanced_train_sizes = []
+imbalanced_test_sizes = []
+
 with open('reports/data_distribution_analysis.txt', 'w') as f:
     f.write("="*70 + "\n")
     f.write("DATA DISTRIBUTION ANALYSIS\n")
@@ -294,15 +299,66 @@ with open('reports/data_distribution_analysis.txt', 'w') as f:
     f.write("BALANCED Distribution:\n")
     for i in range(NUM_CLIENTS):
         train_loader, test_loader = load_data(i, NUM_CLIENTS, data_distribution="balanced")
+        balanced_train_sizes.append(len(train_loader.dataset))
+        balanced_test_sizes.append(len(test_loader.dataset))
         f.write(f"   Client {i}: Train={len(train_loader.dataset):5d}, Test={len(test_loader.dataset):4d}\n")
     
     f.write("\nIMBALANCED Distribution:\n")
-    imbalanced_train_sizes = []
     for i in range(NUM_CLIENTS):
         train_loader, test_loader = load_data(i, NUM_CLIENTS, data_distribution="imbalanced")
         imbalanced_train_sizes.append(len(train_loader.dataset))
+        imbalanced_test_sizes.append(len(test_loader.dataset))
         pct = len(train_loader.dataset)/sum(imbalanced_train_sizes)*100 if sum(imbalanced_train_sizes) > 0 else 0
         f.write(f"   Client {i}: Train={len(train_loader.dataset):5d}, Test={len(test_loader.dataset):4d} ({pct:.1f}%)\n")
+
+# 1. Data Distribution Visualization
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+
+# Bar chart for balanced distribution
+ax = axes[0, 0]
+client_ids = list(range(NUM_CLIENTS))
+ax.bar(client_ids, balanced_train_sizes, color='steelblue', alpha=0.7, edgecolor='black')
+ax.set_xlabel('Client ID', fontsize=12, fontweight='bold')
+ax.set_ylabel('Number of Training Samples', fontsize=12, fontweight='bold')
+ax.set_title('IID (Balanced) Data Distribution', fontsize=14, fontweight='bold')
+ax.grid(True, alpha=0.3, axis='y')
+for i, v in enumerate(balanced_train_sizes):
+    ax.text(i, v, str(v), ha='center', va='bottom', fontsize=9, fontweight='bold')
+
+# Pie chart for balanced distribution
+ax = axes[0, 1]
+colors_pie = plt.cm.Set3(np.linspace(0, 1, NUM_CLIENTS))
+wedges, texts, autotexts = ax.pie(balanced_train_sizes, labels=[f'C{i}' for i in range(NUM_CLIENTS)],
+                                    autopct='%1.1f%%', colors=colors_pie, startangle=90)
+for autotext in autotexts:
+    autotext.set_color('black')
+    autotext.set_fontsize(9)
+    autotext.set_fontweight('bold')
+ax.set_title('IID (Balanced) Distribution Percentage', fontsize=14, fontweight='bold')
+
+# Bar chart for imbalanced distribution
+ax = axes[1, 0]
+ax.bar(client_ids, imbalanced_train_sizes, color='orange', alpha=0.7, edgecolor='black')
+ax.set_xlabel('Client ID', fontsize=12, fontweight='bold')
+ax.set_ylabel('Number of Training Samples', fontsize=12, fontweight='bold')
+ax.set_title('Non-IID (Imbalanced) Data Distribution', fontsize=14, fontweight='bold')
+ax.grid(True, alpha=0.3, axis='y')
+for i, v in enumerate(imbalanced_train_sizes):
+    ax.text(i, v, str(v), ha='center', va='bottom', fontsize=9, fontweight='bold')
+
+# Pie chart for imbalanced distribution
+ax = axes[1, 1]
+wedges, texts, autotexts = ax.pie(imbalanced_train_sizes, labels=[f'C{i}' for i in range(NUM_CLIENTS)],
+                                    autopct='%1.1f%%', colors=colors_pie, startangle=90)
+for autotext in autotexts:
+    autotext.set_color('black')
+    autotext.set_fontsize(9)
+    autotext.set_fontweight('bold')
+ax.set_title('Non-IID (Imbalanced) Distribution Percentage', fontsize=14, fontweight='bold')
+
+plt.tight_layout()
+plt.savefig('reports/04_data_distribution_visualization.png', dpi=300, bbox_inches='tight')
+plt.close()
 
 print("Running Experiment 1: FedAvg + Balanced Data...")
 _data_distribution = "balanced"
@@ -377,6 +433,164 @@ plt.tight_layout()
 plt.savefig('reports/02_experiments_comparison.png', dpi=300, bbox_inches='tight')
 plt.close()
 
+# 2. Convergence Analysis Details
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+
+# Detailed training loss plot
+ax = axes[0, 0]
+if train_losses_balanced:
+    ax.plot(range(1, len(train_losses_balanced) + 1), train_losses_balanced, 
+            marker='o', label='Balanced', color='steelblue', linewidth=2, markersize=6)
+if train_losses_imbalanced:
+    ax.plot(range(1, len(train_losses_imbalanced) + 1), train_losses_imbalanced, 
+            marker='s', label='Imbalanced', color='orange', linewidth=2, markersize=6)
+ax.set_xlabel('Round', fontsize=12, fontweight='bold')
+ax.set_ylabel('Training Loss (MSE)', fontsize=12, fontweight='bold')
+ax.set_title('Training Loss Convergence Over Rounds', fontsize=14, fontweight='bold')
+ax.legend(fontsize=11)
+ax.grid(True, alpha=0.3)
+
+# Detailed evaluation loss plot
+ax = axes[0, 1]
+if eval_losses_balanced:
+    ax.plot(range(1, len(eval_losses_balanced) + 1), eval_losses_balanced, 
+            marker='o', label='Balanced', color='steelblue', linewidth=2, markersize=6)
+if eval_losses_imbalanced:
+    ax.plot(range(1, len(eval_losses_imbalanced) + 1), eval_losses_imbalanced, 
+            marker='s', label='Imbalanced', color='orange', linewidth=2, markersize=6)
+ax.set_xlabel('Round', fontsize=12, fontweight='bold')
+ax.set_ylabel('Evaluation Loss (MSE)', fontsize=12, fontweight='bold')
+ax.set_title('Evaluation Loss Convergence Over Rounds', fontsize=14, fontweight='bold')
+ax.legend(fontsize=11)
+ax.grid(True, alpha=0.3)
+
+# Convergence speed comparison (loss decrease rate)
+ax = axes[1, 0]
+if train_losses_balanced and len(train_losses_balanced) > 1:
+    loss_decrease_balanced = [train_losses_balanced[i] - train_losses_balanced[i+1] 
+                               for i in range(len(train_losses_balanced)-1)]
+    ax.plot(range(1, len(loss_decrease_balanced) + 1), loss_decrease_balanced, 
+            marker='o', label='Balanced', color='steelblue', linewidth=2, markersize=6)
+if train_losses_imbalanced and len(train_losses_imbalanced) > 1:
+    loss_decrease_imbalanced = [train_losses_imbalanced[i] - train_losses_imbalanced[i+1] 
+                                 for i in range(len(train_losses_imbalanced)-1)]
+    ax.plot(range(1, len(loss_decrease_imbalanced) + 1), loss_decrease_imbalanced, 
+            marker='s', label='Imbalanced', color='orange', linewidth=2, markersize=6)
+ax.axhline(y=0, color='red', linestyle='--', linewidth=1, alpha=0.5)
+ax.set_xlabel('Round', fontsize=12, fontweight='bold')
+ax.set_ylabel('Loss Decrease (Current - Next)', fontsize=12, fontweight='bold')
+ax.set_title('Convergence Speed Comparison', fontsize=14, fontweight='bold')
+ax.legend(fontsize=11)
+ax.grid(True, alpha=0.3)
+
+# Cumulative improvement
+ax = axes[1, 1]
+if train_losses_balanced:
+    initial_balanced = train_losses_balanced[0]
+    improvement_balanced = [(initial_balanced - loss) / initial_balanced * 100 
+                             for loss in train_losses_balanced]
+    ax.plot(range(1, len(improvement_balanced) + 1), improvement_balanced, 
+            marker='o', label='Balanced', color='steelblue', linewidth=2, markersize=6)
+if train_losses_imbalanced:
+    initial_imbalanced = train_losses_imbalanced[0]
+    improvement_imbalanced = [(initial_imbalanced - loss) / initial_imbalanced * 100 
+                               for loss in train_losses_imbalanced]
+    ax.plot(range(1, len(improvement_imbalanced) + 1), improvement_imbalanced, 
+            marker='s', label='Imbalanced', color='orange', linewidth=2, markersize=6)
+ax.set_xlabel('Round', fontsize=12, fontweight='bold')
+ax.set_ylabel('Improvement from Initial Loss (%)', fontsize=12, fontweight='bold')
+ax.set_title('Cumulative Improvement Over Time', fontsize=14, fontweight='bold')
+ax.legend(fontsize=11)
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('reports/05_convergence_analysis.png', dpi=300, bbox_inches='tight')
+plt.close()
+
+# 3. Federated Learning Architecture Diagram
+fig, ax = plt.subplots(figsize=(16, 10))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 10)
+ax.axis('off')
+
+# Title
+ax.text(5, 9.5, 'Federated Learning Architecture', 
+        fontsize=20, fontweight='bold', ha='center', va='top',
+        bbox=dict(boxstyle='round,pad=0.5', facecolor='lightblue', edgecolor='black', linewidth=2))
+
+# Central Server
+server_rect = plt.Rectangle((4, 7), 2, 1, facecolor='lightcoral', edgecolor='black', linewidth=2)
+ax.add_patch(server_rect)
+ax.text(5, 7.5, 'Central Server\n(Aggregator)', fontsize=12, fontweight='bold', ha='center', va='center')
+ax.text(5, 6.7, 'FedAvg Strategy', fontsize=9, ha='center', va='top', style='italic')
+
+# Global Model
+model_rect = plt.Rectangle((4, 5.5), 2, 0.6, facecolor='lightyellow', edgecolor='black', linewidth=1.5)
+ax.add_patch(model_rect)
+ax.text(5, 5.8, 'Global Model\n(Autoencoder)', fontsize=10, fontweight='bold', ha='center', va='center')
+
+# Clients in a circle
+num_display_clients = 10
+radius = 2.5
+center_x, center_y = 5, 3
+for i in range(num_display_clients):
+    angle = 2 * np.pi * i / num_display_clients - np.pi/2
+    x = center_x + radius * np.cos(angle)
+    y = center_y + radius * np.sin(angle)
+    
+    # Client box
+    client_rect = plt.Rectangle((x-0.3, y-0.2), 0.6, 0.4, facecolor='lightgreen', 
+                                 edgecolor='black', linewidth=1.5)
+    ax.add_patch(client_rect)
+    ax.text(x, y, f'Client {i}', fontsize=8, fontweight='bold', ha='center', va='center')
+    
+    # Local data indicator
+    ax.text(x, y-0.35, f'Data: {imbalanced_train_sizes[i]}', fontsize=6, ha='center', va='top')
+    
+    # Arrow from server to client (send model)
+    arrow_to_client = plt.Arrow(5, 7, x-5, y-7, width=0.15, color='blue', alpha=0.4)
+    ax.add_patch(arrow_to_client)
+    
+    # Arrow from client to server (send weights)
+    arrow_to_server = plt.Arrow(x, y, 5-x, 7-y, width=0.15, color='red', alpha=0.4)
+    ax.add_patch(arrow_to_server)
+
+# Legend for data flow
+ax.text(0.5, 8, 'Data Flow:', fontsize=11, fontweight='bold')
+ax.arrow(0.5, 7.6, 0.5, 0, head_width=0.1, head_length=0.1, fc='blue', ec='blue')
+ax.text(1.2, 7.6, 'Model Distribution', fontsize=9, va='center')
+ax.arrow(0.5, 7.2, 0.5, 0, head_width=0.1, head_length=0.1, fc='red', ec='red')
+ax.text(1.2, 7.2, 'Weight Updates', fontsize=9, va='center')
+
+# Process flow on the right
+ax.text(8.5, 8, 'Training Process:', fontsize=11, fontweight='bold')
+steps = [
+    '1. Server broadcasts\n   global model',
+    '2. Clients train\n   on local data',
+    '3. Clients send\n   weight updates',
+    '4. Server aggregates\n   using FedAvg',
+    '5. Update global\n   model'
+]
+for i, step in enumerate(steps):
+    y_pos = 7.5 - i * 0.6
+    ax.text(8.5, y_pos, step, fontsize=8, va='top',
+            bbox=dict(boxstyle='round,pad=0.3', facecolor='wheat', edgecolor='black', linewidth=1))
+
+# Model architecture details
+ax.text(0.5, 2.5, 'Model Architecture:', fontsize=11, fontweight='bold')
+arch_text = 'Input (8) → Hidden (16) →\nLatent (4) → Hidden (16) → Output (8)'
+ax.text(0.5, 2, arch_text, fontsize=8, va='top',
+        bbox=dict(boxstyle='round,pad=0.3', facecolor='lavender', edgecolor='black', linewidth=1))
+
+# Data distribution info
+ax.text(0.5, 1, f'Total Clients: {NUM_CLIENTS}', fontsize=9)
+ax.text(0.5, 0.6, f'Training Rounds: {NUM_ROUNDS}', fontsize=9)
+ax.text(0.5, 0.2, f'Local Epochs: {LOCAL_EPOCHS}', fontsize=9)
+
+plt.tight_layout()
+plt.savefig('reports/06_federated_learning_architecture.png', dpi=300, bbox_inches='tight')
+plt.close()
+
 with open('reports/experiments_summary.txt', 'w') as f:
     f.write("="*70 + "\n")
     f.write("SUMMARY TABLE\n")
@@ -388,9 +602,6 @@ with open('reports/experiments_summary.txt', 'w') as f:
         eval_final = f"{eval_loss[-1]:.6f}" if eval_loss else "N/A"
         f.write(f"{name.replace(chr(10), ' '):<30} {train_final:<20} {eval_final:<20}\n")
     f.write("="*70 + "\n")
-    if train_losses_balanced and train_losses_imbalanced:
-        difference = ((train_losses_imbalanced[-1] - train_losses_balanced[-1]) / train_losses_balanced[-1]) * 100
-        f.write(f"\nPerformance difference (Exp 2 vs Exp 1): {difference:+.2f}%\n")
 
 final_model = BearingAutoencoder()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -429,11 +640,107 @@ threshold_95 = np.percentile(all_errors, 95)
 threshold_mean_2std = np.mean(all_errors) + 2 * np.std(all_errors)
 anomaly_threshold = threshold_95
 
+# MSE Distribution Visualization
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+
+# Histogram of MSE distribution
+ax = axes[0, 0]
+n, bins, patches = ax.hist(all_errors, bins=50, color='steelblue', alpha=0.7, edgecolor='black')
+ax.axvline(threshold_95, color='red', linestyle='--', linewidth=2, label=f'95th Percentile: {threshold_95:.6f}')
+ax.axvline(threshold_mean_2std, color='orange', linestyle='--', linewidth=2, label=f'Mean + 2σ: {threshold_mean_2std:.6f}')
+ax.axvline(np.mean(all_errors), color='green', linestyle='-', linewidth=2, label=f'Mean: {np.mean(all_errors):.6f}')
+ax.set_xlabel('Reconstruction Error (MSE)', fontsize=12, fontweight='bold')
+ax.set_ylabel('Frequency', fontsize=12, fontweight='bold')
+ax.set_title('MSE Distribution with Threshold', fontsize=14, fontweight='bold')
+ax.legend(fontsize=10)
+ax.grid(True, alpha=0.3, axis='y')
+
+# Cumulative distribution
+ax = axes[0, 1]
+sorted_errors = np.sort(all_errors)
+cumulative = np.arange(1, len(sorted_errors) + 1) / len(sorted_errors) * 100
+ax.plot(sorted_errors, cumulative, color='steelblue', linewidth=2)
+ax.axvline(threshold_95, color='red', linestyle='--', linewidth=2, label=f'95th Percentile')
+ax.axhline(95, color='red', linestyle='--', linewidth=2, alpha=0.5)
+ax.axvline(threshold_mean_2std, color='orange', linestyle='--', linewidth=2, label=f'Mean + 2σ')
+ax.set_xlabel('Reconstruction Error (MSE)', fontsize=12, fontweight='bold')
+ax.set_ylabel('Cumulative Percentage (%)', fontsize=12, fontweight='bold')
+ax.set_title('Cumulative Distribution of MSE', fontsize=14, fontweight='bold')
+ax.legend(fontsize=10)
+ax.grid(True, alpha=0.3)
+
+# Box plot
+ax = axes[1, 0]
+bp = ax.boxplot([all_errors], vert=True, patch_artist=True, widths=0.5)
+bp['boxes'][0].set_facecolor('lightblue')
+bp['boxes'][0].set_edgecolor('black')
+bp['boxes'][0].set_linewidth(2)
+ax.axhline(threshold_95, color='red', linestyle='--', linewidth=2, label=f'95th Percentile: {threshold_95:.6f}')
+ax.axhline(threshold_mean_2std, color='orange', linestyle='--', linewidth=2, label=f'Mean + 2σ: {threshold_mean_2std:.6f}')
+ax.set_ylabel('Reconstruction Error (MSE)', fontsize=12, fontweight='bold')
+ax.set_title('MSE Distribution Box Plot', fontsize=14, fontweight='bold')
+ax.set_xticklabels(['All Errors'])
+ax.legend(fontsize=10)
+ax.grid(True, alpha=0.3, axis='y')
+
+# MSE Formula and Statistics
+ax = axes[1, 1]
+ax.axis('off')
+
+# MSE Formula
+formula_text = r'$MSE = \frac{1}{n} \sum_{i=1}^{n} (x_i - \hat{x}_i)^2$'
+ax.text(0.5, 0.85, 'Mean Squared Error (MSE) Formula:', fontsize=14, fontweight='bold', 
+        ha='center', va='top', transform=ax.transAxes)
+ax.text(0.5, 0.75, formula_text, fontsize=16, ha='center', va='top', 
+        transform=ax.transAxes, bbox=dict(boxstyle='round,pad=0.5', facecolor='lightyellow', edgecolor='black', linewidth=2))
+
+# Where clause
+where_text = (
+    r'where:' + '\n'
+    r'$x_i$ = original input value' + '\n'
+    r'$\hat{x}_i$ = reconstructed value' + '\n'
+    r'$n$ = number of features (8 sensors)'
+)
+ax.text(0.5, 0.60, where_text, fontsize=11, ha='center', va='top', 
+        transform=ax.transAxes, family='monospace')
+
+# Statistics
+stats_text = (
+    f'Statistics:\n'
+    f'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+    f'Total samples:     {len(all_errors):,}\n'
+    f'Mean MSE:          {np.mean(all_errors):.6f}\n'
+    f'Std deviation:     {np.std(all_errors):.6f}\n'
+    f'Min MSE:           {np.min(all_errors):.6f}\n'
+    f'Max MSE:           {np.max(all_errors):.6f}\n'
+    f'Median:            {np.median(all_errors):.6f}\n'
+    f'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+    f'95th Percentile:   {threshold_95:.6f}\n'
+    f'Mean + 2σ:         {threshold_mean_2std:.6f}\n'
+    f'Selected Threshold: {threshold_95:.6f}'
+)
+ax.text(0.5, 0.40, stats_text, fontsize=10, ha='center', va='top', 
+        transform=ax.transAxes, family='monospace',
+        bbox=dict(boxstyle='round,pad=0.5', facecolor='lightcyan', edgecolor='black', linewidth=1.5))
+
+plt.tight_layout()
+plt.savefig('reports/07_mse_distribution_threshold.png', dpi=300, bbox_inches='tight')
+plt.close()
+
 with open('reports/anomaly_threshold.txt', 'w') as f:
     f.write("="*80 + "\n")
     f.write("ANOMALY THRESHOLD\n")
     f.write("="*80 + "\n")
-    f.write(f"\n95th Percentile: {threshold_95:.6f}\n")
+    f.write(f"\nMSE Formula: MSE = (1/n) * Σ(xi - x̂i)²\n")
+    f.write(f"  where xi = original value, x̂i = reconstructed value, n = features\n\n")
+    f.write(f"Statistics:\n")
+    f.write(f"  Total samples:     {len(all_errors):,}\n")
+    f.write(f"  Mean MSE:          {np.mean(all_errors):.6f}\n")
+    f.write(f"  Std deviation:     {np.std(all_errors):.6f}\n")
+    f.write(f"  Min MSE:           {np.min(all_errors):.6f}\n")
+    f.write(f"  Max MSE:           {np.max(all_errors):.6f}\n")
+    f.write(f"  Median:            {np.median(all_errors):.6f}\n\n")
+    f.write(f"95th Percentile: {threshold_95:.6f}\n")
     f.write(f"Mean + 2×Std:    {threshold_mean_2std:.6f}\n")
     f.write(f"\nSelected threshold: {threshold_95:.6f} (95th percentile)\n")
     f.write(f"\nRULE:\n")
@@ -536,6 +843,10 @@ print(f"\nAll reports and charts saved to: reports/")
 print(f"  - 01_sensor_data_visualization.png")
 print(f"  - 02_experiments_comparison.png")
 print(f"  - 03_anomaly_detection_comparison.png")
+print(f"  - 04_data_distribution_visualization.png")
+print(f"  - 05_convergence_analysis.png")
+print(f"  - 06_federated_learning_architecture.png")
+print(f"  - 07_mse_distribution_threshold.png")
 print(f"  - data_distribution_analysis.txt")
 print(f"  - experiments_summary.txt")
 print(f"  - anomaly_threshold.txt")
