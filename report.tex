@@ -340,6 +340,74 @@ Implementation complexity & Thấp & Cao hơn \\
 
 \textbf{Topology design:} Chọn topology phù hợp để cân bằng convergence speed, communication cost, và fault tolerance.
 
+\subsection{Ứng Dụng DFL Trong Hệ Thống IoT Thực Tế}
+
+\subsubsection{Smart City}
+
+\textbf{Environmental Monitoring:} Network các sensors phân tán đo chất lượng không khí, độ ồn, nhiệt độ. DFL cho phép:
+\begin{itemize}
+    \item Mỗi khu vực tự train model local từ sensors của mình
+    \item Các khu vực lân cận share models qua P2P
+    \item Không cần gửi dữ liệu nhạy cảm về central server
+    \item Real-time prediction và alerting
+\end{itemize}
+
+\textbf{Traffic Management:} Cameras và sensors giao thông học patterns cục bộ và share knowledge để tối ưu traffic lights và predict congestion.
+
+\subsubsection{Smart Home và Smart Grid}
+
+\textbf{Smart Home:} Các thiết bị trong nhà (thermostat, lights, appliances) học usage patterns để tối ưu energy:
+\begin{itemize}
+    \item Privacy: không chia sẻ thói quen sinh hoạt với bên thứ ba
+    \item Personalization: model local phù hợp với từng gia đình
+    \item Collaboration: học từ neighbors mà không expose data
+\end{itemize}
+
+\textbf{Smart Grid:} DFL cho demand forecasting và fault detection:
+\begin{itemize}
+    \item Substations train models từ consumption patterns local
+    \item Share models với nearby substations để improve accuracy
+    \item Detect anomalies như electricity theft hoặc equipment failures
+\end{itemize}
+
+\subsubsection{Industrial IoT (IIoT)}
+
+Trường hợp sử dụng chính của báo cáo này: Predictive maintenance trong nhà máy.
+
+\textbf{Advantages:}
+\begin{itemize}
+    \item \textbf{IP protection:} Process parameters không rời khỏi factory floor
+    \item \textbf{Low latency:} Training và inference at the edge, real-time response
+    \item \textbf{Reliability:} Hoạt động ngay cả khi mất kết nối cloud
+    \item \textbf{Cross-plant learning:} Nhiều factories cùng tập đoàn có thể share knowledge mà không share data
+\end{itemize}
+
+\textbf{Implementation:} 
+\begin{itemize}
+    \item Mỗi machine/production line là một node
+    \item Nodes trong cùng một factory form một cluster với fast local communication
+    \item Clusters từ các factories khác nhau có thể federate ở tốc độ chậm hơn
+\end{itemize}
+
+\subsubsection{Wireless Sensor Networks (WSN)}
+
+WSN deployed trong môi trường remote (rừng, đại dương, nông nghiệp):
+
+\textbf{Challenges:}
+\begin{itemize}
+    \item Intermittent connectivity
+    \item Battery constraints
+    \item No central infrastructure
+\end{itemize}
+
+\textbf{DFL solution:}
+\begin{itemize}
+    \item Sensors giao tiếp với neighbors khi trong radio range
+    \item Model updates propagate qua gossip protocol
+    \item Energy-efficient: chỉ share models khi có enough new data
+    \item Fault-tolerant: network tự heal khi sensors fail
+\end{itemize}
+
 \section{Triển Khai Thực Nghiệm}
 
 \subsection{Dataset và Preprocessing}
@@ -515,8 +583,6 @@ Sử dụng Flower framework với chiến lược simulation:
 \midrule
 Exp 1: FedAvg (Balanced) & 0.005206 & 0.005396 \\
 Exp 2: FedAvg (Imbalanced) & 0.001990 & 0.001898 \\
-\midrule
-Cải thiện (Exp 2 vs Exp 1) & -61.78\% & -64.82\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -715,74 +781,6 @@ DFL (ước tính) & 0.002-0.003 & Rất tốt & P2P local \\
     \item Centralized có accuracy tốt nhất nhưng vi phạm privacy
     \item FL cân bằng giữa accuracy và privacy
     \item DFL có resilience và fault tolerance tốt nhất nhưng implementation phức tạp
-\end{itemize}
-
-\section{Ứng Dụng DFL Trong Hệ Thống IoT Thực Tế}
-
-\subsection{Smart City}
-
-\textbf{Environmental Monitoring:} Network các sensors phân tán đo chất lượng không khí, độ ồn, nhiệt độ. DFL cho phép:
-\begin{itemize}
-    \item Mỗi khu vực tự train model local từ sensors của mình
-    \item Các khu vực lân cận share models qua P2P
-    \item Không cần gửi dữ liệu nhạy cảm về central server
-    \item Real-time prediction và alerting
-\end{itemize}
-
-\textbf{Traffic Management:} Cameras và sensors giao thông học patterns cục bộ và share knowledge để tối ưu traffic lights và predict congestion.
-
-\subsection{Smart Home và Smart Grid}
-
-\textbf{Smart Home:} Các thiết bị trong nhà (thermostat, lights, appliances) học usage patterns để tối ưu energy:
-\begin{itemize}
-    \item Privacy: không chia sẻ thói quen sinh hoạt với bên thứ ba
-    \item Personalization: model local phù hợp với từng gia đình
-    \item Collaboration: học từ neighbors mà không expose data
-\end{itemize}
-
-\textbf{Smart Grid:} DFL cho demand forecasting và fault detection:
-\begin{itemize}
-    \item Substations train models từ consumption patterns local
-    \item Share models với nearby substations để improve accuracy
-    \item Detect anomalies như electricity theft hoặc equipment failures
-\end{itemize}
-
-\subsection{Industrial IoT (IIoT)}
-
-Trường hợp sử dụng chính của báo cáo này: Predictive maintenance trong nhà máy.
-
-\textbf{Advantages:}
-\begin{itemize}
-    \item \textbf{IP protection:} Process parameters không rời khỏi factory floor
-    \item \textbf{Low latency:} Training và inference at the edge, real-time response
-    \item \textbf{Reliability:} Hoạt động ngay cả khi mất kết nối cloud
-    \item \textbf{Cross-plant learning:} Nhiều factories cùng tập đoàn có thể share knowledge mà không share data
-\end{itemize}
-
-\textbf{Implementation:} 
-\begin{itemize}
-    \item Mỗi machine/production line là một node
-    \item Nodes trong cùng một factory form một cluster với fast local communication
-    \item Clusters từ các factories khác nhau có thể federate ở tốc độ chậm hơn
-\end{itemize}
-
-\subsection{Wireless Sensor Networks (WSN)}
-
-WSN deployed trong môi trường remote (rừng, đại dương, nông nghiệp):
-
-\textbf{Challenges:}
-\begin{itemize}
-    \item Intermittent connectivity
-    \item Battery constraints
-    \item No central infrastructure
-\end{itemize}
-
-\textbf{DFL solution:}
-\begin{itemize}
-    \item Sensors giao tiếp với neighbors khi trong radio range
-    \item Model updates propagate qua gossip protocol
-    \item Energy-efficient: chỉ share models khi có enough new data
-    \item Fault-tolerant: network tự heal khi sensors fail
 \end{itemize}
 
 \section{Kết Luận và Hướng Phát Triển}
