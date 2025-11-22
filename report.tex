@@ -611,7 +611,7 @@ Exp 2: FedAvg (Imbalanced) & 0.003891 & 0.003787 \\
 \textbf{Quan sát:} Phản trực giác, phân phối không cân bằng cho kết quả tốt hơn so với phân phối cân bằng:
 
 \begin{itemize}
-    \item Eval loss của Non-IID (0.003787) thấp hơn IID (0.004064) đáng kể (giảm 6.81\%)
+    \item Eval loss của Non-IID (0.003787) thấp hơn IID (0.004064) đáng kể (giảm 6.82\%)
     \item Training loss cũng thấp hơn một chút (0.003891 vs 0.003939, giảm 1.22\%)
     \item Cả hai experiments đều hội tụ ổn định sau khoảng 15-20 rounds
 \end{itemize}
@@ -679,20 +679,20 @@ Từ biểu đồ ta thấy:
 \textbf{Histogram Analysis:}
 \begin{itemize}
     \item Distribution của MSE tập trung chủ yếu trong khoảng 0.03-0.06
-    \item 95th percentile (0.063992) nằm ở vị trí phù hợp để phân biệt normal vs anomaly
-    \item Mean + 2$\sigma$ (0.067318) cao hơn một chút, nhưng 95th percentile được chọn vì ít false positives hơn
+    \item 95th percentile (0.078370) nằm ở vị trí phù hợp để phân biệt normal vs anomaly
+    \item Mean + 2$\sigma$ (0.083116) cao hơn một chút, nhưng 95th percentile được chọn vì ít false positives hơn
 \end{itemize}
 
 \textbf{Cumulative Distribution:}
 \begin{itemize}
-    \item 95\% samples có MSE dưới threshold 0.063992
+    \item 95\% samples có MSE dưới threshold 0.078370
     \item Cho phép 5\% tolerance cho normal samples có MSE cao hơn bình thường
     \item Đảm bảo balance giữa sensitivity và specificity
 \end{itemize}
 
 \textbf{Box Plot Analysis:}
 \begin{itemize}
-    \item Median MSE: 0.044398 (lower than threshold)
+    \item Median MSE: 0.052025 (lower than threshold)
     \item Interquartile range rất compact, cho thấy data consistency tốt
     \item Outliers được xác định rõ ràng bởi threshold
 \end{itemize}
@@ -798,14 +798,14 @@ Báo cáo này đã:
 \begin{enumerate}
     \item \textbf{Trình bày tổng quan} về DFL và tầm quan trọng của nó trong IoT, phân tích các thách thức và giải pháp
     \item \textbf{Triển khai thành công} mô hình FL cho anomaly detection trên bearing data với 10 clients mô phỏng IoT devices
-    \item \textbf{So sánh hiệu suất} giữa IID và Non-IID data distribution, phát hiện rằng Non-IID đạt kết quả vượt trội với eval loss 0.003787 (thấp hơn 6.81\% so với IID 0.004064)
+    \item \textbf{So sánh hiệu suất} giữa IID và Non-IID data distribution, phát hiện rằng Non-IID đạt kết quả vượt trội với eval loss 0.003787 (thấp hơn 6.82\% so với IID 0.004064)
     \item \textbf{Đạt 100\% accuracy} trong anomaly detection với threshold MSE dựa trên 95th percentile (0.078370)
     \item \textbf{Phân tích convergence chi tiết} cho thấy Non-IID hội tụ nhanh hơn và đạt improvement 94\% so với initial loss
     \item \textbf{Visualization toàn diện} bao gồm data distribution, convergence analysis, system architecture, và MSE distribution
     \item \textbf{Phân tích ứng dụng} của DFL trong các hệ thống IoT thực tế: Smart City, Smart Home, IIoT, WSN
 \end{enumerate}
 
-\textbf{Kết luận chính:} DFL là giải pháp khả thi và hiệu quả cho machine learning trên IoT, cung cấp privacy, fault tolerance, và low latency mà centralized approaches không đạt được. Kết quả thí nghiệm cho thấy phân phối dữ liệu không cân bằng (Non-IID) có thể đạt hiệu suất tốt hơn so với phân phối cân bằng (IID) khi sử dụng FedAvg aggregation strategy, với eval loss thấp hơn 6.81\% (0.003787 vs 0.004064).
+\textbf{Kết luận chính:} DFL là giải pháp khả thi và hiệu quả cho machine learning trên IoT, cung cấp privacy, fault tolerance, và low latency mà centralized approaches không đạt được. Kết quả thí nghiệm cho thấy phân phối dữ liệu không cân bằng (Non-IID) có thể đạt hiệu suất tốt hơn so với phân phối cân bằng (IID) khi sử dụng FedAvg aggregation strategy, với eval loss thấp hơn 6.82\% (0.003787 vs 0.004064).
 
 \subsection{Giới Hạn Của Nghiên Cứu}
 
