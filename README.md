@@ -1,4 +1,4 @@
-# flwr-demo
+# DFL-demo
 
 ## Hướng dẫn sử dụng
 
@@ -36,13 +36,13 @@ python run_dfl.py
 ### 3. Xem báo cáo
 
 - Báo cáo PDF:
-  - File: `release/report.pdf` (mở trực tiếp để xem báo cáo chính thức)
+  - File: `report.pdf` (mở trực tiếp để xem báo cáo chính thức)
 - Báo cáo kết quả DFL:
   - File: `reports_dfl/dfl_results.json`
 
 ### 4. Xem slide trình bày
 
-- Mở file `release/presentation.html` bằng trình duyệt web để xem slide trình bày.
+- Mở file `presentation.html` bằng trình duyệt web để xem slide trình bày.
 
 ### 5. Xem hình ảnh kết quả
 
