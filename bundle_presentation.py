@@ -99,7 +99,7 @@ def bundle_presentation():
     
     # Define paths
     present_dir = Path(__file__).parent / 'present'
-    output_file = Path(__file__).parent / 'presentation_bundled.html'
+    output_file = Path(__file__).parent / 'index.html'
     
     # Read source files
     print("Reading source files...")
