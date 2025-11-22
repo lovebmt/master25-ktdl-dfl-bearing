@@ -66,7 +66,7 @@ Trường Đại học Bách Khoa
 \begin{abstract}
 Báo cáo này trình bày nghiên cứu về Decentralized Federated Learning (DFL) áp dụng cho hệ thống Internet of Things (IoT) trong bối cảnh phát hiện bất thường trên dữ liệu cảm biến vòng bi công nghiệp. Với sự bùng nổ của thiết bị IoT, việc xử lý dữ liệu phân tán đồng thời đảm bảo quyền riêng tư và bảo mật trở thành thách thức lớn. DFL cung cấp giải pháp huấn luyện mô hình machine learning phân tán mà không cần máy chủ trung tâm, phù hợp với đặc thù của hệ thống IoT. 
 
-Nghiên cứu thực hiện hai thí nghiệm với phân phối dữ liệu cân bằng (IID) và không cân bằng (Non-IID) trên 10 clients mô phỏng các thiết bị IoT. Mô hình Autoencoder được sử dụng để học các đặc trưng bình thường của dữ liệu cảm biến 8 chiều. Kết quả cho thấy phân phối không cân bằng đạt hiệu suất vượt trội với evaluation loss cuối cùng là 0.001898, thấp hơn đáng kể so với phân phối cân bằng (0.005396). Hệ thống phát hiện bất thường đạt 100\% độ chính xác với ngưỡng MSE 95th percentile (0.063992). Phân tích convergence chi tiết cho thấy cả hai phương pháp đều hội tụ ổn định sau 20 rounds, với phân phối không cân bằng đạt tốc độ cải thiện cao hơn.
+Nghiên cứu thực hiện hai thí nghiệm với phân phối dữ liệu cân bằng (IID) và không cân bằng (Non-IID) trên 10 clients mô phỏng các thiết bị IoT. Mô hình Autoencoder được sử dụng để học các đặc trưng bình thường của dữ liệu cảm biến 8 chiều. Kết quả cho thấy phân phối không cân bằng đạt hiệu suất vượt trội với evaluation loss cuối cùng là 0.003787, thấp hơn đáng kể so với phân phối cân bằng (0.004064). Hệ thống phát hiện bất thường đạt 100\% độ chính xác với ngưỡng MSE 95th percentile (0.078370). Phân tích convergence chi tiết cho thấy cả hai phương pháp đều hội tụ ổn định sau 20 rounds, với phân phối không cân bằng đạt tốc độ cải thiện cao hơn.
 \end{abstract}
 
 \section{Giới Thiệu}
@@ -430,10 +430,16 @@ WSN deployed trong môi trường remote (rừng, đại dương, nông nghiệp
 
 \textit{Imbalanced (Non-IID):} Phân phối theo power law để mô phỏng thực tế:
 \begin{itemize}
-    \item Client 0: 9,830 samples (30\%)
-    \item Client 1: 1,638 samples (5\%)
-    \item ...
-    \item Client 9: 329 samples (1\%)
+    \item Client 0: 9,830 samples (100.0\%)
+    \item Client 1: 1,638 samples (14.3\%)
+    \item Client 2: 3,932 samples (25.5\%)
+    \item Client 3: 3,276 samples (17.5\%)
+    \item Client 4: 2,948 samples (13.6\%)
+    \item Client 5: 2,620 samples (10.8\%)
+    \item Client 6: 2,620 samples (9.8\%)
+    \item Client 7: 2,293 samples (7.9\%)
+    \item Client 8: 3,276 samples (10.1\%)
+    \item Client 9: 329 samples (1.0\%)
 \end{itemize}
 
 \begin{table}[H]
@@ -443,16 +449,16 @@ WSN deployed trong môi trường remote (rừng, đại dương, nông nghiệp
 \toprule
 \textbf{Client} & \textbf{Train (IID)} & \textbf{Train (Non-IID)} & \textbf{Test (IID)} & \textbf{Test (Non-IID)} \\
 \midrule
-0 & 3,276 & 9,830 (30\%) & 820 & 2,458 \\
-1 & 3,276 & 1,638 (5\%) & 820 & 410 \\
-2 & 3,276 & 3,932 (12\%) & 820 & 983 \\
-3 & 3,276 & 3,276 (10\%) & 820 & 820 \\
-4 & 3,276 & 2,948 (9\%) & 820 & 738 \\
-5 & 3,276 & 2,620 (8\%) & 820 & 656 \\
-6 & 3,276 & 2,620 (8\%) & 820 & 656 \\
-7 & 3,276 & 2,293 (7\%) & 820 & 574 \\
-8 & 3,276 & 3,276 (10\%) & 820 & 820 \\
-9 & 3,276 & 329 (1\%) & 820 & 83 \\
+0 & 3,276 & 9,830 (100.0\%) & 820 & 2,458 \\
+1 & 3,276 & 1,638 (14.3\%) & 820 & 410 \\
+2 & 3,276 & 3,932 (25.5\%) & 820 & 983 \\
+3 & 3,276 & 3,276 (17.5\%) & 820 & 820 \\
+4 & 3,276 & 2,948 (13.6\%) & 820 & 738 \\
+5 & 3,276 & 2,620 (10.8\%) & 820 & 656 \\
+6 & 3,276 & 2,620 (9.8\%) & 820 & 656 \\
+7 & 3,276 & 2,293 (7.9\%) & 820 & 574 \\
+8 & 3,276 & 3,276 (10.1\%) & 820 & 820 \\
+9 & 3,276 & 329 (1.0\%) & 820 & 83 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -596,17 +602,17 @@ Sử dụng Flower framework với chiến lược simulation:
 \toprule
 \textbf{Thí nghiệm} & \textbf{Final Train Loss} & \textbf{Final Eval Loss} \\
 \midrule
-Exp 1: FedAvg (Balanced) & 0.005206 & 0.005396 \\
-Exp 2: FedAvg (Imbalanced) & 0.001990 & 0.001898 \\
+Exp 1: FedAvg (Balanced) & 0.003939 & 0.004064 \\
+Exp 2: FedAvg (Imbalanced) & 0.003891 & 0.003787 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Quan sát:} Phản trực giác, phân phối không cân bằng cho kết quả tốt hơn rất nhiều so với phân phối cân bằng:
+\textbf{Quan sát:} Phản trực giác, phân phối không cân bằng cho kết quả tốt hơn so với phân phối cân bằng:
 
 \begin{itemize}
-    \item Eval loss của Non-IID (0.001898) thấp hơn IID (0.005396) đáng kể (giảm 64.82\%)
-    \item Training loss cũng thấp hơn đáng kể (0.001990 vs 0.005206, giảm 61.78\%)
+    \item Eval loss của Non-IID (0.003787) thấp hơn IID (0.004064) đáng kể (giảm 6.81\%)
+    \item Training loss cũng thấp hơn một chút (0.003891 vs 0.003939, giảm 1.22\%)
     \item Cả hai experiments đều hội tụ ổn định sau khoảng 15-20 rounds
 \end{itemize}
 
@@ -703,7 +709,7 @@ Từ biểu đồ ta thấy:
 Mô hình được test trên 4 scenarios:
 
 \textbf{Threshold determination:} Sử dụng 95th percentile của reconstruction errors trên normal data:
-$$\text{Threshold} = 0.063992$$
+$$\text{Threshold} = 0.078370$$
 
 \textbf{MSE Formula:}
 $$MSE = \frac{1}{n} \sum_{i=1}^{n} (x_i - \hat{x}_i)^2$$
@@ -718,12 +724,12 @@ Trong đó:
 \textbf{Thống kê MSE:}
 \begin{itemize}
     \item Tổng samples: 8,192
-    \item Mean MSE: 0.045360
-    \item Std deviation: 0.010979
-    \item Min MSE: 0.010949
-    \item Max MSE: 0.147518
-    \item Median: 0.044398
-    \item Mean + 2$\sigma$: 0.067318
+    \item Mean MSE: 0.053260
+    \item Std deviation: 0.014928
+    \item Min MSE: 0.014653
+    \item Max MSE: 0.188146
+    \item Median: 0.052025
+    \item Mean + 2$\sigma$: 0.083116
 \end{itemize}
 
 \begin{table}[H]
@@ -733,10 +739,10 @@ Trong đó:
 \toprule
 \textbf{Test Case} & \textbf{MSE Error} & \textbf{Threshold} & \textbf{Result} \\
 \midrule
-Normal Sample & 0.032865 & < 0.063992 & \textcolor{green}{NORMAL} \\
-Scenario 1: Sensor Error & 0.331367 & > 0.063992 & \textcolor{red}{ANOMALY} \\
-Scenario 2: High Vibration & 0.115691 & > 0.063992 & \textcolor{red}{ANOMALY} \\
-Scenario 3: Negative Values & 0.065288 & > 0.063992 & \textcolor{red}{ANOMALY} \\
+Normal Sample & 0.062347 & < 0.078370 & \textcolor{green}{NORMAL} \\
+Scenario 1: Sensor Error & 0.512309 & > 0.078370 & \textcolor{red}{ANOMALY} \\
+Scenario 2: High Vibration & 0.215080 & > 0.078370 & \textcolor{red}{ANOMALY} \\
+Scenario 3: Negative Values & 0.124484 & > 0.078370 & \textcolor{red}{ANOMALY} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -751,11 +757,11 @@ Scenario 3: Negative Values & 0.065288 & > 0.063992 & \textcolor{red}{ANOMALY} \
 
 \textbf{Phân tích:}
 \begin{itemize}
-    \item Normal sample có error (0.032865) thấp hơn threshold đáng kể (51\% của threshold)
-    \item Anomaly samples có error cao gấp 1.02-5.18 lần threshold
-    \item Sensor error (0.331367) có error cao nhất, gấp 5.18 lần threshold - dễ phát hiện nhất
-    \item Negative values (0.065288) gần threshold nhất (1.02 lần), cần giám sát cẩn thận
-    \item High vibration (0.115691) có error gấp 1.81 lần threshold
+    \item Normal sample có error (0.062347) thấp hơn threshold đáng kể (79.5\% của threshold)
+    \item Anomaly samples có error cao gấp 1.59-6.54 lần threshold
+    \item Sensor error (0.512309) có error cao nhất, gấp 6.54 lần threshold - dễ phát hiện nhất
+    \item Negative values (0.124484) có error gấp 1.59 lần threshold
+    \item High vibration (0.215080) có error gấp 2.74 lần threshold
     \item Độ chính xác: 100\% trong việc phân biệt normal và anomaly
 \end{itemize}
 
@@ -769,9 +775,9 @@ Scenario 3: Negative Values & 0.065288 & > 0.063992 & \textcolor{red}{ANOMALY} \
 \textbf{Phương pháp} & \textbf{Eval Loss} & \textbf{Privacy} & \textbf{Communication} \\
 \midrule
 Centralized & ~0.0015 (ước tính) & Kém & Cao (raw data) \\
-FL (IID) & 0.005396 & Tốt & Trung bình (models) \\
-FL (Non-IID) & 0.001898 & Tốt & Trung bình (models) \\
-DFL (ước tính) & 0.002-0.003 & Rất tốt & P2P local \\
+FL (IID) & 0.004064 & Tốt & Trung bình (models) \\
+FL (Non-IID) & 0.003787 & Tốt & Trung bình (models) \\
+DFL (ước tính) & 0.003-0.004 & Rất tốt & P2P local \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -792,14 +798,14 @@ Báo cáo này đã:
 \begin{enumerate}
     \item \textbf{Trình bày tổng quan} về DFL và tầm quan trọng của nó trong IoT, phân tích các thách thức và giải pháp
     \item \textbf{Triển khai thành công} mô hình FL cho anomaly detection trên bearing data với 10 clients mô phỏng IoT devices
-    \item \textbf{So sánh hiệu suất} giữa IID và Non-IID data distribution, phát hiện rằng Non-IID đạt kết quả vượt trội với eval loss 0.001898 (thấp hơn 64.82\% so với IID 0.005396)
-    \item \textbf{Đạt 100\% accuracy} trong anomaly detection với threshold MSE dựa trên 95th percentile (0.063992)
+    \item \textbf{So sánh hiệu suất} giữa IID và Non-IID data distribution, phát hiện rằng Non-IID đạt kết quả vượt trội với eval loss 0.003787 (thấp hơn 6.81\% so với IID 0.004064)
+    \item \textbf{Đạt 100\% accuracy} trong anomaly detection với threshold MSE dựa trên 95th percentile (0.078370)
     \item \textbf{Phân tích convergence chi tiết} cho thấy Non-IID hội tụ nhanh hơn và đạt improvement 94\% so với initial loss
     \item \textbf{Visualization toàn diện} bao gồm data distribution, convergence analysis, system architecture, và MSE distribution
     \item \textbf{Phân tích ứng dụng} của DFL trong các hệ thống IoT thực tế: Smart City, Smart Home, IIoT, WSN
 \end{enumerate}
 
-\textbf{Kết luận chính:} DFL là giải pháp khả thi và hiệu quả cho machine learning trên IoT, cung cấp privacy, fault tolerance, và low latency mà centralized approaches không đạt được. Kết quả thí nghiệm cho thấy phân phối dữ liệu không cân bằng (Non-IID) có thể đạt hiệu suất tốt hơn đáng kể so với phân phối cân bằng (IID) khi sử dụng FedAvg aggregation strategy.
+\textbf{Kết luận chính:} DFL là giải pháp khả thi và hiệu quả cho machine learning trên IoT, cung cấp privacy, fault tolerance, và low latency mà centralized approaches không đạt được. Kết quả thí nghiệm cho thấy phân phối dữ liệu không cân bằng (Non-IID) có thể đạt hiệu suất tốt hơn so với phân phối cân bằng (IID) khi sử dụng FedAvg aggregation strategy, với eval loss thấp hơn 6.81\% (0.003787 vs 0.004064).
 
 \subsection{Giới Hạn Của Nghiên Cứu}
 
