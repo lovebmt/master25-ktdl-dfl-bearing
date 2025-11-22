@@ -457,6 +457,21 @@ WSN deployed trong môi trường remote (rừng, đại dương, nông nghiệp
 \end{tabular}
 \end{table}
 
+\subsection{Sensor Data Visualization}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{reports/01_sensor_data_visualization.png}
+\caption{Visualization của sensor data patterns}
+\end{figure}
+
+Biểu đồ cho thấy:
+\begin{itemize}
+    \item Normal data có pattern khá stable và consistent
+    \item Anomaly samples có spikes hoặc deviations rõ ràng từ normal pattern
+    \item Các features khác nhau capture các aspects khác nhau của bearing condition
+\end{itemize}
+
 \subsection{Kiến Trúc Mô Hình Autoencoder}
 
 Autoencoder được thiết kế để học representation của dữ liệu normal bearing:
@@ -742,21 +757,6 @@ Scenario 3: Negative Values & 0.065288 & > 0.063992 & \textcolor{red}{ANOMALY} \
     \item Negative values (0.065288) gần threshold nhất (1.02 lần), cần giám sát cẩn thận
     \item High vibration (0.115691) có error gấp 1.81 lần threshold
     \item Độ chính xác: 100\% trong việc phân biệt normal và anomaly
-\end{itemize}
-
-\subsection{Sensor Data Visualization}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth]{reports/01_sensor_data_visualization.png}
-\caption{Visualization của sensor data patterns}
-\end{figure}
-
-Biểu đồ cho thấy:
-\begin{itemize}
-    \item Normal data có pattern khá stable và consistent
-    \item Anomaly samples có spikes hoặc deviations rõ ràng từ normal pattern
-    \item Các features khác nhau capture các aspects khác nhau của bearing condition
 \end{itemize}
 
 \subsection{So Sánh Centralized vs FL vs DFL}
