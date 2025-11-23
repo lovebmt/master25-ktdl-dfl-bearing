@@ -1,60 +1,107 @@
 
-\section{Kết Luận}
+\section{Tóm Tắt Đóng Góp}
 
-Báo cáo này đã trình bày tổng quan về Decentralized Federated Learning (DFL) và tầm quan trọng của nó trong hệ thống IoT. Chúng tôi đã triển khai thành công mô hình DFL với P2P ring topology cho bài toán anomaly detection trên bearing data với 10 peers mô phỏng thiết bị IoT. Kết quả thí nghiệm cho thấy phân phối dữ liệu cân bằng (Balanced) đạt hiệu suất tốt hơn phân phối không cân bằng (Imbalanced) với final eval loss 0.002425 so với 0.002705 (thấp hơn 10.4\%). Hệ thống đạt 100\% accuracy trong anomaly detection với threshold dựa trên 95th percentile.
+Báo cáo này đã:
 
-\textbf{Kết luận chính:} DFL với P2P ring topology là giải pháp khả thi và hiệu quả cho machine learning trên IoT, cung cấp privacy, fault tolerance, và low latency mà centralized approaches không đạt được. Kiến trúc phi tập trung hoàn toàn loại bỏ single point of failure và tăng cường bảo vệ quyền riêng tư, phù hợp cho các ứng dụng industrial IoT đòi hỏi bảo mật cao.
+\begin{enumerate}
+    \item \textbf{Trình bày tổng quan} về DFL và tầm quan trọng của nó trong IoT, phân tích các thách thức và giải pháp
+    \item \textbf{Triển khai thành công} mô hình DFL với P2P ring topology cho bài toán phát hiện bất thường trên dữ liệu vòng bi với 10 peers mô phỏng thiết bị IoT
+    \item \textbf{So sánh hiệu suất} giữa phân phối dữ liệu cân bằng (IID) và không cân bằng (Non-IID), phát hiện rằng phân phối cân bằng đạt kết quả tốt hơn với mất mát đánh giá 0.002425 (thấp hơn 10.4\% so với không cân bằng 0.002705)
+    \item \textbf{Đạt 100\% độ chính xác} trong phát hiện bất thường với ngưỡng MSE dựa trên 95th percentile
+    \item \textbf{Phân tích hội tụ chi tiết} cho thấy phân phối cân bằng hội tụ ổn định hơn và đạt mức giảm mất mát 94\% so với mất mát ban đầu
+    \item \textbf{Trực quan hóa toàn diện} bao gồm phân phối dữ liệu, phân tích hội tụ, kiến trúc hệ thống, và phân phối MSE
+    \item \textbf{Phân tích ứng dụng} của DFL trong các hệ thống IoT thực tế: Đô thị thông minh, Nhà thông minh, IoT công nghiệp, Mạng cảm biến không dây
+\end{enumerate}
 
-\textbf{Giới hạn của nghiên cứu:}
+\textbf{Kết luận chính:} DFL với P2P ring topology là giải pháp khả thi và hiệu quả cho học máy trên IoT, cung cấp quyền riêng tư, khả năng chịu lỗi, và độ trễ thấp mà các phương pháp tập trung không đạt được. Kết quả thí nghiệm cho thấy phân phối dữ liệu cân bằng (IID) đạt hiệu suất tốt hơn so với phân phối không cân bằng (Non-IID) khi sử dụng chiến lược tổng hợp trung bình trong DFL, với mất mát đánh giá thấp hơn 10.4\% (0.002425 so với 0.002705). Kiến trúc phi tập trung hoàn toàn loại bỏ điểm lỗi đơn và tăng cường bảo vệ quyền riêng tư, phù hợp cho các ứng dụng IoT công nghiệp đòi hỏi bảo mật cao.
+
+\section{Giới Hạn Của Nghiên Cứu}
+
+\textbf{Hạn chế:}
 
 \begin{itemize}
-    \item Nghiên cứu chủ yếu dựa trên mô phỏng phần mềm, chưa triển khai thực tế trên thiết bị IoT với các ràng buộc phần cứng thực tế
-    \item Giả định mạng truyền thông ổn định (reliable network), chưa kiểm thử với các điều kiện mất gói tin (packet loss) hoặc độ trễ cao (high latency)
-    \item Chưa triển khai các cơ chế bảo vệ chống lại tấn công Byzantine hoặc các mối đe dọa bảo mật khác
-    \item Chỉ sử dụng topology tập trung (centralized FL), chưa kiểm thử các topology DFL thuần P2P như ring, mesh, gossip
-    \item Bộ dữ liệu chỉ gồm một loại dữ liệu cảm biến (bearing vibration), chưa kiểm thử trên các loại dữ liệu khác
-    \item Quy mô thử nghiệm nhỏ (10 clients), chưa kiểm thử khả năng mở rộng với hàng trăm hoặc hàng nghìn node
+    \item \textbf{Dựa trên mô phỏng (Simulation-based):} Chưa triển khai trên thiết bị IoT thật với các ràng buộc phần cứng
+    \item \textbf{Giả định mạng (Network assumption):} Giả định mạng truyền thông ổn định, chưa kiểm thử với mất gói tin và độ trễ cao
+    \item \textbf{Bảo mật (Security):} Chưa triển khai các cơ chế phòng thủ chống tấn công Byzantine
+    \item \textbf{Cấu trúc mạng (Network topology):} Chỉ sử dụng cấu trúc ring topology trong DFL, chưa kiểm thử các cấu trúc P2P khác như mesh, gossip
+    \item \textbf{Bộ dữ liệu (Dataset):} Chỉ kiểm tra trên một loại dữ liệu cảm biến (rung vòng bi)
+    \item \textbf{Khả năng mở rộng (Scalability):} Chỉ 10 peers, chưa kiểm thử với hàng trăm hoặc hàng nghìn node
 \end{itemize}
 
 \section{Hướng Phát Triển}
 
-Các hướng phát triển cho nghiên cứu trong tương lai:
+\textbf{Ngắn hạn (6-12 tháng):}
 
-\textbf{Cải tiến kỹ thuật:}
+\begin{enumerate}
+    \item \textbf{Mở rộng cấu trúc DFL:} Triển khai và so sánh các cấu trúc P2P khác nhau (mesh, gossip, hybrid) với ring topology hiện tại
+    \item \textbf{Các biện pháp an ninh:} 
+        \begin{itemize}
+            \item Tổng hợp chống Byzantine (Krum, Median)
+            \item Bảo mật vi phân cho các bản cập nhật mô hình
+            \item Giao thức tổng hợp an toàn
+        \end{itemize}
+    \item \textbf{Xử lý sự không đồng nhất:}
+        \begin{itemize}
+            \item Điều chỉnh tốc độ học cho các peer có kích thước dữ liệu khác nhau
+            \item Chiến lược chọn peer ưu tiên các peer có chất lượng cao
+            \item Cập nhật bất đồng bộ cho các peer có tốc độ xử lý khác nhau
+        \end{itemize}
+    \item \textbf{Nén mô hình (Model compression):}
+        \begin{itemize}
+            \item Lượng tử hóa: Chuyển đổi các tham số mô hình từ dạng số có độ chính xác cao (ví dụ 32-bit) sang dạng số ít bit hơn (8-bit hoặc nhị phân) để giảm dung lượng và tăng tốc độ tính toán
+            \item Nén gradient: Giảm kích thước dữ liệu gradient bằng cách chỉ giữ lại các giá trị quan trọng (sparsification) hoặc dùng phương pháp xấp xỉ hạng thấp để giảm số lượng tham số cần truyền
+            \item Chưng cất kiến thức: Huấn luyện một mô hình nhỏ (student) dựa trên kiến thức từ mô hình lớn (teacher) để triển khai trên thiết bị biên, vừa nhẹ vừa giữ được độ chính xác chấp nhận được
+        \end{itemize}
+\end{enumerate}
+
+\textbf{Trung hạn (1-2 năm):}
+
+\begin{enumerate}
+    \item \textbf{Triển khai phần cứng:} Thử nghiệm trên Raspberry Pi, NVIDIA Jetson hoặc ESP32 với cảm biến thực tế
+    \item \textbf{Mô phỏng quy mô lớn:} Mở rộng lên 100-1000 peer với điều kiện mạng không đồng nhất
+    \item \textbf{Học đa nhiệm vụ (Multi-task learning):} Cùng một mạng DFL huấn luyện nhiều tác vụ (phát hiện bất thường, dự đoán tuổi thọ còn lại - RUL, phân loại)
+    \item \textbf{Thuật toán DFL nâng cao:}
+        \begin{itemize}
+            \item DFL cá nhân hóa: mỗi peer có mô hình riêng được điều chỉnh từ mô hình toàn cục
+            \item DFL phân cấp: Kiến trúc nhiều tầng (thiết bị-edge-cloud)
+            \item DFL tích hợp blockchain: Tích hợp blockchain để tạo nhật ký bất biến cho các bản cập nhật mô hình
+        \end{itemize}
+\end{enumerate}
+
+\textbf{Dài hạn (2-5 năm):}
+
+\begin{enumerate}
+    \item \textbf{Chuẩn hóa (Standardization):} Đóng góp vào việc xây dựng tiêu chuẩn cho DFL trong IoT (IEEE, IETF)
+    \item \textbf{DFL liên miền (Cross-domain DFL):} Liên kết học liên kết giữa các lĩnh vực khác nhau (y tế, giao thông, năng lượng)
+    \item \textbf{Cấu trúc mạng thích ứng   (Adaptive topology):} Cấu trúc mạng động thay đổi dựa trên điều kiện mạng và yêu cầu tác vụ
+    \item \textbf{Học liên tục  (Continual learning):} Mô hình thích ứng với sự thay đổi khái niệm và các loại bất thường mới mà không quên kiến thức cũ
+    \item \textbf{Cơ chế khuyến khích (Incentive mechanisms):} Mô hình kinh tế để thúc đẩy sự tham gia trong mạng DFL
+\end{enumerate}
+
+\textbf{Hướng nghiên cứu chính:}
 
 \begin{itemize}
-    \item \textbf{Alternative topologies:} Thử nghiệm mesh, gossip, star và so sánh với ring topology
-    \item \textbf{Security:} Triển khai Byzantine-robust aggregation, differential privacy và secure aggregation protocols
-    \item \textbf{Heterogeneity:} Adaptive learning rates, peer selection strategies và asynchronous updates
-    \item \textbf{Model compression:} Quantization, gradient compression và knowledge distillation
-    \item \textbf{Hardware deployment:} Test trên Raspberry Pi, NVIDIA Jetson hoặc ESP32 với real sensors
-    \item \textbf{Scalability:} Mở rộng lên 100-1000 peers với heterogeneous network conditions
+    \item \textbf{Lý thuyết (Theory):} Đưa ra các đảm bảo hội tụ cho DFL trong điều kiện dữ liệu Non-IID và cấu trúc mạng động. Điều này giúp chứng minh tính ổn định và độ chính xác của mô hình trong môi trường thực tế
+    \item \textbf{Tối ưu hóa (Optimization):} Phát triển các thuật toán tiết kiệm giao tiếp nhằm giảm số vòng lặp cần thiết để hội tụ, từ đó tiết kiệm băng thông và năng lượng trong mạng IoT
+    \item \textbf{Công bằng (Fairness):} Đảm bảo các peer có ít dữ liệu vẫn nhận được lợi ích từ mô hình toàn cục, tránh tình trạng thiên vị cho các peer có dữ liệu lớn
+    \item \textbf{Explainability:} Xây dựng cơ chế giải thích cho các mô hình học từ dữ liệu phân tán, giúp người dùng và nhà quản lý hiểu rõ cách mô hình đưa ra quyết định
 \end{itemize}
 
-\textbf{Nghiên cứu nâng cao:}
+\section{Tác Động Thực Tiễn}
+
+DFL có tiềm năng thay đổi các ngành công nghiệp:
 
 \begin{itemize}
-    \item \textbf{Advanced algorithms:} Personalized DFL, hierarchical architecture, blockchain-integrated DFL
-    \item \textbf{Multi-task learning:} Train nhiều tasks đồng thời (anomaly detection, RUL prediction, classification)
-    \item \textbf{Adaptive topology:} Dynamic topology thay đổi based on network conditions
-    \item \textbf{Continual learning:} Models adapt to concept drift mà không bị catastrophic forgetting
-    \item \textbf{Theory:} Convergence guarantees cho DFL với Non-IID data và dynamic topologies
-    \item \textbf{Fairness:} Đảm bảo peers với ít data vẫn benefit từ shared knowledge
+    \item \textbf{Sản xuất (Manufacturing):} Giảm thời gian ngừng hoạt động nhờ bảo trì dự đoán mà vẫn đảm bảo quyền riêng tư dữ liệu máy móc
+    \item \textbf{Y tế (Healthcare):} Các bệnh viện hợp tác trong chẩn đoán y khoa mà không cần chia sẻ dữ liệu bệnh nhân, bảo vệ quyền riêng tư và tuân thủ quy định
+    \item \textbf{Giao thông (Transportation):} Xe tự hành học chính sách lái xe từ toàn bộ đội xe mà không cần thu thập dữ liệu tập trung
+    \item \textbf{Năng lượng (Energy):} Lưới điện thông minh tối ưu vận hành một cách cộng tác
 \end{itemize}
 
-\textbf{Tác động thực tiễn:}
-
-DFL có tiềm năng chuyển đổi các ngành công nghiệp như:
+\textbf{Tác động xã hội:}
 \begin{itemize}
-    \item \textbf{Manufacturing:} Giảm downtime nhờ bảo trì dự đoán (predictive maintenance) mà vẫn đảm bảo quyền riêng tư dữ liệu máy móc
-    \item \textbf{Healthcare:} Các bệnh viện có thể hợp tác chẩn đoán y khoa mà không cần chia sẻ dữ liệu bệnh nhân, bảo vệ quyền riêng tư và tuân thủ quy định
-    \item \textbf{Transportation:} Xe tự hành học chính sách lái xe từ toàn bộ đội xe mà không cần thu thập dữ liệu tập trung
-    \item \textbf{Energy:} Lưới điện thông minh (smart grid) tối ưu vận hành nhờ hợp tác giữa các node mà không cần trung tâm
-\end{itemize}
-Tác động xã hội:
-\begin{itemize}
-    \item Trao quyền cho cá nhân về quyền sở hữu và kiểm soát dữ liệu cá nhân
-    \item Cho phép các tổ chức nhỏ ứng dụng AI mà không cần hạ tầng tập trung lớn
-    \item Hỗ trợ tuân thủ các quy định về bảo mật dữ liệu (GDPR, HIPAA)
-    \item Thúc đẩy dân chủ hóa AI, giúp AI tiếp cận rộng rãi hơn trong xã hội
+    \item Trao quyền cho cá nhân với quyền sở hữu dữ liệu và bảo mật
+    \item Cho phép AI cho các tổ chức không đủ nguồn lực để triển khai hạ tầng tập trung
+    \item Hỗ trợ tuân thủ quy định (GDPR, HIPAA)
+    \item Thúc đẩy dân chủ hóa AI
 \end{itemize}

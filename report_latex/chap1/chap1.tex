@@ -26,6 +26,27 @@ Dữ liệu IoT có tính phân tán tự nhiên vì các thiết bị:
 
 Việc thu thập và xử lý dữ liệu IoT theo phương pháp truyền thống, trong đó dữ liệu được tải về một máy chủ trung tâm, trở nên không khả thi do hạn chế về băng thông, độ trễ và yêu cầu bảo mật. Điều này đặt ra nhu cầu về các mô hình học máy phân tán, phù hợp với tính chất của dữ liệu IoT.
 
+\section{Đặc điểm dữ liệu IoT so với dữ liệu truyền thống}
+
+\hspace{0.6cm}Dữ liệu trong IoT có một số đặc thù khiến việc huấn luyện mô hình phân tán trở nên khó khăn:
+
+\textbf{Phi tập trung hoàn toàn (Fully Distributed):}  
+Dữ liệu nằm tại các thiết bị edge, không thể tập trung về server vì giới hạn băng thông và yêu cầu về quyền riêng tư. Việc truyền toàn bộ dữ liệu thô từ hàng nghìn hoặc hàng triệu cảm biến về một trung tâm là không khả thi về mặt chi phí và độ trễ.
+
+\textbf{Non-IID và không cân bằng:}  
+Mỗi node IoT thu thập dữ liệu từ môi trường riêng, dẫn đến phân phối dữ liệu không đồng nhất, gây khó khăn cho hội tụ mô hình. Ví dụ, các cảm biến vòng bi trong các máy khác nhau sẽ có phân phối dữ liệu khác nhau do tuổi thọ, tải trọng và điều kiện môi trường khác biệt.
+
+\textbf{Dữ liệu nhiễu và thiếu tin cậy:}  
+IoT hoạt động trong môi trường thực tế, cảm biến dễ sai số, mất gói tin hoặc mất mẫu. Độ trôi của cảm biến, rung động môi trường, hỏng hóc cảm biến là những vấn đề phổ biến khiến dữ liệu IoT "bẩn" hơn nhiều so với dữ liệu từ các nguồn có kiểm soát.
+
+\textbf{Dữ liệu theo streaming và thời gian thực:}  
+Nhiều ứng dụng yêu cầu mô hình học và cập nhật liên tục mà không thể chờ tải dữ liệu về trung tâm. Dữ liệu được tạo ra liên tục theo thời gian thực (mức mili giây), đòi hỏi khả năng huấn luyện tăng dần thay vì xử lý theo lô.
+
+\textbf{Khối lượng dữ liệu nhỏ trên mỗi node:}  
+Mỗi thiết bị có lượng dữ liệu hạn chế, dẫn đến overfitting nếu không chia sẻ thông tin mô hình với các node khác. Tuy nhiên, khi tổng hợp lại từ toàn bộ mạng IoT, khối lượng dữ liệu là rất lớn (khối lượng và tốc độ cao).
+
+Những đặc điểm này giải thích tại sao các phương pháp học máy truyền thống (học tập tập trung) hoặc thậm chí Federated Learning có server trung tâm đều không phù hợp cho môi trường IoT quy mô lớn, và DFL trở thành giải pháp tối ưu.
+
 \section{Vấn đề bảo mật, băng thông và tính sẵn sàng}
 
 \hspace{0.6cm}Hệ thống IoT hiện nay phải đối mặt với ba nhóm thách thức chính:

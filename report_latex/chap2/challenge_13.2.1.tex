@@ -11,7 +11,7 @@ tổng hợp mô hình, tạo ra điểm nghẽn (bottleneck) và rủi ro \text
 Trong khi đó, Decentralized Federated Learning (DFL) loại bỏ hoàn toàn sự phụ 
 thuộc vào server tổng hợp. Các thiết bị IoT giao tiếp trực tiếp theo mô hình 
 \textit{peer-to-peer}, thực hiện trao đổi mô hình và cập nhật đồng thuận theo cấu trúc 
-mạng được định nghĩa trước (ring, mesh, gossip, hoặc blockchain-based).  
+mạng được định nghĩa trước (vòng tròn, lưới, gossip, hoặc dựa trên blockchain).  
 
 \textbf{Mục tiêu chính của DFL}:
 
@@ -72,47 +72,47 @@ một số node bị lỗi hoặc tách khỏi mạng.
 \hspace{0.6cm}Trong môi trường IoT, sự cố node và kết nối không ổn định là vấn đề rất phổ biến. Thiết bị IoT thường có tài nguyên hạn chế, năng lượng thấp, hoạt động theo chu kỳ ngủ hoặc thức, đồng thời phải truyền dữ liệu qua mạng không dây nhiều nhiễu. Do đó, một mô hình DFL hiệu quả phải tích hợp các cơ chế để đảm bảo việc huấn luyện phân tán vẫn diễn ra ổn định và mô hình vẫn hội tụ ngay cả khi có lỗi.
 
 \begin{enumerate}
-    \item \textbf{Cơ chế truyền thông bất đồng bộ (Asynchronous Communication)}
+    \item \textbf{Cơ chế truyền thông bất đồng bộ}
     \begin{itemize}
     \item Mỗi node có thể gửi hoặc nhận cập nhật mô hình vào thời điểm khác nhau.
-    \item Node nhanh không phải chờ node chậm (straggler).
-    \item Mạng không bị “đứng” khi có node mất kết nối tạm thời.
+    \item Node nhanh không phải chờ node chậm.
+    \item Mạng không bị "đứng" khi có node mất kết nối tạm thời.
 \end{itemize}
-    \item \textbf{Linh hoạt trong kiến trúc liên lạc (Temporal Variability)}: 
+    \item \textbf{Linh hoạt trong kiến trúc liên lạc}: 
     DFL có thể:
     \begin{itemize}
     \item Thay đổi tuyến truyền mô hình.
     \item Loại bỏ tạm thời node mất ổn định.
     \item Kết nối lại khi node hoạt động trở lại.
 \end{itemize}
-Nhờ vậy mô hình vẫn hội tụ ngay cả khi topology thay đổi liên tục.
-    \item \textbf{Thuật toán Gossip giúp chống lỗi tự nhiên (Gossip Robustness)}
+Nhờ vậy mô hình vẫn hội tụ ngay cả khi cấu trúc mạng thay đổi liên tục.
+    \item \textbf{Thuật toán Gossip giúp chống lỗi tự nhiên}
     \begin{itemize}
-    \item Mỗi node chỉ cần trao đổi với một nhóm nhỏ các node lân cận..
-    \item Một node chết không làm “đứt” toàn bộ vòng huấn luyện.
+    \item Mỗi node chỉ cần trao đổi với một nhóm nhỏ các node lân cận.
+    \item Một node chết không làm "đứt" toàn bộ vòng huấn luyện.
     \item Mô hình vẫn lan truyền qua các đường khác trong mạng.
 \end{itemize}
-Đây là cơ chế đặc biệt phù hợp với mạng IoT mesh và IoT công nghiệp.
-    \item \textbf{Cơ chế bỏ qua hoặc giảm ảnh hưởng của Stragglers}
+Đây là cơ chế đặc biệt phù hợp với mạng IoT dạng lưới và IoT công nghiệp.
+    \item \textbf{Cơ chế bỏ qua hoặc giảm ảnh hưởng của các node chậm}
     \begin{itemize}
     \item Các node không cần chờ nhau.
     \item Node chậm sẽ không làm ngưng toàn bộ tiến trình.
-    \item Khi nhận mô hình quá cũ, node nhanh có thể bỏ qua cập nhật lạc hậu (stale update).
+    \item Khi nhận mô hình quá cũ, node nhanh có thể bỏ qua cập nhật lạc hậu.
 \end{itemize}
 Điều này giúp mô hình hội tụ nhanh hơn và ổn định hơn so với FL tập trung.
-    \item \textbf{Cơ chế chống lỗi truyền (Noise/ Packet Loss Handling)}
+    \item \textbf{Cơ chế xử lý nhiễu và mất gói tin}
     \begin{itemize}
-    \item Truyền nhiều bản sao mô hình trong broadcast-gossip.
-    \item Truyền mô hình nhỏ gọn hơn (gradient compression).
-    \item Lọc hoặc làm mượt mô hình bị nhiễu thông qua averaging.
+    \item Truyền nhiều bản sao mô hình trong phát sóng gossip.
+    \item Truyền mô hình nhỏ gọn hơn (nén gradient).
+    \item Lọc hoặc làm mượt mô hình bị nhiễu thông qua lấy trung bình.
 \end{itemize}
 Điều này đặc biệt hữu ích trong IoT vì môi trường mạng không dây dễ nhiễu.
     \item \textbf{Node lỗi không làm gián đoạn quá trình hội tụ}: 
 Do không có server trung tâm, DFL không bị phụ thuộc vào một node duy nhất.
 Điều này giải quyết hai rủi ro lớn:
     \begin{itemize}
-    \item Không có “single point of failure: Một node chết thì chỉ mất một nguồn dữ liệu, quá trình học vẫn tiếp tục.
-    \item Không tắc nghẽn tại server: Không có node đóng vai trò bottleneck của toàn bộ mạng.
+    \item Không có điểm lỗi đơn: Một node chết thì chỉ mất một nguồn dữ liệu, quá trình học vẫn tiếp tục.
+    \item Không tắc nghẽn tại server: Không có node đóng vai trò điểm nghẽn của toàn bộ mạng.
 \end{itemize}
     \item \textbf{Kết hợp Blockchain để chống gian lận và lỗi mô hình}: Một số hệ thống DFL sử dụng blockchain để bảo đảm tính toàn vẹn mô hình, phát hiện node gửi mô hình sai hoặc tấn công độc hại và chống giả mạo cập nhật. Mặc dù không bắt buộc, nhưng với IoT quy mô lớn, blockchain giúp tăng độ tin cậy.
 \end{enumerate}
@@ -123,16 +123,16 @@ Do không có server trung tâm, DFL không bị phụ thuộc vào một node d
 \hspace{0.6cm}DFL sở hữu nhiều ưu điểm quan trọng đối với các hệ thống IoT:
 
 \begin{itemize}
-    \item \textbf{Không có single point of failure}: mạng hoạt động ngay cả khi nhiều node ngừng hoạt động.
-    \item \textbf{Độ trễ thấp}: giao tiếp chủ yếu diễn ra ở local network, thay vì gửi lên cloud.
+    \item \textbf{Không có điểm lỗi đơn}: mạng hoạt động ngay cả khi nhiều node ngừng hoạt động.
+    \item \textbf{Độ trễ thấp}: giao tiếp chủ yếu diễn ra ở mạng cục bộ, thay vì gửi lên cloud.
     \item \textbf{Khả năng mở rộng cao}: số lượng node lớn không tạo ra nghẽn mạng như mô hình FL truyền thống.
-    \item \textbf{Tính riêng tư mạnh hơn}: không có trung tâm lưu trữ model updates.
+    \item \textbf{Tính riêng tư mạnh hơn}: không có trung tâm lưu trữ các bản cập nhật mô hình.
     \item \textbf{Phù hợp môi trường edge}: hoạt động tốt khi kết nối không ổn định hoặc gián đoạn.
-    \item \textbf{Tận dụng cluster tự nhiên của IoT}: các sensors trong cùng khu vực có thể liên kết với nhau hiệu quả.
+    \item \textbf{Tận dụng cụm tự nhiên của IoT}: các cảm biến trong cùng khu vực có thể liên kết với nhau hiệu quả.
 \end{itemize}
 
 Những đặc điểm này khiến DFL trở thành kiến trúc lý tưởng cho các ứng dụng như 
-smart factory, smart home, autonomous vehicles và mạng cảm biến phân tán.
+nhà máy thông minh, nhà thông minh, xe tự hành và mạng cảm biến phân tán.
 
 \section{Thách thức kỹ thuật của DFL}
 
@@ -150,13 +150,13 @@ cao hơn FL truyền thống \cite{kairouz2019}.
 Mạng P2P dễ bị tấn công như:
 
 \begin{itemize}
-    \item Byzantine attacks
-    \item Model poisoning
-    \item Backdoor injection
-    \item Inference attacks
+    \item Tấn công Byzantine
+    \item Đầu độc mô hình
+    \item Chèn backdoor
+    \item Tấn công suy luận
 \end{itemize}
 
-Không có server trung tâm để kiểm tra tính đúng đắn của model updates.
+Không có server trung tâm để kiểm tra tính đúng đắn của các bản cập nhật mô hình.
 
 \textbf{Thiết kế topology tối ưu:}  
 Cần cân bằng giữa tốc độ hội tụ, chi phí truyền thông và khả năng chịu lỗi.

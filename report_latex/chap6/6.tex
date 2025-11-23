@@ -1,7 +1,7 @@
 
 \section{Dataset và Phân Phối Dữ Liệu Giữa Các Peers}
 
-Trong kiến trúc Decentralized Federated Learning (DFL), dữ liệu được phân phối giữa 10 peers theo cấu trúc ring topology. Chúng tôi thực hiện hai scenarios phân phối dữ liệu:
+Trong kiến trúc Decentralized Federated Learning (DFL), dữ liệu được phân phối giữa 10 peers theo cấu trúc ring topology. Chúng tôi thực hiện hai kịch bản phân phối dữ liệu:
 
 \begin{figure}[H]
 \centering
@@ -24,12 +24,12 @@ Imbalanced & 32,762 & 3,276.2 & 2,380.9 & 329 - 9,830 \\
 \end{tabular}
 \end{table}
 
-\textbf{Quan sát từ visualization:}
+\textbf{Quan sát từ biểu đồ trực quan:}
 \begin{itemize}
-    \item \textbf{Balanced Distribution:} Mỗi peer có số lượng samples đồng đều (3,276 samples), tạo ra phân phối cân bằng hoàn hảo với 10\% data cho mỗi peer
-    \item \textbf{Imbalanced Distribution:} Peer 0 chiếm 30\% tổng data (9,830 samples), trong khi Peer 9 chỉ có 1\% (329 samples) - chênh lệch gấp 30 lần
-    \item Standard deviation của imbalanced distribution (2,380.9) cho thấy độ biến thiên cao
-    \item Bar charts minh họa sự chênh lệch đáng kể về số lượng samples giữa các peers trong scenario imbalanced
+    \item \textbf{Phân phối cân bằng:} Mỗi peer có số lượng mẫu đồng đều (3,276 mẫu), tạo ra phân phối cân bằng hoàn hảo với 10\% dữ liệu cho mỗi peer
+    \item \textbf{Phân phối không cân bằng:} Peer 0 chiếm 30\% tổng dữ liệu (9,830 mẫu), trong khi Peer 9 chỉ có 1\% (329 mẫu) - chênh lệch gấp 30 lần
+    \item Độ lệch chuẩn của phân phối không cân bằng (2,380.9) cho thấy độ biến thiên cao
+    \item Các biểu đồ cột minh họa sự chênh lệch đáng kể về số lượng mẫu giữa các peers trong kịch bản không cân bằng
 \end{itemize}
 
 \section{Kiến Trúc Decentralized Federated Learning}
@@ -42,30 +42,30 @@ Imbalanced & 32,762 & 3,276.2 & 2,380.9 & 329 - 9,830 \\
 
 \textbf{Đặc điểm kiến trúc DFL:}
 \begin{itemize}
-    \item \textbf{Peer-to-Peer Communication:} Không có central server, các peers giao tiếp trực tiếp với nhau theo cấu trúc ring
-    \item \textbf{Ring Topology:} Mỗi peer chỉ kết nối với peer kế tiếp, tạo thành một vòng khép kín
-    \item \textbf{Local Aggregation:} Mỗi peer tự thực hiện aggregation với model từ peer trước đó
-    \item \textbf{Model Architecture:} Autoencoder với cấu trúc Input(8) → Hidden(16) → Latent(4) → Hidden(16) → Output(8)
-    \item \textbf{Sequential Update:} Model weights được truyền tuần tự từ Peer 0 → Peer 1 → ... → Peer 9 → Peer 0
+    \item \textbf{Giao tiếp ngang hàng:} Không có server trung tâm, các peers giao tiếp trực tiếp với nhau theo cấu trúc vòng tròn
+    \item \textbf{Cấu trúc vòng tròn:} Mỗi peer chỉ kết nối với peer kế tiếp, tạo thành một vòng khép kín
+    \item \textbf{Tổng hợp cục bộ:} Mỗi peer tự thực hiện tổng hợp với mô hình từ peer trước đó
+    \item \textbf{Kiến trúc mô hình:} Autoencoder với cấu trúc Input(8) → Hidden(16) → Latent(4) → Hidden(16) → Output(8)
+    \item \textbf{Cập nhật tuần tự:} Trọng số mô hình được truyền tuần tự từ Peer 0 → Peer 1 → ... → Peer 9 → Peer 0
 \end{itemize}
 
-\textbf{Training Process trong DFL:}
+\textbf{Quá trình huấn luyện trong DFL:}
 \begin{enumerate}
-    \item Mỗi peer train model trên local data
-    \item Peer nhận model từ peer trước đó
-    \item Thực hiện averaging: $w_{new} = \alpha \cdot w_{local} + (1-\alpha) \cdot w_{received}$
-    \item Gửi model đã aggregate đến peer tiếp theo
-    \item Sau khi hoàn thành một vòng, bắt đầu round mới
+    \item Mỗi peer huấn luyện mô hình trên dữ liệu cục bộ
+    \item Peer nhận mô hình từ peer trước đó
+    \item Thực hiện lấy trung bình: $w_{new} = \alpha \cdot w_{local} + (1-\alpha) \cdot w_{received}$
+    \item Gửi mô hình đã tổng hợp đến peer tiếp theo
+    \item Sau khi hoàn thành một vòng, bắt đầu vòng mới
 \end{enumerate}
 
-\textbf{Configuration:}
+\textbf{Cấu hình:}
 \begin{itemize}
-    \item Number of Peers: 10
-    \item Training Rounds: 50
-    \item Local Epochs: 1
-    \item Learning Rate: 0.001
-    \item Batch Size: 128
-    \item Device: CPU
+    \item Số lượng Peers: 10
+    \item Số vòng huấn luyện: 50
+    \item Số epoch cục bộ: 1
+    \item Tốc độ học: 0.001
+    \item Kích thước batch: 128
+    \item Thiết bị: CPU
 \end{itemize}
 
 \section{Hiệu Suất Training}
@@ -92,29 +92,29 @@ DFL Imbalanced & 0.039153 & 0.002842 & 0.002705 & 92.74\% \\
 \textbf{Quan sát từ kết quả:}
 
 \begin{itemize}
-    \item \textbf{Balanced Distribution} cho kết quả tốt hơn với final eval loss (0.002425) thấp hơn Imbalanced (0.002705)
-    \item Train loss reduction của Balanced (94.19\%) cao hơn đáng kể so với Imbalanced (92.74\%)
-    \item Cả hai experiments đều hội tụ ổn định sau khoảng 30-40 rounds
-    \item Balanced distribution có learning curve mượt mà hơn, ít fluctuation hơn
+    \item \textbf{Phân phối cân bằng} cho kết quả tốt hơn với mất mát đánh giá cuối cùng (0.002425) thấp hơn Phân phối không cân bằng (0.002705)
+    \item Giảm mất mát huấn luyện của Phân phối cân bằng (94.19\%) cao hơn đáng kể so với Không cân bằng (92.74\%)
+    \item Cả hai thí nghiệm đều hội tụ ổn định sau khoảng 30-40 vòng
+    \item Phân phối cân bằng có đường cong học mượt mà hơn, ít dao động hơn
 \end{itemize}
 
 \textbf{Phân tích chi tiết:}
 
 \begin{enumerate}
-    \item \textbf{DFL Balanced:}
+    \item \textbf{DFL dữ liệu cân bằng:}
     \begin{itemize}
-        \item Convergence nhanh và ổn định nhờ phân phối đều dữ liệu
-        \item Mỗi peer đóng góp đều nhau vào việc cập nhật model
-        \item Giảm bias từ peers có nhiều data
-        \item Final loss thấp nhất: 0.002392 (train), 0.002425 (eval)
+        \item Hội tụ nhanh và ổn định nhờ phân phối đều dữ liệu
+        \item Mỗi peer đóng góp đều nhau vào việc cập nhật mô hình
+        \item Giảm thiên lệch từ các peers có nhiều dữ liệu
+        \item Mất mát cuối cùng thấp nhất: 0.002392 (huấn luyện), 0.002425 (đánh giá)
     \end{itemize}
     
-    \item \textbf{DFL Imbalanced:}
+    \item \textbf{DFL dữ liệu không cân bằng:}
     \begin{itemize}
-        \item Peer 0 (30\% data) có ảnh hưởng lớn đến model updates
-        \item Peers nhỏ (như Peer 9 với 1\% data) có impact hạn chế
-        \item Có thể gây overfitting cho data patterns của peers lớn
-        \item Final loss cao hơn: 0.002842 (train), 0.002705 (eval)
+        \item Peer 0 (30\% dữ liệu) có ảnh hưởng lớn đến việc cập nhật mô hình
+        \item Các peers nhỏ (như Peer 9 với 1\% dữ liệu) có tác động hạn chế
+        \item Có thể gây quá khớp cho các mẫu dữ liệu của peers lớn
+        \item Mất mát cuối cùng cao hơn: 0.002842 (huấn luyện), 0.002705 (đánh giá)
     \end{itemize}
 \end{enumerate}
 
@@ -200,12 +200,12 @@ Peer 9 & 329 & 0.04461 & 0.003602 & 0.003129 & 91.93\% \\
 \caption{So sánh final loss của các peers trong cả hai scenarios}
 \end{figure}
 
-\textbf{Key Insights:}
+\textbf{Các nhận định chính:}
 \begin{itemize}
-    \item Balanced distribution cho kết quả đồng nhất hơn giữa các peers
-    \item Imbalanced distribution tạo ra sự chênh lệch lớn giữa peers
-    \item Peers có nhiều data không nhất thiết có performance tốt nhất
-    \item Ring topology giúp knowledge transfer giữa các peers
+    \item Phân phối cân bằng cho kết quả đồng nhất hơn giữa các peers
+    \item Phân phối không cân bằng tạo ra sự chênh lệch lớn giữa peers
+    \item Peers có nhiều dữ liệu không nhất thiết có hiệu suất tốt nhất
+    \item Cấu trúc ring giúp chuyển giao kiến thức giữa các peers
 \end{itemize}
 
 \section{MSE Distribution và Threshold Determination}
@@ -216,45 +216,45 @@ Peer 9 & 329 & 0.04461 & 0.003602 & 0.003129 & 91.93\% \\
 \caption{Phân phối MSE và xác định ngưỡng anomaly detection cho DFL}
 \end{figure}
 
-\textbf{Threshold cho Balanced Distribution:}
+\textbf{Ngưỡng cho phân phối cân bằng:}
 \begin{itemize}
-    \item 95th Percentile Threshold: 0.006297
-    \item Mean MSE: 0.003014
-    \item Std Dev: 0.001641
-    \item Median: 0.002873
-    \item Mean + 2$\sigma$: 0.006296
+    \item Ngưỡng phân vị 95: 0.006297
+    \item MSE trung bình: 0.003014
+    \item Độ lệch chuẩn: 0.001641
+    \item Trung vị: 0.002873
+    \item Trung bình + 2$\sigma$: 0.006296
 \end{itemize}
 
-\textbf{Threshold cho Imbalanced Distribution:}
+\textbf{Ngưỡng cho phân phối không cân bằng:}
 \begin{itemize}
-    \item 95th Percentile Threshold: 0.007214
-    \item Mean MSE: 0.003858
-    \item Std Dev: 0.001678
-    \item Median: 0.003652
-    \item Mean + 2$\sigma$: 0.007214
+    \item Ngưỡng phân vị 95: 0.007214
+    \item MSE trung bình: 0.003858
+    \item Độ lệch chuẩn: 0.001678
+    \item Trung vị: 0.003652
+    \item Trung bình + 2$\sigma$: 0.007214
 \end{itemize}
 
-\textbf{Histogram Analysis:}
+\textbf{Phân tích biểu đồ tần suất:}
 \begin{itemize}
-    \item Balanced distribution có MSE tập trung hơn, phản ánh sự đồng nhất trong training
-    \item Imbalanced distribution có spread rộng hơn, cho thấy sự khác biệt giữa các peers
-    \item 95th percentile được chọn để minimize false positives trong anomaly detection
-    \item Threshold của imbalanced cao hơn 25.4\% so với balanced
+    \item Phân phối cân bằng có MSE tập trung hơn, phản ánh sự đồng nhất trong huấn luyện
+    \item Phân phối không cân bằng có độ phân tán rộng hơn, cho thấy sự khác biệt giữa các peers
+    \item Phân vị 95 được chọn để giảm thiểu dương tính giả trong phát hiện bất thường
+    \item Ngưỡng của phân phối không cân bằng cao hơn 25.4\% so với cân bằng
 \end{itemize}
 
-\textbf{Cumulative Distribution Function (CDF):}
+\textbf{Hàm phân phối tích lũy (CDF):}
 \begin{itemize}
-    \item 95\% samples có MSE dưới threshold trong cả hai scenarios
-    \item CDF curve của balanced steeper hơn, cho thấy consistency tốt hơn
-    \item Imbalanced có long tail, phản ánh outliers từ peers có ít data
+    \item 95\% mẫu có MSE dưới ngưỡng trong cả hai kịch bản
+    \item Đường cong CDF của phân phối cân bằng dốc hơn, cho thấy tính nhất quán tốt hơn
+    \item Phân phối không cân bằng có đuôi dài, phản ánh các giá trị ngoại lai từ peers có ít dữ liệu
 \end{itemize}
 
-\textbf{Box Plot Analysis:}
+\textbf{Phân tích biểu đồ hộp:}
 \begin{itemize}
-    \item Balanced: IQR compact hơn, ít outliers
-    \item Imbalanced: IQR rộng hơn, nhiều outliers hơn
-    \item Median của imbalanced cao hơn 27.1\% so với balanced
-    \item Outliers được xác định rõ ràng bởi threshold line
+    \item Cân bằng: Khoảng tứ phân vị gọn hơn, ít giá trị ngoại lai
+    \item Không cân bằng: Khoảng tứ phân vị rộng hơn, nhiều giá trị ngoại lai hơn
+    \item Trung vị của phân phối không cân bằng cao hơn 27.1\% so với cân bằng
+    \item Các giá trị ngoại lai được xác định rõ ràng bởi đường ngưỡng
 \end{itemize}
 
 \section{Anomaly Detection Performance}
@@ -278,18 +278,18 @@ Scenario 3: Negative Values & 0.007802 & > 0.006297 & \textcolor{red}{ANOMALY} \
 \end{tabular}
 \end{table}
 
-\textbf{Phân tích Balanced:}
+\textbf{Phân tích phân phối cân bằng:}
 \begin{itemize}
-    \item Normal sample có error (0.002002) chỉ bằng 31.8\% threshold
-    \item Sensor error có error cao nhất (0.212897), gấp 33.8 lần threshold
-    \item High vibration có error (0.028053) gấp 4.5 lần threshold
-    \item Negative values có error (0.007802) gấp 1.2 lần threshold
-    \item \textbf{Accuracy: 100\%} - Phân biệt hoàn toàn giữa normal và anomalies
+    \item Mẫu bình thường có lỗi (0.002002) chỉ bằng 31.8\% ngưỡng
+    \item Lỗi cảm biến có lỗi cao nhất (0.212897), gấp 33.8 lần ngưỡng
+    \item Rung cao có lỗi (0.028053) gấp 4.5 lần ngưỡng
+    \item Giá trị âm có lỗi (0.007802) gấp 1.2 lần ngưỡng
+    \item \textbf{Độ chính xác: 100\%} - Phân biệt hoàn toàn giữa bình thường và bất thường
 \end{itemize}
 
-\subsection{Imbalanced Distribution Results}
+\subsection{Kết quả phân phối không cân bằng}
 
-Mô hình được test trên 4 scenarios với threshold = 0.007214:
+Mô hình được kiểm tra trên 4 kịch bản với ngưỡng = 0.007214:
 
 \begin{table}[H]
 \centering
@@ -306,13 +306,13 @@ Scenario 3: Negative Values & 0.010645 & > 0.007214 & \textcolor{red}{ANOMALY} \
 \end{tabular}
 \end{table}
 
-\textbf{Phân tích Imbalanced:}
+\textbf{Phân tích phân phối không cân bằng:}
 \begin{itemize}
-    \item Normal sample có error (0.001684) chỉ bằng 23.3\% threshold
-    \item Sensor error có error cao nhất (0.188280), gấp 26.1 lần threshold
-    \item High vibration có error (0.040921) gấp 5.7 lần threshold
-    \item Negative values có error (0.010645) gấp 1.5 lần threshold
-    \item \textbf{Accuracy: 100\%} - Phân biệt hoàn toàn giữa normal và anomalies
+    \item Mẫu bình thường có lỗi (0.001684) chỉ bằng 23.3\% ngưỡng
+    \item Lỗi cảm biến có lỗi cao nhất (0.188280), gấp 26.1 lần ngưỡng
+    \item Rung cao có lỗi (0.040921) gấp 5.7 lần ngưỡng
+    \item Giá trị âm có lỗi (0.010645) gấp 1.5 lần ngưỡng
+    \item \textbf{Độ chính xác: 100\%} - Phân biệt hoàn toàn giữa bình thường và bất thường
 \end{itemize}
 
 \begin{figure}[H]
@@ -338,13 +338,13 @@ Negative Values & 0.007802 & 0.010645 & +36.4\% & Both OK \\
 \end{tabular}
 \end{table}
 
-\textbf{Kết luận về Anomaly Detection:}
+\textbf{Kết luận về phát hiện bất thường:}
 \begin{itemize}
-    \item \textbf{Accuracy:} Cả hai models đạt 100\% accuracy trong việc phân biệt anomalies
-    \item \textbf{Sensitivity:} Imbalanced model có errors cao hơn cho cả normal và anomaly samples
-    \item \textbf{Robustness:} Balanced model có reconstruction errors ổn định hơn
-    \item \textbf{Threshold Selection:} 95th percentile phù hợp cho cả hai scenarios
-    \item \textbf{Practical Use:} Balanced distribution được recommend cho anomaly detection tasks
+    \item \textbf{Độ chính xác:} Cả hai mô hình đạt 100\% độ chính xác trong việc phân biệt bất thường
+    \item \textbf{Độ nhạy:} Mô hình dữ liệu không cân bằng có sai số cao hơn cho cả mẫu bình thường và bất thường
+    \item \textbf{Tính bền vững:} Mô hình dữ liệu cân bằng có sai số tái tạo ổn định hơn
+    \item \textbf{Lựa chọn ngưỡng:} Phân vị 95 phù hợp cho cả hai kịch bản
+    \item \textbf{Ứng dụng thực tế:} Phân phối cân bằng được đề xuất cho các tác vụ phát hiện bất thường
 \end{itemize}
 
 \section{Tổng Kết và Đánh Giá}
@@ -381,70 +381,70 @@ Min-Max Range & 3,276-3,276 & 329-9,830 \\
 \end{tabular}
 \end{table}
 
-\subsection{Key Findings}
+\subsection{Các kết quả chính}
 
-\textbf{1. Impact của Data Distribution:}
+\textbf{1. Tác động của phân phối dữ liệu:}
 \begin{itemize}
-    \item Balanced distribution cho performance tốt hơn về mọi mặt
-    \item Final eval loss thấp hơn 10.4\% (0.002425 vs 0.002705)
-    \item Learning curve mượt mà và ổn định hơn
-    \item Convergence nhanh hơn và đạt local minimum tốt hơn
+    \item Phân phối cân bằng cho hiệu suất tốt hơn về mọi mặt
+    \item Mất mát đánh giá cuối cùng thấp hơn 10.4\% (0.002425 so với 0.002705)
+    \item Đường cong học mượt mà và ổn định hơn
+    \item Hội tụ nhanh hơn và đạt cực tiểu cục bộ tốt hơn
 \end{itemize}
 
-\textbf{2. Decentralized FL Architecture:}
+\textbf{2. Kiến trúc DFL phi tập trung:}
 \begin{itemize}
-    \item Ring topology hoạt động hiệu quả với 10 peers
-    \item Sequential model passing đảm bảo knowledge transfer
-    \item Không cần central server, tăng privacy và robustness
-    \item P2P communication giảm communication bottleneck
+    \item Cấu trúc ring hoạt động hiệu quả với 10 peers
+    \item Truyền mô hình tuần tự đảm bảo chuyển giao kiến thức
+    \item Không cần server trung tâm, tăng quyền riêng tư và tính bền vững
+    \item Giao tiếp P2P giảm nghẽ cổ chai giao tiếp
 \end{itemize}
 
-\textbf{3. Anomaly Detection Capability:}
+\textbf{3. Khả năng phát hiện bất thường:}
 \begin{itemize}
-    \item Cả hai models đạt 100\% accuracy trong detection
-    \item 95th percentile threshold phù hợp cho production use
-    \item Balanced model có reconstruction errors ổn định hơn
-    \item Robust với nhiều loại anomalies khác nhau
+    \item Cả hai mô hình đạt 100\% độ chính xác trong phát hiện
+    \item Ngưỡng phân vị 95 phù hợp cho ứng dụng thực tế
+    \item Mô hình cân bằng có sai số tái tạo ổn định hơn
+    \item Bền vững với nhiều loại bất thường khác nhau
 \end{itemize}
 
-\textbf{4. Scalability và Practical Considerations:}
+\textbf{4. Khả năng mở rộng và cân nhắc thực tế:}
 \begin{itemize}
-    \item System scale tốt với 10 peers, có thể mở rộng thêm
-    \item Training time: ~50 rounds để converge hoàn toàn
-    \item Memory efficient: mỗi peer chỉ cần store local data
-    \item Network overhead thấp: chỉ truyền model weights giữa adjacent peers
+    \item Hệ thống mở rộng tốt với 10 peers, có thể mở rộng thêm
+    \item Thời gian huấn luyện: ~50 vòng để hội tụ hoàn toàn
+    \item Tiết kiệm bộ nhớ: mỗi peer chỉ cần lưu trữ dữ liệu cục bộ
+    \item Chi phí mạng thấp: chỉ truyền trọng số mô hình giữa các peers lân cận
 \end{itemize}
 
-\subsection{Recommendations}
+\subsection{Đề xuất}
 
-\textbf{Cho Production Deployment:}
+\textbf{Cho triển khai thực tế:}
 \begin{enumerate}
-    \item \textbf{Data Distribution:} Ưu tiên balanced distribution khi có thể
-    \item \textbf{Threshold Selection:} Sử dụng 95th percentile với periodic recalibration
-    \item \textbf{Monitoring:} Track individual peer performance để phát hiện stragglers
-    \item \textbf{Model Updates:} Implement checkpoint saving sau mỗi round
-    \item \textbf{Fault Tolerance:} Xử lý peer failures với timeout mechanisms
+    \item \textbf{Phân phối dữ liệu:} Ưu tiên phân phối cân bằng khi có thể
+    \item \textbf{Lựa chọn ngưỡng:} Sử dụng phân vị 95 với hiệu chỉnh định kỳ
+    \item \textbf{Giám sát:} Theo dõi hiệu suất của từng peer để phát hiện các peer chậm
+    \item \textbf{Cập nhật mô hình:} Triển khai lưu điểm kiểm tra sau mỗi vòng
+    \item \textbf{Khả năng chịu lỗi:} Xử lý lỗi peer với cơ chế hết thời gian chờ
 \end{enumerate}
 
-\textbf{Cho Future Work:}
+\textbf{Cho công việc tương lai:}
 \begin{enumerate}
-    \item Test với topology khác (mesh, hierarchical)
-    \item Implement dynamic peer weighting dựa trên data quality
-    \item Explore adaptive learning rates per peer
-    \item Add encryption cho model weights transmission
-    \item Benchmark với centralized FL và standalone models
+    \item Kiểm tra với cấu trúc mạng khác (lưới, phân cấp)
+    \item Triển khai trọng số peer động dựa trên chất lượng dữ liệu
+    \item Khám phá tốc độ học thích ứng cho từng peer
+    \item Thêm mã hóa cho việc truyền trọng số mô hình
+    \item So sánh hiệu suất với FL tập trung và các mô hình độc lập
 \end{enumerate}
 
-\subsection{Limitations}
+\subsection{Hạn chế}
 
 \begin{itemize}
-    \item Sequential updates trong ring topology có thể chậm với nhiều peers
-    \item Peer failures có thể break the ring và require recovery mechanism
-    \item Không có global view của training progress
-    \item Imbalanced data vẫn ảnh hưởng đáng kể đến performance
-    \item Threshold cần được tune cho từng application domain
+    \item Cập nhật tuần tự trong cấu trúc ring có thể chậm với nhiều peers
+    \item Lỗi peer có thể phá vỡ vòng tròn và yêu cầu cơ chế khôi phục
+    \item Không có cái nhìn tổng thể về tiến trình huấn luyện
+    \item Dữ liệu không cân bằng vẫn ảnh hưởng đáng kể đến hiệu suất
+    \item Ngưỡng cần được điều chỉnh cho từng lĩnh vực ứng dụng
 \end{itemize}
 
-\subsection{Conclusion}
+\subsection{Kết luận}
 
-Thực nghiệm cho thấy Decentralized Federated Learning với ring topology là một giải pháp khả thi cho anomaly detection trong IoT bearing monitoring systems. Balanced data distribution mang lại performance tốt nhất với final eval loss 0.002425 và 100\% anomaly detection accuracy. Kiến trúc DFL loại bỏ single point of failure và tăng cường privacy bảo vệ, phù hợp cho các ứng dụng industrial IoT đòi hỏi bảo mật cao.
+Thực nghiệm cho thấy Decentralized Federated Learning với cấu trúc ring là một giải pháp khả thi cho phát hiện bất thường trong hệ thống giám sát vòng bi IoT. Phân phối dữ liệu cân bằng mang lại hiệu suất tốt nhất với mất mát đánh giá cuối cùng 0.002425 và 100% độ chính xác phát hiện bất thường. Kiến trúc DFL loại bỏ điểm lỗi đơn và tăng cường bảo vệ quyền riêng tư, phù hợp cho các ứng dụng IoT công nghiệp đòi hỏi bảo mật cao.

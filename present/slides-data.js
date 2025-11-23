@@ -2,7 +2,7 @@
 const SLIDES_DATA = {
   "presentation": {
     "title": "Decentralized Federated Learning for Bearing Anomaly Detection",
-    "totalSlides": 17
+    "totalSlides": 20
   },
   "slides": [
     {
@@ -369,6 +369,197 @@ const SLIDES_DATA = {
     {
       "id": 15,
       "type": "content",
+      "title": "Tóm Tắt Đóng Góp & Kết Luận",
+      "badges": [
+        { "text": "Successful", "color": "green" },
+        { "text": "Privacy-Preserving", "color": "blue" },
+        { "text": "IoT-Ready", "color": "purple" }
+      ],
+      "layout": "two-column",
+      "columns": [
+        {
+          "title": "Đóng Góp Chính",
+          "cards": [
+            {
+              "icon": "📚",
+              "iconColor": "blue",
+              "title": "Tổng Quan DFL",
+              "content": "Trình bày tầm quan trọng của DFL trong IoT, phân tích thách thức và giải pháp"
+            },
+            {
+              "icon": "📊",
+              "iconColor": "purple",
+              "title": "So Sánh IID vs Non-IID",
+              "content": "IID đạt 0.002425 loss, thấp hơn 10.4% so với Non-IID (0.002705)"
+            },
+            {
+              "icon": "🎯",
+              "iconColor": "orange",
+              "title": "100% Độ Chính Xác",
+              "content": "Phát hiện bất thường với ngưỡng MSE dựa trên phân vị 95"
+            },
+            {
+              "icon": "📈",
+              "iconColor": "red",
+              "title": "Phân Tích Hội Tụ",
+              "content": "IID hội tụ ổn định hơn, đạt giảm 94% mất mát so với ban đầu"
+            }
+          ]
+        },
+        {
+          "title": "Hạn Chế",
+          "cards": [
+            {
+              "icon": "💻",
+              "iconColor": "orange",
+              "title": "Hạn Chế: Mô Phỏng",
+              "content": "Chưa triển khai trên thiết bị IoT thật với ràng buộc phần cứng"
+            },
+            {
+              "icon": "🔐",
+              "iconColor": "red",
+              "title": "Hạn Chế: Bảo Mật",
+              "content": "Chưa triển khai cơ chế phòng thủ chống tấn công Byzantine"
+            },
+            {
+              "icon": "🌐",
+              "iconColor": "blue",
+              "title": "Hạn Chế: Topology",
+              "content": "Chỉ kiểm thử ring topology, chưa thử mesh/gossip"
+            },
+            {
+              "icon": "📏",
+              "iconColor": "purple",
+              "title": "Hạn Chế: Quy Mô",
+              "content": "Chỉ 10 peers, chưa test với hàng trăm/nghìn node"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "content",
+      "title": "Thách Thức Dữ Liệu IoT trong Bearing Monitoring",
+      "subtitle": "Challenges in IoT Data & DFL Implementation",
+      "badges": [
+        { "text": "IoT Challenges", "color": "red" },
+        { "text": "DFL Challenges", "color": "orange" },
+        { "text": "Data Complexity", "color": "blue" }
+      ],
+      "layout": "two-column",
+      "columns": [
+        {
+          "title": "Thách Thức Dữ Liệu IoT Nói Chung",
+          "cards": [
+            {
+              "icon": "🌊",
+              "iconColor": "blue",
+              "title": "Volume & Velocity",
+              "content": "Sensor stream liên tục (ms-level), 20,480 điểm/file × 8 channels → không thể upload hết lên cloud để train"
+            },
+            {
+              "icon": "🔀",
+              "iconColor": "orange",
+              "title": "Non-IID Cực Mạnh",
+              "content": "Mỗi bearing: tuổi thọ khác nhau, tải khác nhau, môi trường khác nhau → phân phối hoàn toàn khác biệt (khác xa dữ liệu ảnh/văn bản thường IID hơn)"
+            },
+            {
+              "icon": "📡",
+              "iconColor": "red",
+              "title": "Nhiễu Cao & Thiếu Dữ Liệu",
+              "content": "Sensor drift, rung môi trường, hỏng cảm biến, mất mẫu → dữ liệu IoT rất 'bẩn'"
+            }
+          ]
+        },
+        {
+          "title": "Thách Thức DFL với Dữ Liệu Bearing",
+          "cards": [
+            {
+              "icon": "📶",
+              "iconColor": "yellow",
+              "title": "Mạng Yếu, Mất Kết Nối",
+              "content": "IoT ở dây chuyền, phân xưởng → mạng không ổn định, không sync liên tục. DFL phải tự hoạt động khi mất server"
+            },
+            {
+              "icon": "💻",
+              "iconColor": "purple",
+              "title": "Edge Device Yếu",
+              "content": "Năng lực tính toán nhỏ → DFL cần model nhẹ (Autoencoder 8→4→2→4→8) thay vì cloud-like workload"
+            },
+            {
+              "icon": "⚡",
+              "iconColor": "green",
+              "title": "Yêu Cầu Real-time",
+              "content": "Model phải chạy tại edge với latency thấp → DFL train liên tục không dùng pipeline offline → deploy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "type": "content",
+      "title": "DFL Giải Quyết Thách Thức IoT Như Thế Nào?",
+      "subtitle": "Why DFL is Different for IoT Bearing Data?",
+      "badges": [
+        { "text": "DFL Solutions", "color": "green" },
+        { "text": "IoT-Optimized", "color": "blue" },
+        { "text": "Real-world Ready", "color": "purple" }
+      ],
+      "layout": "two-column",
+      "columns": [
+        {
+          "title": "Xử Lý Data Streaming & Liên Tục",
+          "cards": [
+            {
+              "icon": "🎯",
+              "iconColor": "green",
+              "title": "Local Training Real-time",
+              "content": "DFL cho phép local training ở edge theo thời gian thực → không cần dataset tĩnh như NLP/CV"
+            },
+            {
+              "icon": "🔄",
+              "iconColor": "blue",
+              "title": "Thiết Kế Cho Non-IID Mạnh",
+              "content": "Mỗi node học theo dữ liệu của nó → model thích nghi cho từng máy. Neighbor consensus giúp ổn định hơn khi không có global master"
+            },
+            {
+              "icon": "🔐",
+              "iconColor": "purple",
+              "title": "Bảo Mật Dữ Liệu Cảm Biến",
+              "content": "Không đưa raw vibration/temperature lên cloud → chỉ chia sẻ boundary/update nhẹ → tránh lộ bí mật sản xuất"
+            }
+          ]
+        },
+        {
+          "title": "Phù Hợp Môi Trường IoT Thực Tế",
+          "cards": [
+            {
+              "icon": "🌐",
+              "iconColor": "orange",
+              "title": "Tự Hoạt Động Khi Mất Mạng",
+              "content": "Không phụ thuộc server → peer tự tìm hàng xóm, tự healing khi node join/leave (decentralized)"
+            },
+            {
+              "icon": "⭕",
+              "iconColor": "red",
+              "title": "Hỗ Trợ Topology Linh Hoạt",
+              "content": "Ring, mesh, tree → IoT deployment thật có thể map dễ dàng. Hệ thống vẫn hoạt động khi một phần mạng bị đứt"
+            },
+            {
+              "icon": "💪",
+              "iconColor": "green",
+              "title": "Tối Ưu Edge Device Yếu",
+              "content": "DFL không yêu cầu update lớn hoặc mô hình lớn như FL truyền thống → chỉ cần CPU nhỏ vẫn chạy liên tục"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "content",
       "title": "Ứng Dụng & Hướng Phát Triển",
       "subtitle": "Applications & Future Directions",
       "badges": [
@@ -431,67 +622,7 @@ const SLIDES_DATA = {
       ]
     },
     {
-      "id": 16,
-      "type": "content",
-      "title": "Kết Luận",
-      "subtitle": "Achievements & Key Takeaways",
-      "badges": [
-        { "text": "Successful", "color": "green" },
-        { "text": "Privacy-Preserving", "color": "blue" },
-        { "text": "Scalable", "color": "purple" }
-      ],
-      "layout": "two-column",
-      "columns": [
-        {
-          "title": "Thành Tựu Đạt Được",
-          "cards": [
-            {
-              "icon": "✅",
-              "iconColor": "green",
-              "title": "DFL Implementation",
-              "content": "Xây dựng thành công hệ thống DFL với 10 peers"
-            },
-            {
-              "icon": "🎯",
-              "iconColor": "blue",
-              "title": "Anomaly Detection",
-              "content": "Model phát hiện tốt bất thường với threshold dựa trên 95th percentile"
-            },
-            {
-              "icon": "📊",
-              "iconColor": "purple",
-              "title": "Non-IID Handling",
-              "content": "Xử lý tốt data phân phối không đồng nhất"
-            }
-          ]
-        },
-        {
-          "title": "Bài Học Kinh Nghiệm",
-          "cards": [
-            {
-              "icon": "💡",
-              "iconColor": "yellow",
-              "title": "Communication Overhead",
-              "content": "Cần tối ưu hóa model exchange frequency"
-            },
-            {
-              "icon": "⚖️",
-              "iconColor": "orange",
-              "title": "Trade-offs",
-              "content": "Privacy vs Performance: cần balance hợp lý"
-            },
-            {
-              "icon": "🔧",
-              "iconColor": "red",
-              "title": "Practical Considerations",
-              "content": "Network stability quan trọng trong DFL"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 17,
+      "id": 19,
       "type": "thank-you",
       "title": "Cảm ơn Quý Thầy Cô và Các Bạn Đã Lắng Nghe!",
       "subtitle": "Questions & Discussion",

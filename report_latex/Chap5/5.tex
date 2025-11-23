@@ -1,14 +1,14 @@
 
 \section{Dataset và Preprocessing}
 
-\textbf{NASA Bearing Dataset \cite{qiu2006}:} Dữ liệu vibration từ 4 vòng bi được giám sát đến khi hỏng hoàn toàn. Mỗi sample có 8 channels (cảm biến) với 20480 data points mỗi channel.
+\textbf{NASA Bearing Dataset \cite{qiu2006}:} Dữ liệu rung từ 4 vòng bi được giám sát đến khi hỏng hoàn toàn. Mỗi mẫu có 8 kênh (cảm biến) với 20480 điểm dữ liệu mỗi kênh.
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{image/bearing.png}
 \caption{Thiết bị trong công nghiệp}
 \end{figure}
 
-\textbf{Feature extraction:} Từ raw time-series, trích xuất 8 features thống kê:
+\textbf{Trích xuất đặc trưng:} Từ chuỗi thời gian thô, trích xuất 8 đặc trưng thống kê:
 \begin{itemize}
     \item Mean và Standard Deviation
     \item RMS (Root Mean Square)
@@ -18,11 +18,11 @@
     \item Form Factor
 \end{itemize}
 
-\textbf{Data distribution:} Tổng cộng 32,760 samples được chia thành:
+\textbf{Phân phối dữ liệu:} Tổng cộng 32,760 mẫu được chia thành:
 
-\textit{Balanced (IID):} Mỗi client có đúng 3,276 training samples và 820 test samples.
+\textit{Cân bằng (IID):} Mỗi client có đúng 3,276 mẫu huấn luyện và 820 mẫu kiểm tra.
 
-\textit{Imbalanced (Non-IID):} Phân phối theo power law để mô phỏng thực tế:
+\textit{Không cân bằng (Non-IID):} Phân phối theo luật lũy thừa để mô phỏng thực tế:
 \begin{itemize}
     \item Client 0: 9,830 samples (100.0\%)
     \item Client 1: 1,638 samples (14.3\%)
@@ -67,33 +67,33 @@
 
 Biểu đồ cho thấy:
 \begin{itemize}
-    \item Normal data có pattern khá stable và consistent
-    \item Anomaly samples có spikes hoặc deviations rõ ràng từ normal pattern
-    \item Các features khác nhau capture các aspects khác nhau của bearing condition
+    \item Dữ liệu bình thường có mẫu khá ổn định và nhất quán
+    \item Các mẫu bất thường có đỉnh hoặc độ lệch rõ ràng từ mẫu bình thường
+    \item Các đặc trưng khác nhau nắm bắt các khía cạnh khác nhau về tình trạng vòng bi
 \end{itemize}
 
 \section{Kiến Trúc Mô Hình Autoencoder}
 
 Autoencoder được thiết kế để học representation của dữ liệu normal bearing:
 
-\textbf{Architecture:}
+\textbf{Kiến trúc:}
 \begin{itemize}
-    \item Input layer: 8 features
-    \item Encoder: $8 \rightarrow 4 \rightarrow 2$ (bottleneck)
-    \item Decoder: $2 \rightarrow 4 \rightarrow 8$
-    \item Activation: ReLU
-    \item Loss function: Mean Squared Error (MSE)
+    \item Lớp đầu vào: 8 đặc trưng
+    \item Bộ mã hóa: $8 \rightarrow 4 \rightarrow 2$ (điểm thắt)
+    \item Bộ giải mã: $2 \rightarrow 4 \rightarrow 8$
+    \item Hàm kích hoạt: ReLU
+    \item Hàm mất mát: Mean Squared Error (MSE)
 \end{itemize}
 
-\textbf{Training configuration:}
+\textbf{Cấu hình huấn luyện:}
 \begin{itemize}
-    \item Optimizer: Adam với learning rate $10^{-3}$
-    \item Local epochs: 1 epoch mỗi round
-    \item Batch size: 32
-    \item Total rounds: 50
+    \item Bộ tối ưu: Adam với tốc độ học $10^{-3}$
+    \item Số epoch cục bộ: 1 epoch mỗi vòng
+    \item Kích thước batch: 32
+    \item Tổng số vòng: 50
 \end{itemize}
 
-\textbf{Rationale:} Autoencoder học reconstruct dữ liệu bình thường. Khi gặp anomaly (bearing fault), reconstruction error sẽ cao hơn nhiều, cho phép phát hiện.
+\textbf{Nguyên lý:} Autoencoder học tái tạo dữ liệu bình thường. Khi gặp bất thường (hỏng vòng bi), sai số tái tạo sẽ cao hơn nhiều, cho phép phát hiện.
 
 \textbf{MSE Formula và Computation:}
 
@@ -113,10 +113,10 @@ $$\text{Classification} = \begin{cases}
 \text{ANOMALY} & \text{if } MSE \geq \text{Threshold}
 \end{cases}$$
 
-\textbf{Threshold Calculation:}
+\textbf{Tính toán Ngưỡng:}
 $$\text{Threshold} = \text{Percentile}_{95}(\{MSE_i\}_{i=1}^{N})$$
 
-Trong đó $N$ là tổng số test samples trong validation set.
+Trong đó $N$ là tổng số mẫu kiểm tra trong tập kiểm định.
 
 \section{Cấu Hình Decentralized Federated Learning}
 
@@ -124,54 +124,54 @@ Triển khai DFL thuần túy với kiến trúc P2P Ring Topology:
 
 \begin{itemize}
     \item \textbf{Số peers:} 10 (mô phỏng 10 thiết bị IoT)
-    \item \textbf{Topology:} Ring - mỗi peer kết nối với 2 peer lân cận
-    \item \textbf{Communication:} Peer-to-Peer (P2P) - không có central server
-    \item \textbf{Aggregation:} Local tại mỗi peer (trung bình trọng số từ peer trước đó)
-    \item \textbf{Total rounds:} 50
-    \item \textbf{Local epochs:} 1 epoch mỗi round
-    \item \textbf{Batch size:} 128
-    \item \textbf{Learning rate:} 0.001
-    \item \textbf{Device:} CPU
+    \item \textbf{Cấu trúc mạng:} Vòng tròn - mỗi peer kết nối với 2 peer lân cận
+    \item \textbf{Giao tiếp:} Peer-to-Peer (P2P) - không có server trung tâm
+    \item \textbf{Tổng hợp:} Cục bộ tại mỗi peer (trung bình trọng số từ peer trước đó)
+    \item \textbf{Tổng số vòng:} 50
+    \item \textbf{Số epoch cục bộ:} 1 epoch mỗi vòng
+    \item \textbf{Kích thước batch:} 128
+    \item \textbf{Tốc độ học:} 0.001
+    \item \textbf{Thiết bị:} CPU
 \end{itemize}
 
-\textbf{Ring Topology Flow:} 
+\textbf{Luồng dữ liệu trong Ring Topology:} 
 \begin{itemize}
     \item Peer 0 $\rightarrow$ Peer 1 $\rightarrow$ Peer 2 $\rightarrow$ ... $\rightarrow$ Peer 9 $\rightarrow$ Peer 0
-    \item Mỗi peer train local model và gửi weights cho peer tiếp theo
-    \item Peer nhận weights từ peer trước đó và thực hiện aggregation (averaging)
-    \item Không có single point of failure - hoàn toàn phi tập trung
+    \item Mỗi peer huấn luyện mô hình cục bộ và gửi trọng số cho peer tiếp theo
+    \item Peer nhận trọng số từ peer trước đó và thực hiện tổng hợp (lấy trung bình)
+    \item Không có điểm lỗi đơn - hoàn toàn phi tập trung
 \end{itemize}
 
 \textbf{Ưu điểm của DFL P2P:} 
 \begin{itemize}
     \item Tăng tính riêng tư: dữ liệu không bao giờ rời khỏi peer
-    \item Giảm bandwidth: chỉ giao tiếp với 2 peer lân cận
-    \item Fault tolerance: nếu một peer fail, topology có thể tái cấu hình
-    \item Scalable: dễ dàng thêm/bớt peer mà không ảnh hưởng toàn hệ thống
+    \item Giảm băng thông: chỉ giao tiếp với 2 peer lân cận
+    \item Khả năng chịu lỗi: nếu một peer gặp sự cố, cấu trúc mạng có thể tái cấu hình
+    \item Khả năng mở rộng: dễ dàng thêm/bớt peer mà không ảnh hưởng toàn hệ thống
 \end{itemize}
 
 \section{Quy Trình Thực Nghiệm}
 
-\textbf{Experiment 1: Balanced (IID)}
+\textbf{Thí nghiệm 1: Cân bằng (IID)}
 \begin{enumerate}
-    \item Chia đều 32,760 samples cho 10 peers (3,276 samples/peer)
-    \item Khởi tạo model với random weights
-    \item Chạy 50 rounds DFL với P2P ring topology
-    \item Mỗi peer train local model và trao đổi weights với peer kế tiếp
-    \item Đánh giá trên local test set của mỗi peer
+    \item Chia đều 32,760 mẫu cho 10 peers (3,276 mẫu/peer)
+    \item Khởi tạo mô hình với trọng số ngẫu nhiên
+    \item Chạy 50 vòng DFL với cấu trúc P2P ring
+    \item Mỗi peer huấn luyện mô hình cục bộ và trao đổi trọng số với peer kế tiếp
+    \item Đánh giá trên tập kiểm tra cục bộ của mỗi peer
 \end{enumerate}
 
-\textbf{Experiment 2: Imbalanced (Non-IID)}
+\textbf{Thí nghiệm 2: Không cân bằng (Non-IID)}
 \begin{enumerate}
-    \item Phân phối không cân bằng theo power law (từ 329 đến 9,830 samples)
-    \item Các bước còn lại giống Experiment 1
+    \item Phân phối không cân bằng theo luật lũy thừa (từ 329 đến 9,830 mẫu)
+    \item Các bước còn lại giống Thí nghiệm 1
 \end{enumerate}
 
-\textbf{Metrics:}
+\textbf{Chỉ số đánh giá:}
 \begin{itemize}
-    \item Training loss: MSE trên training set của mỗi peer
-    \item Evaluation loss: MSE trên test set của mỗi peer
-    \item Convergence speed: số rounds để đạt loss < 0.005
-    \item Loss reduction: chênh lệch giữa initial loss và final loss
-    \item Anomaly detection threshold: 95th percentile và Mean+2$\sigma$ của MSE distribution
+    \item Mất mát huấn luyện: MSE trên tập huấn luyện của mỗi peer
+    \item Mất mát đánh giá: MSE trên tập kiểm tra của mỗi peer
+    \item Tốc độ hội tụ: số vòng để đạt mất mát < 0.005
+    \item Giảm mất mát: chênh lệch giữa mất mát ban đầu và mất mát cuối cùng
+    \item Ngưỡng phát hiện bất thường: phân vị 95 và Trung bình+2$\sigma$ của phân phối MSE
 \end{itemize}
