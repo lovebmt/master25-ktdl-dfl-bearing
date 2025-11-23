@@ -3,6 +3,10 @@ let slidesData = null;
 let currentSlide = 1;
 let totalSlides = 0;
 
+// Elapsed Time Tracking
+let startTime = null;
+let elapsedTimeInterval = null;
+
 // Load slides data from embedded JS
 function loadSlidesData() {
     try {
@@ -283,10 +287,18 @@ function updateSlide() {
 // Toggle Sidebar
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    
     if (window.innerWidth <= 768) {
         sidebar.classList.toggle('open');
     } else {
         sidebar.classList.toggle('collapsed');
+        // Show/hide mobile menu button when sidebar is collapsed
+        if (sidebar.classList.contains('collapsed')) {
+            mobileMenuToggle.style.display = 'flex';
+        } else {
+            mobileMenuToggle.style.display = 'none';
+        }
     }
 }
 
@@ -353,6 +365,28 @@ function checkInitialSlide() {
     }
 }
 
+// Elapsed Time Functions
+function startElapsedTimeTracking() {
+    startTime = Date.now();
+    updateElapsedTime(); // Initial update
+    
+    // Update every 10 seconds
+    elapsedTimeInterval = setInterval(updateElapsedTime, 10000);
+}
+
+function updateElapsedTime() {
+    if (!startTime) return;
+    
+    const elapsed = Math.floor((Date.now() - startTime) / 1000); // seconds
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    
+    const timeDisplay = document.getElementById('timeDisplay');
+    if (timeDisplay) {
+        timeDisplay.textContent = `${minutes}m:${seconds.toString().padStart(2, '0')}s`;
+    }
+}
+
 // Initialize presentation
 function initPresentation() {
     const data = loadSlidesData();
@@ -361,6 +395,7 @@ function initPresentation() {
         renderSlides(data.slides);
         checkInitialSlide();
         updateSlide();
+        startElapsedTimeTracking();
         
         console.log(`✅ Presentation loaded: ${totalSlides} slides`);
     } else {

@@ -91,6 +91,22 @@ body {
     margin: 0;
 }
 
+/* Elapsed Time Clock */
+.elapsed-time {
+    padding: 0.6rem var(--spacing-sm);
+    background: rgba(123, 104, 238, 0.05);
+    border-bottom: 1px solid rgba(123, 104, 238, 0.1);
+    font-size: 0.75rem;
+    color: var(--color-text-light);
+    text-align: center;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+.elapsed-time span {
+    color: var(--color-primary);
+}
+
 .sidebar-toggle {
     background: rgba(255, 255, 255, 0.2);
     border: none;
@@ -184,6 +200,11 @@ body {
 
 .mobile-menu-toggle:hover {
     transform: scale(1.05);
+}
+
+/* Show mobile menu toggle when sidebar is collapsed on desktop */
+.sidebar.collapsed ~ .mobile-menu-toggle {
+    display: flex;
 }
 
 /* Main Content with Sidebar */

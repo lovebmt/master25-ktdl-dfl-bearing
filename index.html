@@ -98,6 +98,22 @@ body {
     margin: 0;
 }
 
+/* Elapsed Time Clock */
+.elapsed-time {
+    padding: 0.6rem var(--spacing-sm);
+    background: rgba(123, 104, 238, 0.05);
+    border-bottom: 1px solid rgba(123, 104, 238, 0.1);
+    font-size: 0.75rem;
+    color: var(--color-text-light);
+    text-align: center;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+.elapsed-time span {
+    color: var(--color-primary);
+}
+
 .sidebar-toggle {
     background: rgba(255, 255, 255, 0.2);
     border: none;
@@ -191,6 +207,11 @@ body {
 
 .mobile-menu-toggle:hover {
     transform: scale(1.05);
+}
+
+/* Show mobile menu toggle when sidebar is collapsed on desktop */
+.sidebar.collapsed ~ .mobile-menu-toggle {
+    display: flex;
 }
 
 /* Main Content with Sidebar */
@@ -1082,6 +1103,9 @@ a:focus-visible {
                 </svg>
             </button>
         </div>
+        <div class="elapsed-time" id="elapsedTime">
+            ⏱️ <span id="timeDisplay">0:00</span>
+        </div>
         <nav class="sidebar-nav">
             <!-- Navigation will be rendered by JavaScript -->
         </nav>
@@ -1146,7 +1170,7 @@ const SLIDES_DATA = {
               "icon": "👥",
               "iconColor": "green",
               "title": "Nhóm TEAM6",
-              "content": "Nguyễn Văn Tâm, Đồng Quang Trí,<br>Phạm Văn Thành, Lê Đức Phương,<br>Đinh Thị Thu Thủy"
+              "content": "Lê Đức Phương<br> Phạm Văn Thành<br> Đồng Quang Trí <br> Nguyễn Văn Tâm<br> Đinh Thị Thu Thủy"
             }
           ]
         },
@@ -1156,14 +1180,14 @@ const SLIDES_DATA = {
             {
               "icon": "🎓",
               "iconColor": "blue",
-              "title": "Chương trình: Thạc sĩ KTDL",
+              "title": "Môn học: KTDL",
               "content": "GVHD: TS. Phan Trọng Nhân"
             },
             {
               "icon": "📅",
               "iconColor": "purple",
               "title": "Trường: ĐH Bách Khoa",
-              "content": "Năm: 2025 (Tháng 11/2025)"
+              "content": "Tháng 11/2025"
             }
           ]
         }
@@ -1646,6 +1670,10 @@ let slidesData = null;
 let currentSlide = 1;
 let totalSlides = 0;
 
+// Elapsed Time Tracking
+let startTime = null;
+let elapsedTimeInterval = null;
+
 // Load slides data from embedded JS
 function loadSlidesData() {
     try {
@@ -1926,10 +1954,18 @@ function updateSlide() {
 // Toggle Sidebar
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    
     if (window.innerWidth <= 768) {
         sidebar.classList.toggle('open');
     } else {
         sidebar.classList.toggle('collapsed');
+        // Show/hide mobile menu button when sidebar is collapsed
+        if (sidebar.classList.contains('collapsed')) {
+            mobileMenuToggle.style.display = 'flex';
+        } else {
+            mobileMenuToggle.style.display = 'none';
+        }
     }
 }
 
@@ -1996,6 +2032,28 @@ function checkInitialSlide() {
     }
 }
 
+// Elapsed Time Functions
+function startElapsedTimeTracking() {
+    startTime = Date.now();
+    updateElapsedTime(); // Initial update
+    
+    // Update every 10 seconds
+    elapsedTimeInterval = setInterval(updateElapsedTime, 10000);
+}
+
+function updateElapsedTime() {
+    if (!startTime) return;
+    
+    const elapsed = Math.floor((Date.now() - startTime) / 1000); // seconds
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    
+    const timeDisplay = document.getElementById('timeDisplay');
+    if (timeDisplay) {
+        timeDisplay.textContent = `${minutes}m:${seconds.toString().padStart(2, '0')}s`;
+    }
+}
+
 // Initialize presentation
 function initPresentation() {
     const data = loadSlidesData();
@@ -2004,6 +2062,7 @@ function initPresentation() {
         renderSlides(data.slides);
         checkInitialSlide();
         updateSlide();
+        startElapsedTimeTracking();
         
         console.log(`✅ Presentation loaded: ${totalSlides} slides`);
     } else {

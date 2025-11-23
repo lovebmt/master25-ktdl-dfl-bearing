@@ -173,6 +173,7 @@ note
 report.aux
 
 **/*.aux
-report_latex/main.synctex.gz
-report_latex/main.bbl
-report_latex/main.bbl
+report_latex/*.synctex.gz
+report_latex/*.bbl
+report_latex/*.bbl
+report_latex/*.out

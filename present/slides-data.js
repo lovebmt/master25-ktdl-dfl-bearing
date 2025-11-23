@@ -24,7 +24,7 @@ const SLIDES_DATA = {
               "icon": "👥",
               "iconColor": "green",
               "title": "Nhóm TEAM6",
-              "content": "Nguyễn Văn Tâm, Đồng Quang Trí,<br>Phạm Văn Thành, Lê Đức Phương,<br>Đinh Thị Thu Thủy"
+              "content": "Lê Đức Phương<br> Phạm Văn Thành<br> Đồng Quang Trí <br> Nguyễn Văn Tâm<br> Đinh Thị Thu Thủy"
             }
           ]
         },
@@ -34,14 +34,14 @@ const SLIDES_DATA = {
             {
               "icon": "🎓",
               "iconColor": "blue",
-              "title": "Chương trình: Thạc sĩ KTDL",
+              "title": "Môn học: KTDL",
               "content": "GVHD: TS. Phan Trọng Nhân"
             },
             {
               "icon": "📅",
               "iconColor": "purple",
               "title": "Trường: ĐH Bách Khoa",
-              "content": "Năm: 2025 (Tháng 11/2025)"
+              "content": "Tháng 11/2025"
             }
           ]
         }
