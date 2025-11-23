@@ -2,7 +2,7 @@
 const SLIDES_DATA = {
   "presentation": {
     "title": "Decentralized Federated Learning for Bearing Anomaly Detection",
-    "totalSlides": 16
+    "totalSlides": 17
   },
   "slides": [
     {
@@ -10,7 +10,6 @@ const SLIDES_DATA = {
       "type": "title",
       "title": "Decentralized Federated Learning",
       "subtitle": "Ứng Dụng Phát Hiện Bất Thường Trong Dữ Liệu Vòng Bi",
-      "subtitleDetail": "Ứng Dụng Phát Hiện Bất Thường Trong Dữ Liệu Vòng Bi",
       "badges": [
         { "text": "Machine Learning", "color": "green" },
         { "text": "IoT", "color": "yellow" },
@@ -52,7 +51,6 @@ const SLIDES_DATA = {
       "id": 2,
       "type": "content",
       "title": "Decentralized Federated Learning",
-      "subtitle": "Giải Pháp Cho Machine Learning Phân Tán",
       "badges": [
         { "text": "No Central Server", "color": "blue" },
         { "text": "P2P Communication", "color": "green" },
@@ -66,20 +64,17 @@ const SLIDES_DATA = {
             {
               "icon": "🏢",
               "iconColor": "red",
-              "title": "Central Server Required",
-              "content": "Yêu cầu server trung tâm mạnh mẽ"
+              "title": "Central Server Required"
             },
             {
               "icon": "🔒",
               "iconColor": "orange",
-              "title": "Privacy Concerns",
-              "content": "Rủi ro bảo mật tại điểm trung tâm"
+              "title": "Privacy Concerns"
             },
             {
               "icon": "⚡",
               "iconColor": "yellow",
-              "title": "Single Point of Failure",
-              "content": "Server chết → hệ thống chết"
+              "title": "Single Point of Failure"
             }
           ]
         },
@@ -89,20 +84,17 @@ const SLIDES_DATA = {
             {
               "icon": "🌐",
               "iconColor": "blue",
-              "title": "P2P Architecture",
-              "content": "Không cần server, peers giao tiếp trực tiếp"
+              "title": "P2P Architecture"
             },
             {
               "icon": "🔐",
               "iconColor": "green",
-              "title": "Enhanced Privacy",
-              "content": "Data không bao giờ rời thiết bị"
+              "title": "Enhanced Privacy"
             },
             {
               "icon": "💪",
               "iconColor": "purple",
-              "title": "High Resilience",
-              "content": "Peers có thể join/leave tự do"
+              "title": "High Resilience"
             }
           ]
         }
@@ -110,6 +102,19 @@ const SLIDES_DATA = {
     },
     {
       "id": 3,
+      "type": "image",
+      "title": "Learning Types Comparison",
+      "subtitle": "Centralized vs Federated vs Decentralized Learning",
+      "badges": [
+        { "text": "Centralized", "color": "blue" },
+        { "text": "Federated", "color": "green" },
+        { "text": "Decentralized", "color": "purple" }
+      ],
+      "image": "../reports_dfl/learning_type.png",
+      "imageStyle": "max-height: 550px; object-fit: contain;"
+    },
+    {
+      "id": 4,
       "type": "content",
       "title": "Kiến Trúc DFL",
       "subtitle": "Peer-to-Peer Decentralized Architecture",
@@ -127,7 +132,7 @@ const SLIDES_DATA = {
               "icon": "🔄",
               "iconColor": "blue",
               "title": "Peer-to-Peer",
-              "content": "10 peers giao tiếp trực tiếp, không có server"
+              "content": "peers giao tiếp trực tiếp, không có server"
             },
             {
               "icon": "⭕",
@@ -169,23 +174,22 @@ const SLIDES_DATA = {
       ]
     },
     {
-      "id": 4,
+      "id": 5,
       "type": "image",
       "title": "DFL Architecture Diagram",
       "subtitle": "Federated Learning System Overview",
       "badges": [
-        { "text": "10 Peers", "color": "blue" },
-        { "text": "Ring Topology", "color": "purple" },
+        { "text": "ring topology", "color": "blue" },
+        { "text": "Network Topology", "color": "purple" },
         { "text": "Decentralized", "color": "green" }
       ],
-      "image": "../reports_dfl/ring_topology.png",
+      "image": "../reports_dfl/network_topology.png",
       "imageStyle": "max-height: 550px; object-fit: contain;"
     },
     {
-      "id": 5,
+      "id": 6,
       "type": "content",
-      "title": "Phương Pháp Nghiên Cứu",
-      "subtitle": "Autoencoder-based Anomaly Detection",
+      "title": "Autoencoder-based Anomaly Detection",
       "badges": [
         { "text": "Deep Learning", "color": "blue" },
         { "text": "Unsupervised", "color": "purple" },
@@ -209,12 +213,6 @@ const SLIDES_DATA = {
               "content": "20,480 time-series points mỗi file",
               "dialogImage": "../reports_dfl/bearing.png"
 
-            },
-            {
-              "icon": "📊",
-              "iconColor": "purple",
-              "title": "Statistical Features",
-              "content": "Mean, Std, RMS, Kurtosis, Skewness..."
             }
           ]
         },
@@ -244,7 +242,7 @@ const SLIDES_DATA = {
       ]
     },
     {
-      "id": 6,
+      "id": 7,
       "type": "image",
       "title": "Feature Extraction Process",
       "subtitle": "Raw Sensor Data → Statistical Features",
@@ -256,50 +254,7 @@ const SLIDES_DATA = {
       "image": "../reports_dfl/sensor_data_visualization.png",
       "imageStyle": "max-height: 550px; object-fit: contain;"
     },
-    {
-      "id": 7,
-      "type": "content",
-      "title": "Phân Tích Phân Phối Dữ Liệu",
-      "subtitle": "Visualization & Statistical Analysis",
-      "badges": [
-        { "text": "IID: Equal Distribution", "color": "blue" },
-        { "text": "Non-IID: Power Law", "color": "orange" }
-      ],
-      "layout": "stats",
-      "statsCards": [
-        {
-          "label": "Total Samples",
-          "value": "32,760",
-          "sublabel": "training data"
-        },
-        {
-          "label": "Peers",
-          "value": "10",
-          "sublabel": "IoT devices"
-        },
-        {
-          "label": "IID: Each Peer",
-          "value": "3,276",
-          "sublabel": "samples (10%)"
-        },
-        {
-          "label": "Non-IID: Max Peer",
-          "value": "9,830",
-          "sublabel": "samples (30%)"
-        },
-        {
-          "label": "Non-IID: Min Peer",
-          "value": "329",
-          "sublabel": "samples (1%)"
-        },
-        {
-          "label": "Ratio",
-          "value": "29.9x",
-          "sublabel": "max/min",
-          "valueStyle": "font-size: 1.5rem;"
-        }
-      ]
-    },
+
     {
       "id": 8,
       "type": "image",
@@ -314,9 +269,20 @@ const SLIDES_DATA = {
     },
     {
       "id": 9,
+      "type": "image",
+      "title": "Ring Topology Network Architecture",
+      "badges": [
+        { "text": "Ring Topology", "color": "blue" },
+        { "text": "10 Peers", "color": "purple" },
+        { "text": "P2P Communication", "color": "green" }
+      ],
+      "image": "../reports_dfl/ring_topology.png",
+      "imageStyle": "max-height: 550px; object-fit: contain;"
+    },
+    {
+      "id": 10,
       "type": "content",
-      "title": "Kết Quả Thí Nghiệm",
-      "subtitle": "Phân Tích Hiệu Suất",
+      "title": "Kết Quả",
       "badges": [
         { "text": "IID vs Non-IID", "color": "blue" },
         { "text": "10 Peers", "color": "purple" },
@@ -352,7 +318,7 @@ const SLIDES_DATA = {
       ]
     },
     {
-      "id": 10,
+      "id": 11,
       "type": "image",
       "title": "Experiments Comparison",
       "subtitle": "IID vs Non-IID Over 50 Rounds",
@@ -364,7 +330,7 @@ const SLIDES_DATA = {
       "imageStyle": "max-height: 500px; object-fit: contain;"
     },
     {
-      "id": 11,
+      "id": 12,
       "type": "image",
       "title": "MSE Distribution",
       "subtitle": "Statistical Analysis of Reconstruction Errors",
@@ -373,19 +339,6 @@ const SLIDES_DATA = {
         { "text": "MSE Metric", "color": "green" }
       ],
       "image": "../reports_dfl/mse_distribution_threshold.png",
-      "imageStyle": "max-height: 500px; object-fit: contain;"
-    },
-    {
-      "id": 12,
-      "type": "image",
-      "title": "Anomaly Detection Comparison",
-      "subtitle": "Reconstruction Error Analysis",
-      "badges": [
-        { "text": "MSE Metric", "color": "blue" },
-        { "text": "Threshold-based", "color": "red" },
-        { "text": "Normal vs Anomaly", "color": "green" }
-      ],
-      "image": "../reports_dfl/anomaly_detection_comparison.png",
       "imageStyle": "max-height: 500px; object-fit: contain;"
     },
     {
@@ -402,66 +355,83 @@ const SLIDES_DATA = {
     },
     {
       "id": 14,
-      "type": "content",
-      "title": "Ứng Dụng Thực Tế",
-      "subtitle": "DFL Trong Hệ Thống IoT",
+      "type": "image",
+      "title": "Anomaly Detection Comparison",
+      "subtitle": "Reconstruction Error Analysis",
       "badges": [
-        { "text": "Smart City", "color": "blue" },
-        { "text": "Industrial IoT", "color": "green" },
-        { "text": "Healthcare", "color": "purple" }
+        { "text": "MSE Metric", "color": "blue" },
+        { "text": "Threshold-based", "color": "red" },
+        { "text": "Normal vs Anomaly", "color": "green" }
+      ],
+      "image": "../reports_dfl/anomaly_detection_comparison.png",
+      "imageStyle": "max-height: 500px; object-fit: contain;"
+    },
+    {
+      "id": 15,
+      "type": "content",
+      "title": "Ứng Dụng & Hướng Phát Triển",
+      "subtitle": "Applications & Future Directions",
+      "badges": [
+        { "text": "Applications", "color": "blue" },
+        { "text": "Future Work", "color": "purple" },
+        { "text": "Scalable", "color": "green" }
       ],
       "layout": "two-column",
       "columns": [
         {
-          "title": "Industrial Applications",
+          "title": "Ứng Dụng Thực Tế",
           "cards": [
             {
               "icon": "🏭",
               "iconColor": "blue",
-              "title": "Predictive Maintenance",
-              "content": "Giám sát thiết bị công nghiệp real-time"
+              "title": "Predictive Maintenance"
             },
             {
               "icon": "⚙️",
               "iconColor": "green",
-              "title": "Smart Manufacturing",
-              "content": "Phát hiện lỗi sản xuất tự động"
+              "title": "Smart Manufacturing"
             },
-            {
-              "icon": "🚂",
-              "iconColor": "orange",
-              "title": "Railway Systems",
-              "content": "Monitoring vòng bi tàu hỏa"
-            }
-          ]
-        },
-        {
-          "title": "IoT Ecosystems",
-          "cards": [
             {
               "icon": "🏙️",
               "iconColor": "purple",
-              "title": "Smart Cities",
-              "content": "Sensors network không cần server trung tâm"
+              "title": "Smart City IoT"
             },
             {
               "icon": "🏥",
               "iconColor": "red",
-              "title": "Healthcare IoT",
-              "content": "Medical devices với privacy cao"
+              "title": "Healthcare IoT"
+            }
+          ]
+        },
+        {
+          "title": "Hướng Phát Triển",
+          "cards": [
+            {
+              "icon": "🚀",
+              "iconColor": "blue",
+              "title": "Alternative Topologies"
             },
             {
-              "icon": "🌍",
+              "icon": "🔐",
               "iconColor": "green",
-              "title": "Edge Computing",
-              "content": "Training tại edge, không cần cloud"
+              "title": "Security Enhancement"
+            },
+            {
+              "icon": "🌐",
+              "iconColor": "purple",
+              "title": "Large-scale Deployment"
+            },
+            {
+              "icon": "🤖",
+              "iconColor": "orange",
+              "title": "Hardware Integration"
             }
           ]
         }
       ]
     },
     {
-      "id": 15,
+      "id": 16,
       "type": "content",
       "title": "Kết Luận",
       "subtitle": "Achievements & Key Takeaways",
@@ -485,7 +455,7 @@ const SLIDES_DATA = {
               "icon": "🎯",
               "iconColor": "blue",
               "title": "Anomaly Detection",
-              "content": "Model đạt 100% accuracy với threshold dựa trên 95th percentile"
+              "content": "Model phát hiện tốt bất thường với threshold dựa trên 95th percentile"
             },
             {
               "icon": "📊",
@@ -521,57 +491,27 @@ const SLIDES_DATA = {
       ]
     },
     {
-      "id": 16,
-      "type": "content",
-      "title": "Hướng Phát Triển",
-      "subtitle": "Roadmap & Future Research",
+      "id": 17,
+      "type": "thank-you",
+      "title": "Cảm ơn Quý Thầy Cô và Các Bạn Đã Lắng Nghe!",
+      "subtitle": "Questions & Discussion",
       "badges": [
-        { "text": "Short-term", "color": "blue" },
-        { "text": "Medium-term", "color": "purple" },
-        { "text": "Long-term", "color": "green" }
+        { "text": "Thank You!", "color": "green" },
+        { "text": "Q&A", "color": "blue" }
       ],
-      "layout": "two-column",
-      "columns": [
-        {
-          "title": "Short-term (3-6 months)",
-          "cards": [
-            {
-              "icon": "🚀",
-              "iconColor": "blue",
-              "title": "Alternative Topologies",
-              "content": "Thử nghiệm mesh, gossip, star topology"
-            },
-            {
-              "icon": "🔐",
-              "iconColor": "green",
-              "title": "Security Enhancement",
-              "content": "Byzantine-robust aggregation, differential privacy"
-            }
-          ]
-        },
-        {
-          "title": "Long-term (1-2 years)",
-          "cards": [
-            {
-              "icon": "🌐",
-              "iconColor": "purple",
-              "title": "Scalability",
-              "content": "Scale lên 100-1000 peers với heterogeneous network"
-            },
-            {
-              "icon": "🤖",
-              "iconColor": "orange",
-              "title": "Hardware Deployment",
-              "content": "Test trên Raspberry Pi, NVIDIA Jetson, ESP32"
-            },
-            {
-              "icon": "🏭",
-              "iconColor": "red",
-              "title": "Advanced Algorithms",
-              "content": "Personalized DFL, hierarchical architecture, blockchain-integrated"
-            }
-          ]
-        }
+      "questions": [
+        "Nếu neighbor mất kết nối/không gửi model thì xử lý thế nào?",
+        "Có timeout/retry khi chờ message từ neighbor không?",
+        "Thiếu model từ neighbor thì aggregate dùng weights còn lại hay giữ model cũ?",
+        "Làm sao tránh cập nhật bằng model cũ/đã lỗi (stale/faulty)?",
+        "Có xác thực/khóa chữ ký để ngăn model giả mạo không?",
+        "Thiết kế cho bất đồng bộ hoàn toàn — làm sao đảm bảo hội tụ (convergence)?",
+        "Nếu peer bị reset/restart, có cơ chế rejoin và đồng bộ state không?",
+        "Có giới hạn băng thông/chiến lược nén model khi network yếu không?",
+        "Tại sao chọn ring topology thay vì mesh/star topology?",
+        "Ring topology có ưu/nhược điểm gì so với các topology khác?",
+        "Nếu một peer trong ring fail, toàn bộ vòng có bị đứt không?",
+        "Có cơ chế backup path hoặc redundant links trong ring không?"
       ]
     }
   ]

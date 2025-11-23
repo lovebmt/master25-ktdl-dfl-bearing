@@ -205,6 +205,13 @@ function renderSlideContent(slide) {
         case 'multi-chart':
             content += renderMultiChartSlide(slide);
             break;
+        case 'thank-you':
+            if (slide.questions && slide.questions.length > 0) {
+                content += `<ol style="text-align: left; max-width: 900px; margin: 2rem auto; line-height: 1.8; opacity: 0.6; font-size: 0.85em;">
+                    ${slide.questions.map(q => `<li>${q}</li>`).join('')}
+                </ol>`;
+            }
+            break;
     }
     
     return content;
